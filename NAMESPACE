@@ -1,0 +1,16 @@
+useDynLib(Numero, .registration=TRUE)
+
+export("nroAggregate")
+export("nroCircus")
+export("nroColorize")
+export("nroFigure")
+export("nroKoho")
+export("nroKmeans")
+export("nroLabel")
+export("nroMatch")
+export("nroMatrix")
+export("nroPermute")
+export("nroTrain")
+
+importFrom(Rcpp, evalCpp)
+importFrom("stats", "pnorm", "quantile", "sd")
