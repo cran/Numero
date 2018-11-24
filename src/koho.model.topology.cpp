@@ -10,5 +10,5 @@
 Topology
 Model::topology() const {
   ModelBuffer* p = (ModelBuffer*)buffer;
-  return p->structure;
+  return p->topology;
 }

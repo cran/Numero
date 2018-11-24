@@ -21,8 +21,8 @@
 #include <vector>
 #include <map>
 #include <set>
-#include <map>
-#include <set>
+#include <unordered_map>
+#include <unordered_set>
 #include "medusa.h"
 
 using namespace std;
@@ -44,7 +44,7 @@ namespace medusa_local {
     unsigned long nwritten;
     char iobuf[IOBUFCAP_medusa];
     char bytes[IOBUFCAP_medusa];
-    static map<FILE*, char*> handles;
+    static unordered_map<FILE*, char*> handles;
   public:
     FileBuffer() {
       this->fid = NULL;
@@ -70,10 +70,10 @@ namespace medusa_local {
   class TableBuffer {
   private:
     mdsize counter;
-    map<string, pair<mdsize, mdsize> > word2rank;
+    unordered_map<string, pair<mdsize, mdsize> > word2rank;
   public:
-    map<mdsize, string> words;
-    map<mdsize, map<mdsize, mdsize> > data;
+    unordered_map<mdsize, string> words;
+    unordered_map<mdsize, unordered_map<mdsize, mdsize> > data;
   public:
     TableBuffer() {};
     TableBuffer(void* ptr) {

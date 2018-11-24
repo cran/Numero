@@ -1,4 +1,5 @@
-/* file: */
+/* Created by Ville-Petteri Makinen 2017
+   South Australian Health and Medical Research Institute */
 
 #include "nro.h"
 

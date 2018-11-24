@@ -11,7 +11,7 @@ vector<mdsize>
 medusa::uniqreal(vector<mdreal>& items) {
   mdreal rlnan = medusa::rnan();
   vector<mdsize> mask;
-  set<mdreal> bitset;
+  unordered_set<mdreal> bitset;
   for(mdsize i = 0; i < items.size(); i++) {
     if(items[i] == rlnan) continue;
     if(bitset.count(items[i]) > 0) continue;

@@ -13,8 +13,11 @@ Topology::rewire(const mdreal s) {
   mdbyte btmin = medusa::bmin();
   mdbyte btmax = medusa::bmax();
 
+  /* Check if anything to do. */
+  if(p->maxradius <= 0.0) return false;
+
   /* Check input. */
-  if((s <= 0.0) || (s >= p->maxradius)) {
+  if((s < 0.0) || (s >= p->maxradius)) {
     worry("Unusable input.", __FILE__);
     return false;
   }
@@ -30,13 +33,23 @@ Topology::rewire(const mdreal s) {
   mdsize nunits = coord.size();
   for(mdsize i = 0; i < nunits; i++) {
     LinkMap neigh;
+
+    /* No neighbors. */
+    if(s == 0.0) {
+      neigh[i] = 1;
+      network.push_back(neigh);
+      continue;
+    }
+
+    /* Find neighboring units. */
     Unit unitA = coord[i];
     for(mdsize j = 0; j < nunits; j++) {
       Unit unitB = coord[j];
-      double dx = (unitB.x - unitA.x)/(s + 1e-6);
-      double dy = (unitB.y - unitA.y)/(s + 1e-6);
-      double r = sqrt(dx*dx + dy*dy);
-      mdbyte w = (mdbyte)(exp(-0.5*r*r)*btmax);
+      mdreal dx = (unitB.x - unitA.x)/(s + 1e-9);
+      mdreal dy = (unitB.y - unitA.y)/(s + 1e-9);
+      mdreal r = sqrt(dx*dx + dy*dy);
+      long w = (long)(exp(-0.5*r*r)*btmax + 0.5);
+      if(w > btmax) w = btmax;
       if(w < 0.05*btmax) continue;
       if(w < btmin) continue;
       neigh[j] = w;

@@ -10,7 +10,7 @@
 void
 Matrix::symmetric(const bool flag) {
   MatrixBuffer* p = (MatrixBuffer*)buffer;
-  if((p->data).size() < 1) p->symmflag = flag;
+  if((p->rowdata).size() < 1) p->symmflag = flag;
   else panic("Matrix not empty.", __FILE__, __LINE__);
 }
 

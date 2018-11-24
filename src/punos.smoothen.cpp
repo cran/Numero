@@ -8,11 +8,12 @@
  *
  */
 vector<mdreal>
-punos_local::smoothen(const vector<double>& wsums,
+punos_local::smoothen(const vector<mdreal>& xsums,
 		      const vector<LinkMap>& network) {
   mdsize nunits = network.size();
   mdreal rlnan = medusa::rnan();
-  if(wsums.size() != nunits) panic("Bad input.", __FILE__, __LINE__);
+  if(nunits == 0) return xsums;
+  if(xsums.size() != nunits) panic("Bad input.", __FILE__, __LINE__);
 
   /* Temporary arrays. */
   vector<double> y(nunits, 0.0);
@@ -23,7 +24,7 @@ punos_local::smoothen(const vector<double>& wsums,
   for(mdsize i = 0; i < nunits; i++) {
     const LinkMap& neigh = network[i];
     for(pos = neigh.begin(); pos != neigh.end(); pos++) {
-      double w = wsums[pos->first];
+      double w = xsums[pos->first];
       y[i] += (pos->second)*w;
       h[i] += (pos->second);
     }

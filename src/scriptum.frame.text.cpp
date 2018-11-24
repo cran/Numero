@@ -18,40 +18,52 @@ Frame::text(const mdreal x, const mdreal y, const string& s) {
 
   /* Create element. */
   mdreal fs = sty.fontsize;
-  sprintf(p->f(), "\n<text x=\"%.2f\" ", x);
-  sprintf(p->f(), "y=\"%.2f\"\n", (y + 0.3*fs));
+  sprintf(p->f(), "\n<text x=\"%.3f\" ", x);
+  sprintf(p->f(), "y=\"%.3f\"\n", (y + 0.3*fs));
   p->append(p->textstycode);
   p->append(">\n"); p->append(s); 
   p->append("\n</text>\n");
  
-  /* Estimate element width and height. */
+  /* Estimate horizontal bounds. */
   mdsize len = s.size();
   double width = 0.58*len*fs;
-  vector<mdreal> vx(2, x);
+  vector<mdreal> xlims(2, x);
   if(sty.anchor == "middle") {
-    vx[0] -= 0.5*width;
-    vx[1] += 0.5*width;
+    xlims[0] -= 0.5*width;
+    xlims[1] += 0.5*width;
   }
-  if(sty.anchor == "end") vx[0] -= width;
-  if(vx[0] == vx[1]) vx[1] += width;
+  if(sty.anchor == "end") xlims[0] -= width;
+  if(xlims[0] == xlims[1]) xlims[1] += width;
 
   /* Estimate element height. */
-  vector<mdreal> vy(2);
-  vy[0] = (y - 0.5*fs);
-  vy[1] = (y + 0.6*fs);
+  vector<mdreal> ylims(2, y);
+  ylims[0] -= 0.5*fs;
+  ylims[1] += 0.6*fs;
 
-  /* Take rotation angle into account. */
-  double rx = cos(3.14159265*(sty.angle)/180.0);
-  double ry = sin(3.14159265*(sty.angle)/180.0);
-  mdreal vxA = vx[0]; mdreal vxB = vx[1];
-  mdreal vyA = vy[0]; mdreal vyB = vy[1];
-  vx[0] = (rx*vxA - ry*vyA);
-  vx[1] = (rx*vxB - ry*vyB);
-  vy[0] = (ry*vxA + rx*vyA);
-  vy[1] = (ry*vxB + rx*vyB);
+  /* Take rotation angle into account for bounding box. */
+  if(sty.angle != 0.0) {
+    vector<mdreal> origin = sty.origin;
+    origin.resize(2, 0.0);
+
+    /* Convert to polar coordinates. */
+    pair<mdreal, mdreal> pmin;
+    pair<mdreal, mdreal> pmax;
+    pmin = polarize(origin[0], origin[1], xlims[0], ylims[0]);
+    pmax = polarize(origin[0], origin[1], xlims[1], ylims[1]);
+
+    /* Apply rotation. */
+    pmin.second += M_PI*(sty.angle)/180.0;
+    pmax.second += M_PI*(sty.angle)/180.0;
+    
+    /* Update bounding box. */
+    xlims[0] = (x + (pmin.first)*cos(pmin.second));
+    ylims[0] = (y + (pmin.first)*sin(pmin.second));
+    xlims[1] = (x + (pmax.first)*cos(pmax.second));
+    ylims[1] = (y + (pmax.first)*sin(pmax.second));
+  }
 
   /* Update limits and filesize. */
-  (p->limits).first.update(vx, sty);
-  (p->limits).second.update(vy, sty);
+  (p->limits).first.update(xlims, sty);
+  (p->limits).second.update(ylims, sty);
   return true;
 }

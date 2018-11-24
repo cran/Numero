@@ -14,6 +14,29 @@ Topology::Topology() {
 /*
  *
  */
+Topology::Topology(const mdsize k) {
+  TopologyBuffer* p = new TopologyBuffer();
+
+  /* Unconnected centroids. */
+  vector<Unit>& coord = p->coord; coord.resize(k);
+  for(mdsize i = 0; i < k; i++) {
+    coord[i].x = 0.0;
+    coord[i].y = 0.0;
+    coord[i].radii.first = 0.0;
+    coord[i].radii.second = 0.0;
+    coord[i].angles.first = 0.0;
+    coord[i].angles.second = 0.0;
+  }
+
+  /* Set default parameters. */
+  p->maxradius = 0.0;
+  p->sigma = 0.0;
+  this->buffer = p;
+}
+
+/*
+ *
+ */
 Topology::Topology(const vector<mdreal>& zpos,
 		   const mdsize ncircles) {
   TopologyBuffer* p = new TopologyBuffer();
@@ -55,6 +78,8 @@ Topology::Topology(const vector<mdreal>& zpos,
       units.push_back(unit);
     }
     rad = rB;
+    if(units.size() > USHRT_MAX)
+      panic("Too many map units.", __FILE__, __LINE__);
   }
 
   /* Fine-tune coordinates to ensure correct surface area. */

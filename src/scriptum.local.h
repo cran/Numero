@@ -8,18 +8,19 @@
 #include <cstdio>
 #include <cfloat>
 #include <cctype>
+#include <ctime>
 #include <cmath>
 #include <cstring>
 #include <string>
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include "medusa.h"
 #include "abacus.h"
 #include "scriptum.h"
 
 #define SAFETY_scriptum 65535
-#define MINCOORD_scriptum -499990
-#define MAXCOORD_scriptum 499990
+#define MINCOORD_scriptum -49999.0
+#define MAXCOORD_scriptum 49999.0
 
 using namespace std;
 using namespace medusa;
@@ -29,7 +30,7 @@ using namespace scriptum;
 /* Encapsulate with redundant namespace in case in a collection
    of modules another module has the same class name(s) in use. */
 namespace scriptum_local {
-
+  
   /*
    *
    */
@@ -62,7 +63,7 @@ namespace scriptum_local {
     FrameBuffer(const void*);
     ~FrameBuffer();
     void append(const string&);
-    char* f();
+    char* f(); /* pointer for formatted printing */
     string flush();
   };
 
@@ -97,7 +98,7 @@ namespace scriptum_local {
       this->output = p->output;
     };
     ~ArtistBuffer() {
-      if(output != NULL) panic("File not closed.\n", __FILE__, __LINE__);
+      if(output != NULL) closefile(output);
     };
     string prolog(const Color&) const;
   };

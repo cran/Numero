@@ -8,24 +8,21 @@
  *
  */
 bool
-Matrix::add(const mdsize r, const mdsize c, const mdreal x) {
+Matrix::add(const mdsize r0, const mdsize c0, const mdreal x) {
   MatrixBuffer* p = (MatrixBuffer*)buffer;
   if(x == p->rlnan) return false;
 
-  /* Determine element index. */
-  Key key = p->key(r, c);
-
-  /* Check if element already exists. */
-  map<Key, mdreal>::iterator pos;
-  pos = (p->data).find(key);
-  if(pos != (p->data).end()) {
-    pos->second += x;
-    return true;
+  /* Check if symmetric. */
+  mdsize r = r0;
+  mdsize c = c0;
+  if(p->symmflag && (r > c)) {
+    r = c0;
+    c = r0;
   }
-
-  /* Add new element. */
+  
+  /* Update contents. */
+  (p->rowdata[r]).update(c, x, false);
   if(r >= p->nrows) p->nrows = (r + 1);
   if(c >= p->ncols) p->ncols = (c + 1);
-  p->data[key] = x;
   return true;
 }

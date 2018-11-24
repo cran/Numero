@@ -17,6 +17,9 @@ Topology::paint(const mdreal x0, const mdreal y0,
   if(colors.size() != units.size())
     return Frame();
 
+  /* Check if anything to do. */
+  if(p->maxradius <= 0.0) return Frame();
+  
   /* Set origin. */
   mdreal rho = TopologyBuffer::scale();
   mdreal xorig = rho*x0;
@@ -24,7 +27,7 @@ Topology::paint(const mdreal x0, const mdreal y0,
 
   /* Set base attributes. */
   scriptum::Style sty;
-  sty.strokewidth = 0.2;
+  sty.strokewidth = 0.0;
 
   /* Open group. */
   Frame fr;
@@ -43,21 +46,50 @@ Topology::paint(const mdreal x0, const mdreal y0,
     const Unit& u = units[i];
     mdreal r1 = rho*(u.radii.first);
     mdreal r2 = rho*(u.radii.second);
-
+    mdreal a1 = u.angles.first;
+    mdreal a2 = u.angles.second;
+    
+    /* Apply a small inflation to fill gaps. */
+    if(r1 > 1e-9) {
+      r1 -= 0.07;
+      r2 += 0.07;
+      a1 -= 0.07;
+      a2 += 0.07;
+    }
+    
     /* Update circle radius. */
     if(r2 > rmax) rmax = r2;
 
     /* Set slice attributes. */
     sty.fillcolor = colors[i];
     sty.strokecolor = colors[i];
+    sty.identity = i;
     fr.stylize(sty);
 
     /* Draw slice. */
-    bool flag = fr.slice(xorig, yorig, r1, r2,
-    			 u.angles.first, u.angles.second);
+    bool flag = fr.slice(xorig, yorig, r1, r2, a1, a2);
     if(!flag) return Frame();
   }
+ 
+  /* Close subgroup. */
+  fr.group(-1);
 
+  /* Set line style. */
+  sty.strokewidth = 0.5;
+  sty.strokecolor = scriptum::colormap(0.7, "gray");
+  sty.fillcolor.opacity = 0.0;
+  fr.stylize(sty);
+
+  /* Enclose in a circle. */
+  if(fr.shape(xorig, yorig, rmax, "circle") == false)
+    return Frame();
+
+  /* Close group. */
+  fr.group(-1);
+  return fr;
+}
+
+#ifdef DUMMY  
   /* Switch subgroup. */
   fr.group(-1);
   fr.group(1);
@@ -106,21 +138,4 @@ Topology::paint(const mdreal x0, const mdreal y0,
     bool flag = fr.text(x, y, txt);
     if(!flag) return Frame();
   }
- 
-  /* Close subgroup. */
-  fr.group(-1);
-
-  /* Set line style. */
-  sty.strokewidth = 0.6;
-  sty.strokecolor = scriptum::colormap(0.7, "gray");
-  sty.fillcolor.opacity = 0.0;
-  fr.stylize(sty);
-
-  /* Enclose in a circle. */
-  if(fr.shape(xorig, yorig, rmax, "circle") == false)
-    return Frame();
-
-  /* Close group. */
-  fr.group(-1);
-  return fr;
-}
+#endif

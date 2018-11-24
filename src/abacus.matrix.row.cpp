@@ -10,15 +10,8 @@
 vector<mdreal>
 Matrix::row(const mdsize r) const {
   MatrixBuffer* p = (MatrixBuffer*)buffer;
+  if(p->symmflag) panic("Symmetric matrix.", __FILE__, __LINE__);
   if(r >= p->nrows) return vector<mdreal>();
-  vector<mdreal> array(p->ncols, p->rlnan);
-  map<Key, mdreal>& data = p->data;
-  map<Key, mdreal>::const_iterator pos;
-  for(mdsize j = 0; j < p->ncols; j++) {
-    Key key = p->key(r, j);
-    pos = data.find(key);
-    if(pos == data.end()) continue;
-    array[j] = pos->second;
-  }
-  return array;
+  if((p->rowdata).count(r) < 1) return vector<mdreal>();
+  return (p->rowdata[r]).values();
 }

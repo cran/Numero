@@ -61,6 +61,19 @@ File::info() const {
  *
  */
 bool
+File::jump(const long offset) {
+  FileBuffer* p = (FileBuffer*)buffer;
+  if(p->fid == NULL) {
+    p->abort("No file stream.");
+    return false;
+  }
+  return (fseek(p->fid, offset, SEEK_CUR) == 0);
+}
+
+/*
+ *
+ */
+bool
 File::open(const string& fname, const string& prm) {
   FileBuffer* p = (FileBuffer*)buffer;
 
@@ -75,6 +88,47 @@ File::open(const string& fname, const string& prm) {
   if(p->fid == NULL) p->abort("Could not open '" + fname + "'.");
   else setvbuf(p->fid, p->iobuf, _IOFBF, IOBUFCAP_medusa);
   return (p->fid != NULL);
+}
+
+/*
+ *
+ */
+long
+File::position() const {
+  FileBuffer* p = (FileBuffer*)buffer;
+  if(p->fid == NULL) {
+    p->abort("No file stream.");
+    return -2;
+  }
+  return ftell(p->fid);
+}
+
+/*
+ *
+ */
+string
+File::read() {
+  FileBuffer* p = (FileBuffer*)buffer;
+
+  /* Check for previous errors. */
+  if((p->errtext).size() > 0) return "";
+  if(p->fid == NULL) return "";
+
+  /* Read a line from the file stream. */
+  char* data = fgets(p->bytes, IOBUFCAP_medusa, p->fid);
+  if(data == NULL) {
+    p->abort("No data.");
+    return "";
+  }
+
+  /* Check that line was fully read. */
+  mdsize ndone = strlen(data);
+  p->nread += ndone;
+  if(ndone >= IOBUFCAP_medusa) {
+    p->abort("Line data exceeded buffer capacity.");
+    return "";
+  }  
+  return string(data);
 }
 
 /*
@@ -100,9 +154,10 @@ File::read(const char delim, const mdsize nmin) {
   mdsize ndone = 0;
   mdsize nbytes = 0;
   for(mdsize i = 0; data[i] != '\0'; i++, ndone++) {
-    if(data[i] == '\r') continue;
-    if(data[i] == delim) data[i] = '\0';
-    data[nbytes] = data[i];
+    char c = data[i];
+    if(c == '\r') continue;
+    if(c == delim) c = '\0';
+    data[nbytes] = c;
     nbytes++;
   }
 

@@ -8,13 +8,44 @@
  *
  */
 mdreal
-Matrix::remove(const mdsize r, const mdsize c) {
+Matrix::remove(const mdsize r0, const mdsize c0) {
   MatrixBuffer* p = (MatrixBuffer*)buffer;
-  Key key = p->key(r, c);
-  map<Key, mdreal>& data = p->data;
-  map<Key, mdreal>::iterator pos;
-  if((pos = data.find(key)) == data.end()) return p->rlnan;
-  mdreal x = pos->second;
-  data.erase(key);
-  return x;
+
+  /* Check if symmetric. */
+  mdsize r = r0;
+  mdsize c = c0;
+  if(p->symmflag && (r > c)) {
+    r = c0;
+    c = r0;
+  }
+  
+  /* Check if row exists. */
+  unordered_map<mdsize, Array>& rowdata = p->rowdata;
+  if(rowdata.count(r) < 1) return p->rlnan;
+
+  /* Check if column exists. */
+  Array& array = p->rowdata[r];
+  if(array.length() <= c) return p->rlnan; 
+
+  /* Erase old value. */
+  mdreal value = array.remove(c);
+  
+  /* Re-calculate number of rows. */
+  if(array.length() < 1) {
+    rowdata.erase(r); p->nrows = 0;
+    for(unordered_map<mdsize, Array>::iterator it = rowdata.begin();
+	it != rowdata.end(); it++)
+      if(it->first >= p->nrows) p->nrows = (it->first + 1);
+  }
+
+  /* Re-calculate number of columns. */
+  if(c == (p->ncols - 1)) {
+    p->ncols = 0;
+    for(unordered_map<mdsize, Array>::iterator it = rowdata.begin();
+	it != rowdata.end(); it++) {
+      mdsize n = (it->second).length();
+      if(n > p->ncols) p->ncols = n;
+    }
+  }
+  return value;
 }

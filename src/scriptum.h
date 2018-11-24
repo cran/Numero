@@ -63,6 +63,9 @@ namespace scriptum {
     /* Font weight: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900. */
     medusa::mdsize fontweight;
 
+    /* Identity number. */
+    medusa::mdsize identity;
+
     /* Origin of the element coordinate system (pixels). */
     std::vector<medusa::mdreal> origin;
 
@@ -81,7 +84,7 @@ namespace scriptum {
   };
 
   /*
-   *
+   * Create Scalable Vector Graphics code.
    */
   class Frame {
   private:
@@ -128,6 +131,9 @@ namespace scriptum {
 	       const medusa::mdreal, const medusa::mdreal,
 	       const medusa::mdreal, const medusa::mdreal);
 
+    /* Return current style. */
+    Style style() const;
+
     /* Set current style. Empty style data is reverted to previous values
        or system defaults if history is not available. */
     void stylize(const Style&);
@@ -172,7 +178,7 @@ namespace scriptum {
        Returns the number of open groups. */
     medusa::mdsize group(const int);
 
-    /* Draw graphics to designated output. */
+    /* Render graphics from a frame. */
     bool paint(Frame&);
   };
 

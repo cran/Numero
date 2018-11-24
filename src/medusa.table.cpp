@@ -49,16 +49,16 @@ Table::insert(const mdsize r, const mdsize c, const string& s) {
   if(s.size() < 1) return false;
 
   /* Create a new row. */
-  map<mdsize, map<mdsize, mdsize> >::iterator rpos;
-  map<mdsize, map<mdsize, mdsize> >& data = p->data;
+  unordered_map<mdsize, unordered_map<mdsize, mdsize> >::iterator rpos;
+  unordered_map<mdsize, unordered_map<mdsize, mdsize> >& data = p->data;
   if((rpos = data.find(r)) == data.end()) {
     data[r].clear();
     rpos = data.find(r);
   }
   
   /* Find or create the table cell. */
-  map<mdsize, mdsize>::iterator cpos;
-  map<mdsize, mdsize>& rowdata = rpos->second;
+  unordered_map<mdsize, mdsize>::iterator cpos;
+  unordered_map<mdsize, mdsize>& rowdata = rpos->second;
   if((cpos = rowdata.find(c)) == rowdata.end()) {
     rowdata[c] = sznan;
     cpos = rowdata.find(c);
@@ -87,13 +87,13 @@ Table::remove(const mdsize r, const mdsize c) {
   TableBuffer* p = (TableBuffer*)buffer;
 
   /* Find the row. */
-  map<mdsize, map<mdsize, mdsize> >& data = p->data;
-  map<mdsize, map<mdsize, mdsize> >::iterator rpos;
+  unordered_map<mdsize, unordered_map<mdsize, mdsize> >& data = p->data;
+  unordered_map<mdsize, unordered_map<mdsize, mdsize> >::iterator rpos;
   if((rpos = data.find(r)) == data.end()) return "";
 
   /* Find the table cell. */
-  map<mdsize, mdsize>::iterator cpos;
-  map<mdsize, mdsize>& rowdata = rpos->second;
+  unordered_map<mdsize, mdsize>::iterator cpos;
+  unordered_map<mdsize, mdsize>& rowdata = rpos->second;
   if((cpos = rowdata.find(c)) == rowdata.end()) return "";
 
   /* Copy cell contents. */
@@ -115,16 +115,16 @@ Table::row(const mdsize r) const {
   vector<string> array;
 
   /* Find the row. */
-  map<mdsize, map<mdsize, mdsize> >& data = p->data;
-  map<mdsize, map<mdsize, mdsize> >::iterator rpos;
+  unordered_map<mdsize, unordered_map<mdsize, mdsize> >& data = p->data;
+  unordered_map<mdsize, unordered_map<mdsize, mdsize> >::iterator rpos;
   if((rpos = data.find(r)) == data.end()) return array;
 
   /* Return the row contents. */
   mdsize ndata = 0;
-  map<mdsize, string>& words = p->words;
-  map<mdsize, mdsize>& rowdata = rpos->second;
+  unordered_map<mdsize, string>& words = p->words;
+  unordered_map<mdsize, mdsize>& rowdata = rpos->second;
   for(mdsize c = 0; ndata < rowdata.size(); c++) {
-    map<mdsize, mdsize>::iterator cpos;
+    unordered_map<mdsize, mdsize>::iterator cpos;
     if((cpos = rowdata.find(c)) == rowdata.end()) continue;
     else array.resize(c);
     array.push_back(words[cpos->second]);
@@ -141,13 +141,13 @@ Table::value(const mdsize r, const mdsize c) const {
   TableBuffer* p = (TableBuffer*)buffer;
 
   /* Find the row. */
-  map<mdsize, map<mdsize, mdsize> >& data = p->data;
-  map<mdsize, map<mdsize, mdsize> >::iterator rpos;
+  unordered_map<mdsize, unordered_map<mdsize, mdsize> >& data = p->data;
+  unordered_map<mdsize, unordered_map<mdsize, mdsize> >::iterator rpos;
   if((rpos = data.find(r)) == data.end()) return "";
 
   /* Find the table cell. */
-  map<mdsize, mdsize>::iterator cpos;
-  map<mdsize, mdsize>& rowdata = rpos->second;
+  unordered_map<mdsize, mdsize>::iterator cpos;
+  unordered_map<mdsize, mdsize>& rowdata = rpos->second;
   if((cpos = rowdata.find(c)) == rowdata.end()) return "";
 
   /* Return cell contents. */
@@ -163,7 +163,7 @@ TableBuffer::grow(const string& w) {
 
   /* Create a new word. */
   mdsize rank = medusa::snan();
-  map<string, pair<mdsize, mdsize> >::iterator pos;
+  unordered_map<string, pair<mdsize, mdsize> >::iterator pos;
   if((pos = word2rank.find(w)) == word2rank.end()) {
     
     /* Find the next available rank. */
@@ -194,7 +194,7 @@ mdsize
 TableBuffer::shrink(const mdsize wrank) {
 
   /* Check that word exists. */
-  map<mdsize, string>::iterator pos;
+  unordered_map<mdsize, string>::iterator pos;
   if((pos = words.find(wrank)) == words.end())
     panic("Unusable input.", __FILE__, __LINE__);
 

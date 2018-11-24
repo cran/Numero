@@ -9,26 +9,28 @@
  */
 string
 medusa::long2text(const long value) {
-  char buffer[16];
+  char buffer[32];
 
   /* Small value. */
-  if(value < 1000) {
-    sprintf(buffer, "%ld", value);
+  long magn = labs(value);
+  if(magn < 1000) {
+    sprintf(buffer, "%d", (int)value);
     return string(buffer);
   }
 
   /* Collect thousand-sets. */
   vector<int> segments;
-  unsigned long k = value;
+  unsigned long k = magn;
   while(k > 0) {
     segments.push_back(k%1000);
     k /= 1000;
   }
 
   /* Finish text. */
-  string s;
+  string s; int sign = 1;
+  if(value < 0) sign = -1;
   for(int i = (int)(segments.size() - 1); i >= 0; i--) {
-    if(s.size() < 1) sprintf(buffer, "%d", segments[i]);
+    if(s.size() < 1) sprintf(buffer, "%d", sign*segments[i]);
     else sprintf(buffer, ",%03d", segments[i]);
     s += string(buffer);
   }

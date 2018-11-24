@@ -8,33 +8,19 @@
  *
  */
 string
-Model::configure(const mdsize level, const mdsize unit,
-		 const vector<mdreal>& x) {
+Model::configure(const mdsize unit, const vector<mdreal>& values) {
   ModelBuffer* p = (ModelBuffer*)buffer;
   mdreal rlnan = medusa::rnan();
 
   /* Check inputs. */
-  Topology& topo = p->structure;
-  mdsize nlevs = topo.depth();
-  mdsize nunits = topo.size();
-  if(level >= nlevs) return "Unusable level index.";
-  if(unit >= nunits) return "Unusable unit index.";
-
-  /* Check dataset dimensions. */
-  mdsize ncols = x.size();
-  mdsize ndim = (p->data).order();
-  if((ndim > 0) && (ndim != ncols))
-    return "Incompatible input.";
-
-  /* Allocate codebook. */
-  if((p->codebook).size() < 1) {
-    vector<mdreal> empty(ncols, rlnan);
-    vector<vector<mdreal> > page(nunits, empty);
-    (p->codebook).resize(nlevs, page);
-  }
+  mdsize nvalid = 0;
+  for(mdsize j = 0; j < values.size(); j++)
+    if(values[j] != rlnan) nvalid++;
+  if(nvalid < 1) return "Unusable codebook."; 
+  if(unit >= (p->topology).size()) return "Unusable unit index.";
   
-  /* Replace codebook pages. */
-  vector<vector<mdreal> >& mtx = p->codebook[level];
-  mtx[unit] = x;
+  /* Replace codebook elements. */
+  for(mdsize j = 0; j < values.size(); j++)
+    (p->codebook).insert(unit, j, values[j]);
   return "";
 }

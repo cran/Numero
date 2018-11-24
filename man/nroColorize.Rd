@@ -1,28 +1,30 @@
 \name{nroColorize}
 \alias{nroColorize}
 \title{
-Map Visualization
+Assign colors based on value
 }
 \description{
 Assign colors to map districts based on the respective district values.
 }
 \usage{
-nroColorize(values, amplitude = 1, palette = "rhodo" )
+nroColorize(values, amplitudes = 1, palette = "rhodo" )
 }
 \arguments{
   \item{values}{
-A numerical vector of unit values.
+A vector of K values or a K x N matrix, where K is the number of map
+districts and N is the number of variables.
   }
-  \item{amplitude}{
-Available proportion of color range.
+  \item{amplitudes}{
+Single value or a vector of N elements to specify available proportion of
+color range for each variable.
   }
   \item{palette}{
-A sorted string vector of colors, see rgb() for additional details.
-The input can also be the name of the colormap, see below.    
+One of pre-defined colormap names (see details) or a sorted vector of
+hexadecimal color codes as strings, see rgb() for additional details. 
   }
 }
 \details{
-The argument 'amplitude' controls the part of the color range that is
+The argument 'amplitudes' controls the part of the color range that is
 available for the district value range. For proportions below 1, the
 minimum district value is assigned to a color that is between the first
 and middle element in the color palette, and the maximum is assigned
@@ -35,20 +37,11 @@ Palette can also contain the name of a colormap: 'gray', 'fire',
 to a rainbow colormap.
 }
 \value{
-An character vector of color definitions.
+A data frame with K rows and N columns that contains color definitions
+as character strings.
 }
 \author{
 Song Gao
-
 Stefan Mutter
-
 Ville-Petteri Makinen
 }
-\examples{
-# Set random unit values.
-uv <- sample.int(101, size = 100, replace = TRUE)
-
-# Find hexadecimal color codings.
-colorDef <- nroColorize(uv)
-}
-

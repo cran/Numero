@@ -31,6 +31,9 @@ namespace punos {
     void* buffer;
   public:
     Topology();
+
+    /* Create a set of unconnected centroids. */
+    Topology(const medusa::mdsize);
     
     /* Create a 3D network structure. The first input sets the vertical
        positions of the planes. The second input sets the map radius
@@ -55,28 +58,44 @@ namespace punos {
     /* Number of horizontal levels. */
     medusa::mdsize depth() const;
 
-    /* Estimate weighted sum of values on the network. The first input
+    /* Estimate smoothed sum of values on the network. The first input
+       contains the best-matching units, and the second contains the
+       sample values. */
+    std::vector<medusa::mdreal>
+    diffuse(const std::vector<medusa::mdsize>&,
+	    const std::vector<medusa::mdreal>&) const;
+
+    /* Estimate smoothed sum of values on the network. The first input
        specifies the sample depths, see stratify(). The second input
        contains the best-matching units, and the third contains the
-       sample values (no missing values allowed). */
+       sample values. */
     std::vector<std::vector<medusa::mdreal> >
     diffuse(const std::vector<medusa::Site>&,
 	    const std::vector<medusa::mdsize>&,
 	    const std::vector<medusa::mdreal>&) const;
 
-    /* Calculate Euclidean distance between two map units. */
+    /* Calculate spatial distance between two map units. */
     medusa::mdreal distance(const medusa::mdsize,
 			    const medusa::mdsize) const;    
+
+    /* Visualize the horizontal topology by writing single-character
+       highlighting labels on the map unit areas. The first two inputs
+       define the center point of the map on the canvas. The size of
+       the label and color vectors must match the number of units. */
+    scriptum::Frame highlight(const medusa::mdreal, const medusa::mdreal,
+			      const std::vector<char>&,
+			      const std::vector<scriptum::Color>&,
+			      const scriptum::Style&) const;
 
     /* Import a network structure from a file. Any previous
        contents is discarded. Returns an error message if failed. */
     std::string import(const std::string&);
 
     /* Interpolate unit prototypes according to pivot points. The input
-       contains multivariate data that will be spread over the map. */
+       contains seed profiles that will be spread over the map. */
     std::vector<std::vector<medusa::mdreal> >
     interpolate(const std::vector<std::vector<medusa::mdreal> >&) const;
-
+    
     /* Vertical positions of horizontal planes. */
     std::vector<medusa::mdreal> levels() const;
 

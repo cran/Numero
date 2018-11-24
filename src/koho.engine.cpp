@@ -16,7 +16,7 @@ Engine::Engine() {
  */
 Engine::Engine(const Topology& tp) {
   EngineBuffer* p = new EngineBuffer();
-  p->structure = tp;
+  p->topology = tp;
   this->buffer = p;
 }
 

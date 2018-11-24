@@ -8,13 +8,13 @@
 /*
  *
  */
-// [[register]]
-RcppExport SEXP nro_colorize( SEXP name_R ) {
-  string name = as<string>( name_R );
+RcppExport SEXP
+nro_colorize(SEXP name_R) {
   vector<string> array;
+  string name = as<string>(name_R);
   for(mdsize i = 0; i < NCOLORS; i++) {
-    Color c = scriptum::colormap( i/(NCOLORS - 1.0), name );
-    array.push_back( "#" + c.hex() );
+    Color c = scriptum::colormap(i/(NCOLORS - 1.0), name);
+    array.push_back("#" + c.hex());
   }
-  return wrap( array );
+  return wrap(array);
 }

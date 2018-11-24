@@ -33,7 +33,7 @@ abacus::destratify(const vector<mdreal>& x, const vector<mdsize>& g) {
     panic("Incompatible arguments.", __FILE__, __LINE__);
 
   /* Divide values into groups. */
-  map<mdsize, Group> groups;
+  unordered_map<mdsize, Group> groups;
   for(mdsize i = 0; i < x.size(); i++) {
     if(x[i] == rl_nan) continue;
     groups[g[i]].add(i, x[i]);
@@ -52,7 +52,7 @@ abacus::destratify(const vector<mdreal>& x, const vector<mdsize>& g) {
   sort(y.begin(), y.end());
 
   /* Convert group values to global values. */
-  map<mdsize, Group>::iterator pos;
+  unordered_map<mdsize, Group>::iterator pos;
   for(pos = groups.begin(); pos != groups.end(); pos++) {
     vector<mdreal> tmp = transform((pos->second).values, "uniform");
     (pos->second).values = calc_quantiles(y, tmp);

@@ -13,7 +13,9 @@ medusa::string2size(const string& x) {
   mdreal sznan = medusa::snan();
 
   /* Parse integer value. */
-  long y = atol(x.c_str());
+  long y; 
+  if(sizeof(mdsize) <= sizeof(int)) y = atoi(x.c_str());
+  if(sizeof(mdsize) == sizeof(long)) y = atol(x.c_str());
   if(y > 0) return y;
 
   /* Check preceding non-digits. */

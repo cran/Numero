@@ -62,6 +62,9 @@ Frame::stylize(const Style& st) {
   if(base.strokewidth < 0.0) base.strokewidth = 0.0;
   if(base.strokewidth > 1e3) base.strokewidth = 1e3;
 
+  /* Identity. */
+  base.identity = st.identity;
+  
   /* Apply changes. */
   scriptum_local::style2code(p->linestycode, p->textstycode, base);
 }

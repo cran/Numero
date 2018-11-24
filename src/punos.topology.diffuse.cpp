@@ -7,6 +7,33 @@
 /*
  *
  */
+vector<mdreal>
+Topology::diffuse(const vector<mdsize>& bmus,
+		  const vector<mdreal>& vals) const {
+  TopologyBuffer* p = (TopologyBuffer*)buffer;
+  mdsize nelem = bmus.size();
+  mdsize nunits = (p->coord).size();
+  mdreal rlnan = medusa::rnan();
+  if(vals.size() != nelem)
+    panic("Incompatible inputs.", __FILE__, __LINE__);
+  
+  /* Calculate running sums. */
+  vector<mdreal> xsums(nunits, 0.0);
+  for(mdsize i = 0; i < nelem; i++) {
+    mdsize bmu = bmus[i];
+    if(bmu >= nunits) continue;
+    mdreal x = vals[i];
+    if(x == rlnan) continue;
+    xsums[bmu] += x;
+  }
+
+  /* Return smoothed sums. */
+  return punos_local::smoothen(xsums, p->network);
+}
+  
+/*
+ *
+ */
 vector<vector<mdreal> >
 Topology::diffuse(const vector<Site>& layers, const vector<mdsize>& bmus,
 		  const vector<mdreal>& vals) const {
@@ -20,9 +47,13 @@ Topology::diffuse(const vector<Site>& layers, const vector<mdsize>& bmus,
   if(vals.size() != nelem)
     panic("Incompatible inputs.", __FILE__, __LINE__);
 
+  /* Check if anything to do. */
+  if(p->maxradius <= 0.0) return vector<vector<mdreal> >();
+  if(nlevels < 1) return vector<vector<mdreal> >();
+  
   /* Allocate temporary arrays. */
-  vector<double> empty(nunits, 0.0);
-  vector<vector<double> > xsums(nlevels, empty);
+  vector<mdreal> empty(nunits, 0.0);
+  vector<vector<mdreal> > xsums(nlevels, empty);
 
   /* Calculate running sums. */
   for(mdsize i = 0; i < nelem; i++) {
@@ -30,7 +61,7 @@ Topology::diffuse(const vector<Site>& layers, const vector<mdsize>& bmus,
     mdsize bmu = bmus[i];
     if(bmu >= nunits) continue;
     mdreal x = vals[i];
-    if(x == rlnan) panic("Unusable value.", __FILE__, __LINE__);
+    if(x == rlnan) continue;
     mdsize a = layer.bounds.first;
     mdsize b = layer.bounds.second;
     mdreal wa = layer.weights.first;
@@ -39,8 +70,8 @@ Topology::diffuse(const vector<Site>& layers, const vector<mdsize>& bmus,
     if(b >= nlevels) continue;
     if(wa == rlnan) continue;
     if(wb == rlnan) continue;
-    xsums[a][bmu] += wa*x;
-    xsums[b][bmu] += wb*x;
+    if(wa != 0.0) xsums[a][bmu] += wa*x;
+    if(wb != 0.0) xsums[b][bmu] += wb*x;
   }
 
   /* Return smoothed sums. */

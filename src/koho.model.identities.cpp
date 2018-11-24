@@ -11,9 +11,9 @@ vector<string>
 Model::identities() const {
   ModelBuffer* p = (ModelBuffer*)buffer;
   vector<string> array;
-  map<string, mdsize>::const_iterator pos;
-  const map<string, mdsize>& key2rank = p->key2rank;
-  for(pos = key2rank.begin(); pos != key2rank.end(); pos++)
-    array.push_back(pos->first);
+  unordered_map<string, Point>& points = p->points;
+  unordered_map<string, Point>::const_iterator it;
+  for(it = points.begin(); it != points.end(); it++)
+    array.push_back(it->first);
   return array;
 }

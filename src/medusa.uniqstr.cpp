@@ -10,7 +10,7 @@
 vector<mdsize>
 medusa::uniqstr(vector<string>& items) {
   vector<mdsize> mask;
-  set<string> bitset;
+  unordered_set<string> bitset;
   for(mdsize i = 0; i < items.size(); i++) {
     if(bitset.count(items[i]) > 0) continue;
     items[mask.size()] = items[i];

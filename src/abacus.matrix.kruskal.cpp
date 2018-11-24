@@ -38,11 +38,11 @@ Matrix::kruskal(vector<Element>& edges) {
 
   /* Prepare data structures. */
   vector<mdsize> trees(nvert, sznan);
-  map<mdsize, vector<mdsize> > forest;
+  unordered_map<mdsize, vector<mdsize> > forest;
 
   /* Kruskal's algorithm. */
   mdsize ntree = (nvert - 1);
-  set<mdsize> mask;
+  unordered_set<mdsize> mask;
   for(mdsize i = 0; i < edges.size(); i++) {
     Element& e = edges[i];
     if(e.row == e.column) panic("Bad edge.", __FILE__, __LINE__);

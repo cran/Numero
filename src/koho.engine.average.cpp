@@ -8,34 +8,27 @@
  *
  */
 vector<vector<mdreal> >
-Engine::average(const mdsize ind) const {
+Engine::average() const {
   EngineBuffer* p = (EngineBuffer*)buffer;
-  Topology& topo = p->structure;
-  p->organize();
+  mdreal rlnan = medusa::rnan();
+
+  /* Estimate smoothed point frequencies. */
+  vector<mdreal> hgram = this->histogram();
   
-  /* Check input. */
-  vector<vector<mdreal> > planes;
-  if(ind >= (p->variables).size()) return planes;
+  /* Estimate smoothed sums. */
+  vector<vector<mdreal> > planes = p->diffuse();
 
-  /* Collect data positions. */
-  vector<mdsize>& mask = p->loci;
-  vector<mdreal>& vals = p->values;
-  vals.resize(p->nloci);
-
-  /* Set data values. */
-  Variable& v = p->variables[ind];
-  vector<mdreal> array = v.transform();
-  for(mdsize k = 0; k < p->nloci; k++)
-    vals[k] = array[mask[k]];
-
-  /* Estimate component planes. */
-  planes = topo.diffuse(p->layers, p->bmus, vals);
-
-  /* Calculate unit averages. */
-  planes = koho::operate(planes, '/', p->freq);
-
+  /* Normalize values. */
+  for(mdsize j = 0; j < planes.size(); j++) {
+    vector<mdreal>& sums = planes[j];
+    for(mdsize i = 0; i < sums.size(); i++)
+      if(hgram[i] > 0.0) sums[i] /= (hgram[i] + 1e-9);
+      else sums[i] = rlnan;
+  }
+  
   /* Restore original data space. */
-  for(mdsize k = 0; k < planes.size(); k++)
-    v.restore(planes[k]);
+  vector<ColumnCache>& cache = p->cache;
+  for(mdsize j = 0; j < planes.size(); j++)
+    cache[j].transf.restore(planes[j]);
   return planes;
 }

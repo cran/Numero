@@ -16,8 +16,8 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <map>
-#include <set>
+#include <unordered_map>
+#include <unordered_set>
 #include "medusa.h"
 #include "abacus.h"
 #include "scriptum.h"
@@ -32,7 +32,7 @@ using namespace punos;
 /* Encapsulate with redundant namespace in case in a collection
    of modules another module has the same class name(s) in use. */
 namespace punos_local {
-  typedef map<unsigned short, mdbyte> LinkMap;
+  typedef unordered_map<unsigned short, mdbyte> LinkMap;
 
   /*
    *
@@ -65,7 +65,7 @@ namespace punos_local {
   };
 
   /* Utility functions. */
-  extern vector<mdreal> smoothen(const vector<double>&,
+  extern vector<mdreal> smoothen(const vector<mdreal>&,
 				 const vector<LinkMap>&);
 };
 

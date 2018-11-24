@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include "medusa.h"
+#include "akkad.h"
 #include "punos.h"
 
 namespace koho {
@@ -21,8 +22,12 @@ namespace koho {
   public:
     Model();
 
-    /* Set up model with the given topology. */
-    Model(const punos::Topology&);
+    /* Set up a model with the given topology. The second input sets
+       the maximum number of training samples per cycle.  The third
+       input sets the balancing coefficient for spatial point histogram:
+       0.0 means no balancing and 1.0 means maximum balancing. */
+    Model(const punos::Topology&, const medusa::mdsize,
+	  const medusa::mdreal);
 
     /* Copy the contents from the input. */
     Model(const Model&);
@@ -31,41 +36,45 @@ namespace koho {
     /* Free local resources. */
     ~Model();
 
-    /* Set a prototype vector. The first inputs indicates the vertical
-       level, the second sets the unit, and the third contains the data. */
-    std::string configure(const medusa::mdsize, const medusa::mdsize,
+    /* Set a prototype vector. The first input sets the unit, and the second
+       contains the data. Any updates are incremental: valid values are
+       inserted, whereas any other previous elements are left untouched. */
+    std::string configure(const medusa::mdsize,
 			  const std::vector<medusa::mdreal>&);
+ 
+    /* Set message output medium. */
+    void connect(akkad::Messenger*);
 
-    /* Return the distance in data space to the best matching unit. */
-    medusa::mdreal distance(const std::string&) const;
+    /* Estimate distances to the unit profiles in data space. */
+    std::vector<medusa::mdreal> distances(const std::string&) const;
 
-    /* Return sample identities. */
+    /* Return data point identities. */
     std::vector<std::string> identities() const;
 
-    /* Insert a new data point. The first input is the sample identity
-       and the second indicates the vertical position. The third input
-       sets the values for each dimension. Returns a non-empty message
-       if failed. */
-    std::string insert(const std::string&, const medusa::mdreal,
+    /* Insert a new data point. The first input is the data point identity
+       and the second input sets the values for each dimension. No missing
+       values or non-uniform number of elements is allowed. Returns a non-
+       empty message if failed. */
+    std::string insert(const std::string&,
 		       const std::vector<medusa::mdreal>&);
+
+    /* Return the number of data dimensions. */
+    medusa::mdsize order() const;
     
-    /* Return the best matching unit for a sample. */
-    medusa::mdsize location(const std::string&) const;
+    /* Return the prototype vector for the specified map unit. */
+    std::vector<medusa::mdreal> prototype(const medusa::mdsize) const;
 
-    /* Return the prototype vector for the specified vertical
-       level (1st) and map unit (2nd). */
-    std::vector<medusa::mdreal> prototype(const medusa::mdsize,
-					  const medusa::mdsize) const;
-
-    /* Return the number of samples and data points. */
-    std::pair<medusa::mdsize, medusa::mdsize> size() const;
+    /* Return the number of training data points. */
+    medusa::mdsize size() const;
 
     /* Return current map topology. */
     punos::Topology topology() const;
 
-    /* Train the map according to the inserted data points. The input is
-       filled with training errors from each cycle. */
-    std::string train(std::vector<medusa::mdreal>&);
+    /* Train the map according to the inserted data points. The first input
+       is filled with the final layout. The second input is filled with
+       training errors from each cycle. Returns a message if failed. */
+    std::string train(std::vector<std::pair<std::string, medusa::mdsize> >&,
+		      std::vector<medusa::mdreal>&);
   };
 
   /*
@@ -87,40 +96,22 @@ namespace koho {
     /* Free local resources. */
     ~Engine();
     
-    /* Calculate data point frequencies across the map volume
-       using the current layout. */
-    std::vector<std::vector<medusa::mdreal> > count() const;
+    /* Estimate unit averages using the current layout and contents. */
+    std::vector<std::vector<medusa::mdreal> > average() const;
 
-    /* Insert a new data value. The first input is the sample identity
-       and the second sets the vertical layer. The third input is the
-       data point (no missing data). Returns an error if failed. */
-    std::string insert(const std::string&, const medusa::mdreal,
+    /* Data point histogram of the current contents. */
+    std::vector<medusa::mdreal> histogram() const;
+    
+    /* Insert a new data value. The first input is the point identity,
+       the second indicates the map unit, and the third contains the
+       data values. Returns an error if failed. */
+    std::string insert(const std::string&, const medusa::mdsize,
 		       const std::vector<medusa::mdreal>&);
-
-    /* Put a sample on a map unit. Works only if the sample has
-       at least one existing data point. Returns a non-empty
-       message if failed. */
-    std::string put(const std::string&, const medusa::mdsize);
-
-    /* Estimate unit averages of data values using the current
-       layout. The input indicates the target variable. */
-    std::vector<std::vector<medusa::mdreal> >
-    average(const medusa::mdsize) const;
-
-    /* Shuffle unit labels randomly. If the input is true,
-       pick with replacement. */
-    void shuffle(const bool);
+ 
+    /* Shuffle values randomly. If the input is true, shuffle with
+       replacement. Returns true if values were shuffled. */
+    bool shuffle(const bool);
   };
-
-  /* Utility functions. */
-  extern std::vector<std::vector<medusa::mdreal> >
-  operate(const std::vector<std::vector<medusa::mdreal> >&, const char,
-	  const std::vector<std::vector<medusa::mdreal> >&);
-  extern std::vector<std::vector<medusa::mdreal> >
-  kmeans(std::vector<medusa::mdsize>&,
-	 std::vector<medusa::mdreal>&,
-	 const std::vector<std::vector<medusa::mdreal> >&,
-	 const medusa::mdsize);
 
   /* Version information. */
   extern std::string version();

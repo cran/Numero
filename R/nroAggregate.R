@@ -1,51 +1,51 @@
-nroAggregate <- function( map, bmus, x=double() ) {
+nroAggregate <- function(
+    topology,
+    districts,
+    data=NULL) {
+    info <- attr(data, "numero")
 
-  # Check input types.
-  if( is.list( map ) == FALSE ) {
-      stop( "'map' must be a list." )
-  }
-  if( is.vector( bmus ) == FALSE ) {
-      stop( "'bmus' must be a vector." )
-  }
-  if( is.vector( x ) == FALSE ) {
-      stop( "'x' must be a vector." )
-  }
+    # Convert vector input to matrix.
+    if(is.factor(data)) data <- as.numeric(data)
+    if(is.vector(data)) data <- as.matrix(data)
 
-  # Check if histogram is needed.
-  if( length(x) < 1 ) {
-      counts <- as.data.frame(table(bmus))
-      results <- .Call( "nro_aggregate", 
-                        as.matrix(map$topology),  
-                        as.numeric(counts[,1]),
-                        as.numeric(counts[,2]), 
-                        PACKAGE = "Numero" );
-      if( class( results ) == "character" ) {
-          stop( results )
-      }
-      return( results )
-  }
+    # Estimate sample histogram.
+    if(is.null(data)) {
+        res <- .Call("nro_diffuse",
+                     as.matrix(topology),
+	             as.integer(districts),
+		     matrix(nrow=0, ncol=0),
+                     PACKAGE="Numero")
+        if(class(res) == "character") stop(res)
+	res$planes <- data.frame(res$planes, stringsAsFactors=FALSE)
+        return(res)
+    }
 
-  # Check input sizes.
-  if( length(x) != length(bmus) ) {
-      stop( "'x' and 'bmus' size mismatch." )
-  }
+    # Check input sizes.
+    if(nrow(data) != length(districts))
+        stop("Incompatible inputs.")
 
-  # Remove missing values.
-  mask <- which( 0*x*bmus == 0 )
-  if( length( mask ) < 10 ) {
-      stop( "Too few usable samples." )
-  }
-  bmus <- bmus[ mask ]
-  vals <- x[ mask ]
-  
-  # Estimate component planes.
-  results <- .Call("nro_aggregate",
-                   as.matrix(map$topology),  
-                   as.numeric(bmus),
-                   as.numeric(vals),
-                   PACKAGE="Numero" );
-  if( class( results ) == "character" ) {
-      stop( results )
-  }
-  return( results )
+    # Estimate component planes.
+    res <- .Call("nro_diffuse",
+                 as.matrix(topology),  
+                 as.integer(districts),
+                 as.matrix(data),
+                 PACKAGE="Numero");
+    if(class(res) == "character") stop(res)
+
+    # Transpose to column-major format.
+    planes <- t(res$planes)
+    
+    # Set column names.
+    if(length(colnames(data)) > 0)
+        colnames(planes) <- colnames(data)
+    else
+        colnames(planes) <- (1:ncol(data))
+
+    # Convert to data frame.
+    planes <- data.frame(planes, stringsAsFactors=FALSE)
+
+    # Finish results.
+    attr(planes, "histogram") <- as.numeric(res$histogram)
+    attr(planes, "numero") <- info
+    return(planes)
 }

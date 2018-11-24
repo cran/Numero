@@ -13,7 +13,7 @@ static mdsize match_exec(vector<mdsize>& x, vector<mdsize>& y,
   y.clear();
 
   /* Construct lookup tables. */
-  set<string> duplicates;
+  unordered_set<string> duplicates;
   map<string, mdsize> a2rank;
   map<string, mdsize> b2rank;
   for(mdsize i = 0; i < a.size(); i++) {

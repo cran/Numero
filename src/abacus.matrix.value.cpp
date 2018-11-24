@@ -8,11 +8,24 @@
  *
  */
 mdreal
-Matrix::value(const mdsize r, const mdsize c) const {
+Matrix::value(const mdsize r0, const mdsize c0) const {
   MatrixBuffer* p = (MatrixBuffer*)buffer;
-  map<Key, mdreal>::const_iterator pos;
-  Key key = p->key(r, c);
-  pos = (p->data).find(key);
-  if(pos == (p->data).end()) return p->rlnan;
-  return pos->second;
+
+  /* Check if symmetric. */
+  mdsize r = r0;
+  mdsize c = c0;
+  if(p->symmflag && (r > c)) {
+    r = c0;
+    c = r0;
+  }
+
+  /* Check if outside bounds. */
+  if(r >= p->nrows) return p->rlnan;
+  if(c >= p->ncols) return p->rlnan;
+
+  /* Check if row exists. */
+  if((p->rowdata).count(r) < 1) return p->rlnan;
+
+  /* Return value. */
+  return p->rowdata[r][c];
 }

@@ -4,7 +4,7 @@
 
 #include "medusa.local.h"
 
-map<FILE*, char*> FileBuffer::handles;
+unordered_map<FILE*, char*> FileBuffer::handles;
 
 /*
  *

@@ -84,7 +84,7 @@ stat_center(const vector<mdreal>& x, const vector<mdreal>& w) {
   if(nelem < 1) panic("No data.", __FILE__, __LINE__);
 
   /* Count distinct values. */
-  set<mdreal> valset;
+  unordered_set<mdreal> valset;
   for(mdsize i = 0; i < nelem; i++)
     valset.insert(x[i]);
   mdreal nvals = valset.size();

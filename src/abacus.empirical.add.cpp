@@ -14,7 +14,7 @@ Empirical::add(const mdreal x, const mdreal w) {
   if(x == rlnan) return false;
   if(w == rlnan) return false;
   if(w <= 0.0) return false;
-  map<mdreal, mdreal>& data = p->data;
+  unordered_map<mdreal, mdreal>& data = p->data;
   if(data.count(x) < 1) data[x] = w;
   else data[x] += w;
   p->approx = Approximation();

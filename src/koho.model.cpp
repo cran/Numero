@@ -14,10 +14,11 @@ Model::Model() {
 /*
  *
  */
-Model::Model(const Topology& tp) {
+Model::Model(const Topology& topo, const mdsize nsub, const mdreal eq) {
   ModelBuffer* p = new ModelBuffer();
-  p->sigma = tp.sigma();
-  p->structure = tp;
+  p->ntrain = nsub;
+  p->equality = eq;
+  p->topology = topo;
   this->buffer = p;
 }
 
@@ -44,3 +45,22 @@ Model::~Model() {
   ModelBuffer* p = (ModelBuffer*)buffer;
   delete p;
 }
+
+/*
+ *
+ */
+mdsize
+Model::order() const {
+  ModelBuffer* p = (ModelBuffer*)buffer;
+  return (p->codebook).order();
+}
+
+/*
+ *
+ */
+mdsize
+Model::size() const {
+  ModelBuffer* p = (ModelBuffer*)buffer;
+  return (p->points).size();
+}
+

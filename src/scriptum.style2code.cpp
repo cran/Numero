@@ -73,7 +73,14 @@ scriptum_local::style2code(string& linecode, string& textcode,
   /* Collect line properties. */
   string lineprop(buf); p = buf; buf[0] = '\0';
 
-  /* Finish results. */
+  /* Finish style results. */
   linecode.append("\nstyle=\"" + lineprop + "\"");
   textcode.append("\nstyle=\"" + textprop + lineprop + "\"");
+
+  /* Add identity. */
+  if(sty.identity != medusa::snan()) {
+    string key = long2string(sty.identity);
+    linecode.append("\nid=\"" + key + "\"");
+    textcode.append("\nid=\"" + key + "\"");
+  }
 }

@@ -35,7 +35,7 @@ public:
   Color color(const mdreal) const;
 };
 
-static map<string, Palette> PaletteCache;
+static unordered_map<string, Palette> PaletteCache;
 
 /*
  * Return red, green and blue components.
@@ -78,7 +78,6 @@ Palette::Palette(const string& name) {
     hues.push_back(RGB(255, 240, 150));
     hues.push_back(RGB(255, 255, 255));
   }
-
 
   /* Green palette. */
   if(name == "jungle") {

@@ -14,16 +14,12 @@
 #include <vector>
 #include <algorithm>
 #include <Rcpp.h>
-#include <map>
-#include <set>
 #include "medusa.h"
 #include "abacus.h"
 #include "scriptum.h"
 #include "punos.h"
 #include "koho.h"
 
-#define nro_DEFAULT_LEVEL 0
-#define nro_DEFAULT_STAMP 1.0
 #define nro_NMAX_FALSE 20
 
 using namespace std;
@@ -38,22 +34,12 @@ using namespace koho;
  *
  */
 namespace nro {
-
-  /* Format conversions. */
-  extern vector<vector<mdreal> > matrix2reals( const SEXP& );
-  extern NumericMatrix reals2matrix(const vector<vector<mdreal> >& );
-  extern punos::Topology reals2topology( const vector<vector<mdreal> >& );
-  extern NumericVector reals2vector(const vector<mdreal>& );
-  extern vector<mdreal> vector2reals( const SEXP& );
-  extern vector<mdsize> vector2sizes( const SEXP& );
- 
-  /* Utility functions. */
-  extern koho::Model model(vector<string>&, const punos::Topology&,
-			   const vector<vector<mdreal> >&,
-			   const vector<vector<mdreal> >& );
-  extern koho::Engine engine(const punos::Topology&,
-			     const vector<mdreal>&,
-			     const vector<mdsize>& );
+  extern vector<vector<mdreal> > matrix2reals(const SEXP&, const mdreal);
+  extern NumericMatrix reals2matrix(const vector<vector<mdreal> >&);
+  extern punos::Topology reals2topology(const vector<vector<mdreal> >&);
+  extern NumericVector reals2vector(const vector<mdreal>&);
+  extern vector<mdreal> vector2reals(const SEXP&);
+  extern vector<mdsize> vector2sizes(const SEXP&);
 };
 
 using namespace nro;

@@ -22,6 +22,7 @@ namespace medusa {
   extern mdreal rlim();
   extern mdreal rnan();
   extern mdsize snan();
+  extern long lnan();
 
   /*
    * File object for text spreadsheets. 
@@ -43,8 +44,20 @@ namespace medusa {
        have been read and written since the file was opened. */
     std::string info() const;
 
-    /* Open a new file stream. */
+    /* Move the access position. A negative value moves the cursor
+       towards the beginning, and a positive value towards the end. */
+    bool jump(const long);
+
+    /* Open a new file stream. The second argument sets the mode
+       of activity, please see fopen() in <cstdio> for details. */
     bool open(const std::string&, const std::string&);
+
+    /* Return the current access position in the file, or a negative
+       value if position cannot be established. */
+    long position() const;
+
+    /* Read bytes from the file stream until a newline character. */
+    std::string read();
 
     /* Read bytes from the file stream until a newline character.
        The line is split at bytes matching the first input. The
@@ -71,7 +84,7 @@ namespace medusa {
   /* Buffered file functions. */
   extern FILE* openfile(const std::string&, const std::string&);
   extern bool closefile(FILE*);
-
+  
   /*
    * Data structure to hold sparse spreadsheets of strings.
    */
@@ -129,6 +142,7 @@ namespace medusa {
 			      const std::vector<std::string>&);
 
   /* Conversion functions. */
+  extern long string2long(const std::string&);
   extern mdsize string2size(const std::string&);
   extern mdreal string2real(const std::string&);
   extern std::string string2safe(const std::string&, const mdsize);
@@ -141,6 +155,9 @@ namespace medusa {
   /* Notifications. */
   extern void panic(const std::string&, const char*, const int);
   extern void worry(const std::string&, const char*);
+
+  /* Time and date functions. */
+  extern std::string currtime();
 
   /* Version information. */
   extern std::string version();

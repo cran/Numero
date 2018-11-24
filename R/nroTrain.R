@@ -1,59 +1,46 @@
-nroTrain <- function( som, x ) {
+nroTrain <- function(
+    som,
+    data,
+    subsample=NULL) {
+    if(length(subsample) == 0) subsample <- nrow(data)
 
-  # Check input types.
-  if( is.list( som ) == FALSE ) {
-      stop( "'som' must be a list." )
-  }
-  if( is.matrix( x ) == FALSE ) {
-      stop( "'x' must be a matrix." )
-  }  
-  
-  # Check map and dataset compatibility.
-  M <- nrow( x )
-  N <- ncol( x )
-  Mc <- nrow( som$centroids )
-  Nc <- ncol( som$centroids )
-  Mt <- nrow( som$topology )
-  Nt <- ncol( som$topology )
-  if( N != Nc ){ 
-    stop( "Incompatible columns." )
-  }
-  if( Mc != Mt ){ 
-    stop( "Incompatible topology." )
-  }
-  if( Nt != 6 ){ 
-    stop( "Unusable topology." ) 
-  }
-  if( M * N < 1 ){ 
-    stop( "'x' is empty." )
-  }
+    # Check inputs.
+    M <- nrow(data); N <- ncol(data)
+    if(M*N < 1) stop("Unusable data matrix.")
+    if(ncol(som$centroids) != N)
+        stop("Incompatible centroids.")
+    if(nrow(som$topology) != nrow(som$centroids))
+        stop("Incompatible topology.")
+    if(as.integer(subsample) < 5*nrow(som$centroids))
+        if(subsample < M) stop( "Too thin subsampling." )
 
-  # Check that column names match.
-  datnames <- colnames(x)
-  somnames <- colnames(som$centroids)
-  if( length( datnames ) != length( somnames) )
-      stop( "Incompatible SOM and data columns." )
-  if( sum( datnames != somnames ) > 0 )
-      stop( "Incompatible SOM and data columns." )
+    # Check that column names match.
+    datnames <- colnames(data)
+    somnames <- colnames(som$centroids)
+    if(length(datnames) != length(somnames))
+        stop("Incompatible centroid variables.")
+    if(sum(datnames != somnames) > 0)
+        stop("Incompatible centroid variables.")
+      
+    # Train the SOM.
+    res <- .Call("nro_train",
+                 as.matrix(som$topology),
+                 as.matrix(som$centroids),
+                 as.matrix(data),
+                 as.integer(subsample),
+                 0.0,
+                 PACKAGE="Numero" )
+    if(class(res) == "character") stop(res)
 
-  # Check if row names are distinct.
-  keys <- rownames(x)
-  if( length( unique( keys) ) != length( keys ) )
-      warning( "Duplicate row names in data matrix." );
-  
-  # Train the SOM.
-  results <- .Call("nro_train",
-                   as.matrix(som$topology),
-                   as.matrix(som$centroids),
-                   as.matrix(x),
-                   PACKAGE="Numero" )
-  if( class( results ) == "character" ){
-      stop( results )
-  }
-  
-  # Copy column names.
-  som$centroids <- results[[ 1 ]]
-  som$history <- results[[ 2 ]]
-  colnames( som$centroids ) <- somnames
-  return( som );
+    # Recode missing unit labels.
+    res$layout[which(res$layout == 0)] <- NA
+    res$layout <- data.frame(BMC=res$layout)
+    rownames(res$layout) <- rownames(data)
+    
+    # Return results.
+    som$layout <- res$layout
+    som$centroids <- res$centroids
+    som$history <- res$history
+    colnames(som$centroids) <- somnames
+    return(som)
 }

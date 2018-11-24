@@ -8,51 +8,62 @@
  *
  */
 string
-Model::train(vector<mdreal>& history) {
+Model::train(vector<pair<string, mdsize> >& layout,
+	     vector<mdreal>& history) {
   ModelBuffer* p = (ModelBuffer*)buffer;
-  mdreal rlnan = medusa::rnan();
+  unordered_map<string, Point>& points = p->points;
 
-  /* Reset history. */
+  /* Clear output containers. */
+  layout.clear();
   history.clear();
 
   /* Check resources. */
-  Topology& topo = p->structure;
-  vector<Sample>& samples = p->samples;
-  if(topo.size() < 1) return "No map units.";
-  if(samples.size() < 10) return "Too few samples.";
+  Topology topocopy = p->topology;
+  mdsize npoints = (p->points).size();
+  if(topocopy.size() < 1) return "No map units.";
+  if(npoints < 10) return "Too few points.";
+  if(p->ntrain < 10) return "Too few training points.";
 
   /* Initial neighborhood radius. */
-  mdreal sigma = p->sigma;
-  mdreal rho = 0.33*(topo.radius());
+  mdreal sigma = topocopy.sigma();
+  mdreal rho = 0.5*(topocopy.radius());
   if(rho < sigma) rho = sigma;
+  topocopy.rewire(rho);
+  
+  /* Create the training engine. */
+  Trainer trainer(p->codebook, topocopy, p->ntrain, p->equality);
+  
+  /* Make pointers to points. */
+  vector<Point*> pointers;
+  for(unordered_map<string, Point>::iterator it = points.begin();
+      it != points.end(); it++)
+    pointers.push_back(&(it->second));
 
+  /* Prepare sampling mask. */
+  vector<Point*> mask = pointers;
+  if(p->ntrain < npoints) mask.resize(p->ntrain);
+  
   /* Fit codebook to training data. */
+  unsigned long rvalue = p->ntrain;
   while(true) {
     vector<mdreal> batch;
     while(convergence(batch, 0.01) == false) {
-      long double dsum = 0.0;
-      long double wsum = 0.0;
       
-      /* Find best-matching units. */
-      for(mdsize i = 0; i < samples.size(); i++) {
-	p->match(samples[i]);
-
-	/* Global error measure. */
-	mdreal delta = samples[i].distance;
-	if(delta == rlnan) continue;
-	dsum += delta;
-	wsum += 1.0;
+      /* Shuffle sampling mask. */
+      if(mask.size() < npoints) {
+	rvalue += (batch.size())*8121;
+	for(mdsize i = 0; i < mask.size(); i++) {
+	  rvalue = (69069*rvalue + i)%npoints;
+	  Point* pnt = pointers[rvalue];
+	  pointers[rvalue] = pointers[i];
+	  pointers[i] = pnt;
+	  mask[i] = pnt;
+	}
       }
-
-      /* Check if any hits. */
-      if(wsum <= 0.0) return "Unit matching failed.";
  
-      /* Update map with new layout. */
-      string err = p->update(rho);
-      if(err.size() > 0) return err;    
-      
-      /* Estimate average training error. */
-      batch.push_back(dsum/wsum);
+      /* Perform a training cycle. */
+      mdreal delta = trainer.cycle(mask, topocopy);
+      batch.push_back(delta);
     }
 
     /* Update history. */
@@ -60,7 +71,20 @@ Model::train(vector<mdreal>& history) {
 
     /* Update neighborhood radius. */
     if(rho <= sigma) break;
-    if((rho *= 0.5) < sigma) rho = sigma;
+    if((rho *= 0.67) < sigma) rho = sigma;
+    topocopy.rewire(rho);
+  }
+
+  /* Update codebook. */
+  p->codebook = trainer.codebook();
+  
+  /* Return final layout. */
+  for(unordered_map<string, Point>::iterator it = points.begin();
+      it != points.end(); it++) {
+    pair<string, mdsize> entry;
+    entry.first = it->first;
+    entry.second = (it->second).location();
+    layout.push_back(entry);
   }
   return "";
 }

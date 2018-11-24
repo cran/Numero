@@ -16,8 +16,8 @@ Empirical::p(const mdreal x, const int flag) const {
   if(x == rlnan) return rlnan;
 
   /* Count cumulative sums. */
-  map<mdreal, mdreal>::iterator pos;
-  map<mdreal, mdreal>& hits = p->data;
+  unordered_map<mdreal, mdreal>::iterator pos;
+  unordered_map<mdreal, mdreal>& hits = p->data;
   for(pos = hits.begin(); pos != hits.end(); pos++) {
     if(pos->first <= x) qsmall += pos->second;
     if(pos->first >= x) qlarge += pos->second;

@@ -15,6 +15,8 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <unordered_map>
+#include <unordered_set>
 #include "medusa.h"
 #include "abacus.h"
 
@@ -25,7 +27,6 @@ using namespace abacus;
 /* Encapsulate with redundant namespace in case in a collection
    of modules another module has the same class name(s) in use. */
 namespace abacus_local {
-  typedef unsigned long Key;
 
   /*
    *
@@ -85,7 +86,7 @@ namespace abacus_local {
   public:
     unsigned long ndata;
     Approximation approx;
-    map<mdreal, mdreal> data;
+    unordered_map<mdreal, mdreal> data;
   public:
     EmpiricalBuffer() {this->ndata = 0;};
     EmpiricalBuffer(void* ptr) {
@@ -96,14 +97,41 @@ namespace abacus_local {
     };
     ~EmpiricalBuffer() {};
     void contents(vector<mdreal>& x, vector<mdreal>& w) const {
-      map<mdreal, mdreal>::const_iterator pos;
+      unordered_map<mdreal, mdreal>::const_iterator pos;
       for(pos = data.begin(); pos != data.end(); pos++) {
 	x.push_back(pos->first);
 	w.push_back(pos->second);
       }
     };
   };
-  
+
+  /*
+   *
+   */
+  class Array {
+  private:
+    mdsize ndata;
+    mdsize nelem;
+    mdreal rlnan;
+    vector<mdreal> full;
+    map<mdsize, mdreal> sparse;
+
+
+    set<mdsize> testset;
+  private:
+    mdsize optimize();
+  public:
+    Array();
+    ~Array();
+    mdreal operator[](const mdsize) const;
+    void elements(vector<Element>&, const mdsize) const;
+    mdsize length();
+    mdreal remove(const mdsize);
+    mdsize size() const;
+    bool update(const mdsize, const mdreal, const bool);
+    vector<mdreal> values() const;
+  };
+
   /*
    *
    */
@@ -112,20 +140,13 @@ namespace abacus_local {
     bool symmflag;
     mdsize nrows;
     mdsize ncols;
-    mdsize nline;
     mdreal rlnan;
-    map<Key, mdreal> data;
+    unordered_map<mdsize, Array> rowdata;
   public:
     MatrixBuffer() {
       this->symmflag = false;
       this->nrows = 0;
       this->ncols = 0;
-      this->nline = sqrt(USHRT_MAX);
-      if(sizeof(mdsize) == sizeof(short)) this->nline = USHRT_MAX;
-      if(sizeof(mdsize) == sizeof(int)) this->nline = UINT_MAX;
-      if(sizeof(Key) == sizeof(mdsize)) this->nline = sqrt(1.0*nline);
-      if(sizeof(Key) < sizeof(mdsize))
-	panic("Unusable key type.", __FILE__, __LINE__);
       this->rlnan = medusa::rnan();
     };
     MatrixBuffer(void* ptr) {
@@ -133,13 +154,10 @@ namespace abacus_local {
       this->symmflag = p->symmflag;
       this->nrows = p->nrows;
       this->ncols = p->ncols;
-      this->nline = p->nline;
       this->rlnan = p->rlnan;
-      this->data = p->data;
+      this->rowdata = p->rowdata;
     };
     ~MatrixBuffer() {};
-    Key key(mdsize, mdsize) const;
-    vector<Key> key(const vector<Element>&) const;
   };
 
   /*

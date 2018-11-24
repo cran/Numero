@@ -1,21 +1,25 @@
-nroLabel <- function( map, values, gap=2.3 ){
+nroLabel <- function(
+    topology,
+    values,
+    gap=2.3) {
 
-  # Check inputs.
-  if( is.list(map) == FALSE ) {
-      stop( "'map' must be a list." );
-  }
-  if( is.vector(values) == FALSE ) {
-      stop( "'values' must be a vector." );
-  }
-  
-  # Determine label positions.
-  results <- .Call("nro_label",
-                   as.matrix(map$topology),
-                   as.numeric(values),
-                   as.numeric(gap),
-                   PACKAGE = "Numero" )
-  if( class( results ) == "character" ) {
-      stop( results );
-  }
-  return( results[[ 1 ]] )
+    # Check for binary data.
+    info <- attr(values, "numero")
+    if(is.null(info)) info <- list(binary=character()) 
+    bincols <- match(colnames(values), info$binary)
+    bincols <- as.integer(bincols > 0)
+
+    # Determine label positions.
+    res <- .Call("nro_label",
+                 as.matrix(topology),
+                 as.matrix(values),
+		 as.integer(bincols),
+                 as.numeric(gap),
+                 PACKAGE = "Numero" )
+    if(class(res) == "character") stop(res)
+
+    # Convert to matrix.
+    res <- data.frame(res, stringsAsFactors=FALSE)
+    colnames(res) <- colnames(values)
+    return(res)
 }

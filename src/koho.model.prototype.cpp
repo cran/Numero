@@ -8,9 +8,7 @@
  *
  */
 vector<mdreal>
-Model::prototype(const mdsize level, const mdsize unit) const {
+Model::prototype(const mdsize unit) const {
   ModelBuffer* p = (ModelBuffer*)buffer;
-  if((p->codebook).size() <= level) return vector<mdreal>();
-  if((p->codebook[level]).size() <= unit) return vector<mdreal>();
-  return p->codebook[level][unit];
+  return (p->codebook).row(unit);
 }

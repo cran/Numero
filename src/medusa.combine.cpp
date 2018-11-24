@@ -15,7 +15,7 @@ medusa::combine(const vector<mdsize>& x, const vector<mdsize>& y,
   vector<mdsize> z; z.reserve(n);
 
   /* Determine data overlap. */
-  map<mdsize, char> visits;
+  unordered_map<mdsize, char> visits;
   for(mdsize i = 0; i < x.size(); i++)
     visits[x[i]] = 'x';
   for(mdsize i = 0; i < y.size(); i++) {
@@ -25,7 +25,7 @@ medusa::combine(const vector<mdsize>& x, const vector<mdsize>& y,
   }
 
   /* Collect elements. */
-  map<mdsize, char>::const_iterator pos;
+  unordered_map<mdsize, char>::const_iterator pos;
   for(pos = visits.begin(); pos != visits.end(); pos++) {
     if(pos->first == sznan) continue;
     bool shared = (pos->second == 's');

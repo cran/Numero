@@ -8,14 +8,17 @@ Iterative algorithm to adapt a self-organizing map (SOM) to a set of
 multivariable data.
 }
 \usage{
-nroTrain(som, x)
+nroTrain(som, data, subsample = NULL)
 }
 \arguments{
   \item{som}{
-A list of two elements: 'centroids' and 'topology', see \code{\link{nroKoho}} for additional details.
+A list of two elements: 'centroids' and 'topology', see \code{\link{nroKohonen}} for additional details.
   }
-  \item{x}{
+  \item{data}{
 A data matrix with the same column names as the 'centroids'.
+  }
+  \item{subsample}{
+Number of rows used during a single training cycle.
   }
 }
 
@@ -26,21 +29,9 @@ errors during training is stored in the element 'history'.
 }
 \author{
 Song Gao
-
 Stefan Mutter
-
 Ville-Petteri Makinen
 }
 \seealso{
-\code{\link{nroKoho}} for details on the SOM
-}
-\examples{
-# Define seeds for the SOM; typically they are obtained from nroKmeans.
-mySeeds <- matrix(1:256, nrow = 64, ncol = 4)
-
-# Create an initial, untrained SOM.
-sm <- nroKoho(mySeeds, radius = 4)
-
-# Train the SOM.
-sm <- nroTrain(som = sm, x = matrix(1001:1256, nrow = 64, ncol = 4))
+\code{\link{nroKohonen}} for details on the SOM
 }

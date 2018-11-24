@@ -7,22 +7,23 @@
  *
  */
 Style::Style() {
-  anchor = "start";
-  angle = 0.0;
-  fillcolor.red = 0.7;
-  fillcolor.green = 0.7;
-  fillcolor.blue = 0.7;
-  fillcolor.opacity = 1.0;
-  fontfamily = "Helvetica";
-  fontsize = 10.0;
-  fontweight = 500;
-  origin.resize(2, 0.0);
-  padding = 0.0;
-  strokecolor.red = 0.0;
-  strokecolor.green = 0.0;
-  strokecolor.blue = 0.0;
-  strokecolor.opacity = 1.0;
-  strokewidth = 1.0;
+  (this->anchor) = "start";
+  (this->angle) = 0.0;
+  (this->fillcolor).red = 0.7;
+  (this->fillcolor).green = 0.7;
+  (this->fillcolor).blue = 0.7;
+  (this->fillcolor).opacity = 1.0;
+  (this->fontfamily) = "Helvetica";
+  (this->fontsize) = 10.0;
+  (this->fontweight) = 500;
+  (this->identity) = medusa::snan();
+  (this->origin).resize(2, 0.0);
+  (this->padding) = 0.0;
+  (this->strokecolor).red = 0.0;
+  (this->strokecolor).green = 0.0;
+  (this->strokecolor).blue = 0.0;
+  (this->strokecolor).opacity = 1.0;
+  (this->strokewidth) = 1.0;
 }
 
 /*

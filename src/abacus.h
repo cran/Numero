@@ -28,7 +28,7 @@ namespace abacus {
    *
    */
   class Matrix {
-  private:
+  protected:
     void* buffer;
   public:
 
@@ -102,10 +102,10 @@ namespace abacus {
        and moved to the output if they belong to the spanning tree. */
     static std::vector<Element> kruskal(std::vector<Element>&);
   };
-
+  
   /*
-   * Approximation of an unknown empirical histogram. The samples
-   * should be added in random order to ensure accurate estimates.
+   * Approximation of an empirical distribution. The samples should
+   * be added in random order to ensure accurate estimates.
    */
   class Empirical {
   private:
@@ -241,11 +241,6 @@ namespace abacus {
   extern std::pair<medusa::mdreal, medusa::mdreal>
   polarize(const medusa::mdreal, const medusa::mdreal,
 	   const medusa::mdreal, const medusa::mdreal);
-
-  /* Return N integers between 0 to N-1 in random order. The first input
-     sets the parameter N. If the second input is true, the integers
-     are picked with replacement. */
-  std::vector<medusa::mdsize> shuffle(const medusa::mdsize, const bool);
 
   /* Calculate desriptive statistics: 'center', 'mean', 'median', 'mode',
      'min', 'max', 'range', 'sd', 'var' and 'number'. The first input

@@ -10,15 +10,12 @@
 vector<mdreal>
 Matrix::column(const mdsize c) const {
   MatrixBuffer* p = (MatrixBuffer*)buffer;
+  if(p->symmflag) panic("Symmetric matrix.", __FILE__, __LINE__);
   if(c >= p->ncols) return vector<mdreal>();
-  vector<mdreal> array(p->nrows, p->rlnan);
-  map<Key, mdreal>& data = p->data;
-  map<Key, mdreal>::const_iterator pos;
-  for(Key i = 0; i < p->nrows; i++) {
-    Key key = p->key(i, c);
-    pos = data.find(key);
-    if(pos == data.end()) continue;
-    array[i] = pos->second;
-  }
-  return array;
+  vector<mdreal> values(p->nrows, p->rlnan);
+  unordered_map<mdsize, Array>& rowdata = p->rowdata;
+  for(unordered_map<mdsize, Array>::iterator it = rowdata.begin();
+      it != rowdata.end(); it++)
+    values[it->first] = it->second[c];
+  return values;
 }

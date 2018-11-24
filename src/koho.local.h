@@ -8,20 +8,25 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cmath>
+#include <ctime>
 #include <cstring>
 #include <climits>
+#include <random>
 #include <string>
 #include <vector>
 #include <algorithm>
 #include <map>
-#include <map>
+#include <unordered_map>
+#include <unordered_set>
 #include "medusa.h"
+#include "akkad.h"
 #include "abacus.h"
 #include "punos.h"
 #include "koho.h"
 
 using namespace std;
 using namespace medusa;
+using namespace akkad;
 using namespace abacus;
 using namespace punos;
 using namespace koho;
@@ -34,41 +39,20 @@ namespace koho_local {
   /*
    *
    */
-  struct Point {
-    Site layer;  
-    mdsize parent;
-  };
-
-  /*
-   *
-   */
-  class Sample {
-  public:
-    mdsize home;
-    mdsize unit;
-    mdreal distance;
-    vector<mdsize> members;
-  public:
-    Sample() {
-      this->home = medusa::snan();
-      this->unit = medusa::snan();
-      this->distance = medusa::rnan();
-    };
-    ~Sample() {};
-  };
-
-  /*
-   *
-   */
-  class Variable {
+  class Point {
   private:
-    vector<mdreal> sorted;
-    vector<mdreal> data;
-    vector<mdreal> ranks;
+    mdsize key;
+    mdsize home;
+    vector<mdreal> contents;
   public:
-    void append(const mdreal);
-    void restore(vector<mdreal>&);
-    vector<mdreal> transform();
+    Point();
+    Point(const mdsize, const mdsize);
+    Point(const mdsize, const vector<mdreal>&);
+    ~Point();
+    vector<mdreal> data() const;
+    mdsize location() const;
+    void move(const mdsize);
+    mdsize rank() const;
   };
 
   /*
@@ -76,81 +60,143 @@ namespace koho_local {
    */
   class Buffer {
   public:
-    Topology structure;
-    vector<Point> points;
-    vector<Sample> samples;
-    map<string, mdsize> key2rank;
+    Topology topology;
+    unordered_map<string, Point> points;
+    Messenger* msg;
   public:
-    Buffer() {};
+    Buffer() {this->msg = Messenger::null();};
     Buffer(const void* ptr) {
       Buffer* p = (Buffer*)ptr;
-      this->structure = p->structure;
+      this->topology = p->topology;
       this->points = p->points;
-      this->samples = p->samples;
-      this->key2rank = p->key2rank;
+      this->msg = p->msg;
     };
     ~Buffer() {};
-    string insert(const string&, const mdreal);
+  }; 
+  
+  /*
+   *
+   */
+  typedef map<mdreal, vector<Point*> > ContentMap;
+  class Subset {
+  private:
+    mdsize label;
+    mdsize capacity;
+    mdsize occupancy;
+    ContentMap contents;
+  public:
+    Subset();
+    ~Subset();
+    void configure(const mdsize, const mdsize);
+    void clear();
+    Point* join(Point*, const mdreal);
+    vector<mdsize> moments(vector<mdreal>&, vector<mdreal>&) const;
+    mdsize size() const;
+    static Point* match(vector<Subset>&, const vector<mdreal>&, Point*);
+  };
+  
+  /*
+   *
+   */
+  class Trainer {
+  private:
+    vector<Subset> subsets;
+    vector<vector<mdreal> > prototypes;
+  private:
+    mdreal match(vector<Point*>&, const Topology&);
+    void update(const Topology&);
+  public:
+    Trainer();
+    Trainer(const Matrix&, const Topology&, const mdsize, const mdreal);
+    ~Trainer();
+    mdreal cycle(vector<Point*>&, const Topology&);
+    Matrix codebook() const;
+    mdreal distance(const Point&, const mdsize) const;
+    vector<mdreal> distances(const Point&) const;
+    mdsize size() const;
+    static mdreal euclidean(const vector<mdreal>&, const vector<mdreal>&);
+  };
+  
+  /*
+   *
+   */
+  class ModelBuffer : public Buffer {
+  public:
+    mdsize ntrain;
+    mdreal equality;
+    Matrix codebook;
+    Trainer trainer;
+  public:
+    ModelBuffer() : Buffer() {
+      this->ntrain = medusa::snan();
+      this->equality = 0.0;
+    };
+    ModelBuffer(const void* ptr) : Buffer(ptr) {
+      ModelBuffer* p = (ModelBuffer*)ptr;
+      this->ntrain = p->ntrain;
+      this->equality = p->equality;
+      this->codebook = p->codebook;
+      this->trainer = p->trainer;
+    };
+    ~ModelBuffer() {};
+  };
+
+  
+  /*
+   *
+   */
+  class Transformation {
+  private:
+    vector<mdreal> lookup;
+    vector<mdreal> output;
+  private:
+    void process(vector<mdreal>&, const vector<mdreal>&,
+		 const vector<mdreal>&) const;
+  public:
+    Transformation();
+    Transformation(const vector<mdreal>&);
+    ~Transformation();
+    void restore(vector<mdreal>&) const;
+    void transform(vector<mdreal>&) const;
+    mdsize size() {return lookup.size();};
   };
 
   /*
    *
    */
-  class ModelBuffer : public Buffer {
-  private:
-    vector<double> dsums;
-    vector<double> wsums;
-  public:
-    Matrix data;
-    mdsize nvars;
-    mdreal sigma;
-    vector<vector<vector<mdreal> > > codebook;
-  private:
-    void calcdist(const vector<vector<mdreal> >&,
-		  const vector<mdreal>&, const mdreal);
-  public:
-    ModelBuffer() : Buffer() {
-      this->nvars = 0;
-      this->sigma = 1.0;
-    };
-    ModelBuffer(const void* ptr) : Buffer(ptr) {
-      ModelBuffer* p = (ModelBuffer*)ptr;
-      this->data = p->data;
-      this->nvars = p->nvars;
-      this->sigma = p->sigma;
-      this->codebook = p->codebook;
-    };
-    ~ModelBuffer() {};
-    void match(Sample&);
-    string update(const mdreal);
+  struct ColumnCache {
+    Transformation transf;
+    vector<mdreal> values;
   };
 
   /*
    *
    */
   class EngineBuffer : public Buffer {
+  private:
+    vector<mdsize> units;
   public:
-    mdsize nloci;
+    mt19937 twister;
+    vector<mdsize> mask;
     vector<mdsize> bmus;
-    vector<Site> layers;
-    vector<mdsize> loci;
-    vector<mdreal> values;
-    vector<Variable> variables;
-    vector<vector<mdreal> > freq;
+    vector<mdreal> freq;
+    vector<ColumnCache> cache;
+    Matrix data;
   public:
-    EngineBuffer() : Buffer() {this->nloci = 0;};
+    EngineBuffer() : Buffer() {};
     EngineBuffer(const void* ptr) : Buffer(ptr) {
       EngineBuffer* p = (EngineBuffer*)ptr;
-      this->nloci = p->nloci;
+      this->twister = p->twister;
+      this->units = p->units;
+      this->mask = p->mask;
       this->bmus = p->bmus;
-      this->layers = p->layers;
-      this->loci = p->loci;
-      this->variables = p->variables;
       this->freq = p->freq;
+      this->cache = p->cache;
+      this->data = p->data;
     };
     ~EngineBuffer() {};
-    void organize();
-    void organize(const vector<mdsize>&);
+    vector<vector<mdreal> > diffuse();
+    void prepare();
   };
 };
 

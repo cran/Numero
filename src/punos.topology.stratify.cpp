@@ -10,5 +10,5 @@
 Site
 Topology::stratify(const mdreal z) const {
   TopologyBuffer* p = (TopologyBuffer*)buffer;
-  return binsearch(p->levels, z);
+  return medusa::binsearch(p->levels, z);
 }

@@ -27,6 +27,9 @@ Topology::interpolate(const vector<vector<mdreal> >& seeds) const {
   if(seeds[0].size() < 1) panic("No data.\n", __FILE__, __LINE__);
   if(nunits < nseeds) panic("Too few units.\n", __FILE__, __LINE__);
 
+  /* Check if anything to do. */
+  if(p->maxradius <= 0.0) return vector<vector<mdreal> >();
+  
   /* Collect unit coordinates. */
   vector<vector<mdreal> > loci(nunits);
   for(mdsize i = 0; i < nunits; i++) {

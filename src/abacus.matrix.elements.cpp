@@ -28,21 +28,17 @@ public:
 vector<Element>
 Matrix::elements(const int flag) const {
   MatrixBuffer* p = (MatrixBuffer*)buffer;
-
+  const unordered_map<mdsize, Array>& rowdata = p->rowdata;
+  
   /* Collect elements. */
-  map<Key, mdreal>::const_iterator pos;
-  const map<Key, mdreal>& dat = p->data;
-  vector<Element> array; array.reserve(dat.size());
-  for(pos = dat.begin(); pos != dat.end(); pos++) {
-    mdsize r = (pos->first)/(p->nline);
-    mdsize c = (pos->first)%(p->nline);
-    Element e = {r, c, pos->second};
-    array.push_back(e);
-  }
+  vector<Element> elem;
+  for(unordered_map<mdsize, Array>::const_iterator it = rowdata.begin();
+      it != rowdata.end(); it++)
+    (it->second).elements(elem, it->first);
 
   /* Sort according to value. */
-  if(flag == 0) return array;
+  if(flag == 0) return elem;
   ElementComparator cmp(flag);
-  sort(array.begin(), array.end(), cmp);
-  return array;
+  sort(elem.begin(), elem.end(), cmp);
+  return elem;
 }
