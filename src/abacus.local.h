@@ -115,9 +115,6 @@ namespace abacus_local {
     mdreal rlnan;
     vector<mdreal> full;
     map<mdsize, mdreal> sparse;
-
-
-    set<mdsize> testset;
   private:
     mdsize optimize();
   public:

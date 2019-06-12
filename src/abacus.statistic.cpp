@@ -21,10 +21,20 @@ mdreal
 abacus::statistic(const vector<mdreal>& data,
 		  const vector<mdreal>& weights,
 		  const string& name) {
-  mdsize nelem = data.size();
   mdreal rlnan = medusa::rnan();
 
+  /* Forward to other functions. */
+  if(name == "median") return abacus::quantile(data, weights, 0.5);
+  if(name == "iqr") {
+    mdreal alpha = abacus::quantile(data, weights, 0.25);
+    mdreal beta = abacus::quantile(data, weights, 0.75);
+    if(alpha == rlnan) return rlnan;
+    if(beta == rlnan) return rlnan;
+    return (beta - alpha);
+  }
+
   /* Check weights. */
+  mdsize nelem = data.size();
   vector<mdreal> w = weights;
   if(w.size() != nelem)
     panic("Incompatible inputs.", __FILE__, __LINE__);
@@ -54,7 +64,6 @@ abacus::statistic(const vector<mdreal>& data,
   if(name == "max") return stat_extreme(x, 1);
   if(name == "center") return stat_center(x, w);
   if(name == "mean") return stat_mean(x, w);
-  if(name == "median") return abacus::quantile(x, w, 0.5);
   if(name == "mode") return stat_mode(x, w);
 
   /* Estimate variance statistic. */

@@ -13,5 +13,7 @@ Matrix::row(const mdsize r) const {
   if(p->symmflag) panic("Symmetric matrix.", __FILE__, __LINE__);
   if(r >= p->nrows) return vector<mdreal>();
   if((p->rowdata).count(r) < 1) return vector<mdreal>();
-  return (p->rowdata[r]).values();
+  vector<mdreal> output = (p->rowdata[r]).values();
+  output.resize(p->ncols, p->rlnan);
+  return output;
 }

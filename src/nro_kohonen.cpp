@@ -20,8 +20,7 @@ nro_kohonen(SEXP seeds_R, SEXP rho_R) {
     mdreal s = abacus::statistic(seeds[i], "number");
     if(s < 1) return CharacterVector("Empty seed.");
   }
-  if(rho < 2.0)
-    return CharacterVector("Too small map radius.");
+  if(rho < 2.0) return CharacterVector("Too small map radius.");
 
   /* Create map topology. */
   vector<mdreal> epochs(1, 0.0);
@@ -46,7 +45,7 @@ nro_kohonen(SEXP seeds_R, SEXP rho_R) {
     c.push_back(u.angles.first);
     c.push_back(u.angles.second);
   }
-
+  
   /* Return results. */
   List res;
   res.push_back(reals2matrix(protos), "centroids");

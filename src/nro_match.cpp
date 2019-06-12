@@ -7,8 +7,9 @@
  *
  */
 RcppExport SEXP
-nro_match(SEXP codebook_R, SEXP data_R) {
+nro_match(SEXP codebook_R, SEXP data_R, SEXP metric_R) {
   mdreal rlnan = medusa::rnan();
+  string metric = as<string>(metric_R);
 
   /* Check prototypes. */
   vector<vector<mdreal> > protos = nro::matrix2reals(codebook_R, 0.0);
@@ -30,7 +31,7 @@ nro_match(SEXP codebook_R, SEXP data_R) {
   }
 
   /* Create a self-organizing map. */
-  koho::Model model(topo, vectors.size(), 0.0); string err;
+  koho::Model model(topo, vectors.size(), 0.0, metric); string err;
   for(mdsize k = 0; k < protos.size(); k++) {
     err = model.configure(k, protos[k]);
     if(err.size() > 0) return CharacterVector(err);

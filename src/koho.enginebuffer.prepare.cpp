@@ -9,39 +9,33 @@
  */
 void
 EngineBuffer::prepare() {
-
+  
   /* Discard previous contents. */
-  (this->units).clear();
-  (this->mask).clear();
-  (this->bmus).clear();
-  (this->freq).clear();
+  (this->bmus).first.clear();
+  (this->bmus).second.clear();
+  (this->freqs).clear();
   (this->cache).clear();
 
   /* Allocate column vectors. */
   (this->cache).resize(data.order());
-  
-  /* Collect eligible samples. */
+   
+  /* Collect data. */
+  vector<mdsize> loci;
   unordered_map<string, Point>::iterator pt;
   for(pt = points.begin(); pt != points.end(); pt++) {
     
-    /* Check location. */
+    /* Copy location. */
     mdsize bmu = (pt->second).location();
     if(bmu >= topology.size()) continue; 
-    
-    /* Check for missing data. */
-    mdsize rank = (pt->second).rank();
-    vector<mdreal> array = data.row(rank);
-    if(abacus::statistic(array, "number") != array.size())
-      continue;
+    loci.push_back(bmu);
 
     /* Copy values. */
+    mdsize rank = (pt->second).rank();
+    vector<mdreal> array = data.row(rank);
     for(mdsize j = 0; j < array.size(); j++)
-      (this->cache[j]).values.push_back(array[j]);
-    
-    /* Copy location. */
-    (this->bmus).push_back(bmu);
+      (this->cache[j]).values.push_back(array[j]);  
   }
-
+  
   /* Apply rank transform. */
   for(mdsize j = 0; j < cache.size(); j++) {
     ColumnCache& cc = this->cache[j];
@@ -50,10 +44,6 @@ EngineBuffer::prepare() {
   }
 
   /* Prepare shuffling mask. */
-  for(mdsize i = 0; i < bmus.size(); i++)
-    (this->mask).push_back(i);
-
-  /* Prepare unit indices. */
-  for(mdsize i = 0; i < topology.size(); i++)
-    (this->units).push_back(i);
+  (this->bmus).first = loci;
+  (this->bmus).second = loci;
 }

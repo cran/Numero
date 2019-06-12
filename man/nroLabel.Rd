@@ -15,13 +15,11 @@ nroLabel(topology, values, gap = 2.3)
 
 \arguments{
   \item{topology}{
-A matrix with six columns that contain the geometric properties of
-map districts, please see \code{\link{nroKohonen}} for details.
+A data frame with K rows and six columns, see details.  
   }
   \item{values}{
-A vector of K elements or an K x N matrix of smoothed district values,
-where K is the number of map districts and N is the number of variables,
-please see \code{\link{nroAggregate}} for details.
+A vector of K values or a K x N data frame, where K is the number of map
+districts and N is the number of variables.
   }
   \item{gap}{
 Minimum distance between map districts with non-empty labels.
@@ -32,16 +30,54 @@ Minimum distance between map districts with non-empty labels.
 The function assigns non-empty labels for districts based on the absolute
 deviations from the average district value. The most extreme districts are
 picked first, and then the remaining districts are prioritized based on
-their value and distance to the other districts already labeled.
+their value and distance to the other districts already labeled. Columns
+that are listed in the attribute 'binary' in 'values' are given
+percentage labels.
+
+Topology can be either the output from \code{\link{nroKohonen}()} or a
+data frame in the same format as the element \code{topology} within the
+aforementioned output list.
 }
 
 \value{
 A data frame with K rows and N columns that contains labels for
-all the districts.
+the map districts for each of the columns in \code{values}.
 }
 
-\author{
-Song Gao
-Stefan Mutter
-Ville-Petteri Makinen
+\references{
+Gao S, Mutter S, Casey AE, Mäkinen V-P (2018) Numero: a
+statistical framework to define multivariable subgroups in complex
+population-based datasets, Int J Epidemiology,
+https://doi.org/10.1093/ije/dyy113
+}
+
+\examples{
+# Import data.
+fname <- system.file("extdata", "finndiane.txt", package = "Numero")
+dataset <- read.delim(file = fname)
+
+# Prepare training data.
+trvars <- c("CHOL", "HDL2C", "TG", "CREAT", "uALB")
+trdata <- scale.default(dataset[,trvars]) 
+
+# K-means clustering.
+km <- nroKmeans(data = trdata)
+
+# Self-organizing map.
+sm <- nroKohonen(seeds = km)
+sm <- nroTrain(som = sm, data = trdata)
+
+# Assign data points into districts.
+matches <- nroMatch(centroids = sm, data = trdata)
+
+# District averages for all variables.
+planes <- nroAggregate(topology = sm, districts = matches, data = dataset)
+
+# District labels for cholesterol.
+chol <- nroLabel(topology = sm, values = planes$CHOL)
+print(head(chol))
+
+# District labels for all variables.
+colrs <- nroLabel(topology = sm, values = planes)
+print(head(colrs))
 }

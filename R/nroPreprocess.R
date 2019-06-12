@@ -1,89 +1,183 @@
 nroPreprocess <- function(
     data,
-    training=NULL,
-    strata=NULL,
-    key=NULL) {
+    method="standard",
+    clip=3.0,
+    resolution=100) {
 
-    # Set row names.
-    orig <- data
-    if(is.null(key) == FALSE) {
-        rownames(data) <- data[,key]
-        data[,key] <- NA
-    }
-    
-    # Collect usable columns and detect binary columns.
-    varinfo <- nroPreprocess.variables(data)
-    data <- data[,varinfo$numerics]
-    for(vn in varinfo$logicals)
-        data[,vn] <- (data[,vn] == 1)
+    # Convert input to numeric matrix.
+    frameflag <- is.data.frame(data)
+    data <- nroRcppMatrix(data, trim=TRUE)
+    binary <- attr(data, "binary")
 
-    # Make sure all unusable values are set to NA.
-    data <- apply(data, 2, function(x) {
-        x[which(is.na(0*x == 0))] <- NA
-    	return(x)
-    })
+    # Check if any rows or columns were excluded.
+    if(length(attr(data, "excl.rows")) > 0)
+        warning("Unusable row(s) excluded.")
+    if(length(attr(data, "excl.columns")) > 0)
+        warning("Unusable column(s) excluded.")
 
-    # Check training variables.
-    if(is.null(training)) training <- colnames(data)
-    training <- intersect(training, colnames(data))
-    if(length(training) < 1) {
-        warning("No usable feature variables.")
-        return(list())
+    # Check input size.
+    if(nrow(data) < 1) {
+        warning("No usable data.")
+        return(NULL)
     }
 
-    # Set standardization subsets.
-    subsets <- list()
-    subsets[[1]] <- (1:nrow(data))
-    if(is.null(strata) == FALSE)
-        subsets <- split((1:nrow(data)), data[,strata])
-
-    # Standardize subgroups.
-    trdata <- data[,training]
-    for(k in 1:length(subsets)) {
-        mask <- subsets[[k]]
-        trdata[mask,] <- scale.default(trdata[mask,])
+    # Check method.
+    method <- as.character(method[[1]])
+ 
+    # Check resolution.
+    resolution <- as.integer(resolution[[1]])
+    if(resolution < 20) { # see downsampling
+        warning("Unusable resolution.")
+        return(NULL)
     }
 
-    # Collect usable rows.   
-    rowmeans <- apply(trdata, 1, mean, na.rm=TRUE)
-    rows <- which(0*rowmeans == 0)
-    nskip <- (nrow(trdata) - length(rows))
-    if(nskip > 0) warning(sprintf("%d row(s) excluded.", nskip))
+    # Standardize location and scale.
+    ds.in <- data
+    ds.out <- NA*ds.in
+    for(vn in colnames(ds.out))
+        ds.out[,vn] <- nroPreprocess.std(ds.in[,vn], method, clip)
 
-    # Binary variables.
-    orig.logicals <- intersect(varinfo$logicals, colnames(orig))
-    data.logicals <- intersect(varinfo$logicals, colnames(data))
-    trdata.logicals <- intersect(varinfo$logicals, colnames(trdata))
+    # Downsample data model.
+    model <- nroPreprocess.down(ds.in, ds.out, resolution, method)
+
+    # Truncate extreme values.
+    for(vn in colnames(ds.out))
+        ds.out[,vn] <- nroPreprocess.clip(ds.out[,vn], method, clip)
+
+    # Convert back to data frame.
+    if(frameflag) ds.out <- as.data.frame(ds.out, stringsAsFactors=FALSE)
+
+    # If no preprocessing, binary variables remain binary.
+    if(method == "") {
+        binary <- intersect(binary, colnames(ds.out))
+        attr(ds.out, "binary") <- binary
+    }
 
     # Return results.
-    res <- list()
-    res$original <- orig[rows,]
-    res$values <- data[rows,]
-    res$features <- trdata[rows,]
-    attr(res$original, "numero") <- list(binary=orig.logicals)
-    attr(res$values, "numero") <- list(binary=data.logicals)
-    attr(res$features, "numero") <- list(binary=trdata.logicals)
-    return(res)
+    attr(ds.out, "mapping") <- model
+    return(ds.out)
 }
 
 #---------------------------------------------------------------------------
 
-nroPreprocess.variables <- function(x) {
-    numerics <- character()
-    logicals <- character()
-    for(vn in colnames(x)) {
-	vals <- as.numeric(x[,vn])
-	sigma <- stats::sd(vals, na.rm=TRUE)
-	if(is.na(sigma)) next
-	if(sigma <= .Machine$double.eps) next
-	n <- sum((0*vals == 0), na.rm=TRUE)
-        n0 <- sum((vals == 0), na.rm=TRUE)
-        n1 <- sum((vals == 1), na.rm=TRUE)
-        if((n0 + n1) >= n) logicals <- c(logicals, vn)
-	numerics <- c(numerics, vn)
+nroPreprocess.std <- function(x, method, clip=NA) {
+
+    # Check variance.
+    sigma <- stats::sd(x, na.rm=TRUE)
+    if(!is.finite(sigma)) return(x)
+    if(sigma <= .Machine$double.eps) return(x)
+
+    # No standardization.
+    if(length(method) < 1) return(x)
+    if(nchar(method) < 1) return(x)
+
+    # Rank-based standardization.
+    if((method == "uniform") || (method == "tapered")) {
+        z <- rank(x, na.last="keep")
+        z <- (z - min(z, na.rm=TRUE))
+	z <- (2*z/max(z, na.rm=TRUE) - 1)
+	if(method == "tapered") z <- (z + 2*z^3)/3
+        return(z)
     }
-    output <- list()
-    output$numerics <- numerics
-    output$logicals <- logicals
-    return(output)
+
+    # Default method left.
+    if(method != "standard") stop("Unknown method.")
+
+    # Protect against extreme outliers.
+    t <- nroPreprocess.clip(x, method="standard", clip=5.0)
+    t <- stats::na.omit(t)
+
+    # Check if logarithm is useful.
+    tmin <- min(t, na.rm=TRUE)
+    if((tmin >= 0) && (sum(is.finite(t)) >= 10)) {
+         t.log <- log(t + 1e-20)
+         suppressWarnings(w <- stats::shapiro.test(t))
+         suppressWarnings(w.log <- stats::shapiro.test(t.log))
+	 if((w$p.value < 0.05) && (w$statistic < w.log$statistic)) {
+             x <- log(x + 1e-20)
+             t <- t.log
+	 }
+    }
+
+    # Basic statistics.
+    mu <- mean(t, na.rm=TRUE)
+    sigma <- stats::sd(t, na.rm=TRUE)
+
+    # Standardize scale and location.
+    z <- (x - mu)/max(sigma, 1e-20)
+    return(z)
+}
+
+#---------------------------------------------------------------------------
+
+nroPreprocess.clip <- function(x, method, clip) {
+    if((method != "standard") && (method != "")) return(x)
+    if(!is.finite(clip)) return(x)
+    med <- stats::median(x, na.rm=TRUE)
+    sigma <- stats::sd(x, na.rm=TRUE)
+    xmin <- (med - clip*sigma)
+    xmax <- (med + clip*sigma)
+    x[which(x < xmin)] <- xmin
+    x[which(x > xmax)] <- xmax
+    return(x)
+}
+    
+#---------------------------------------------------------------------------
+
+nroPreprocess.down <- function(x, y, resol, method) {
+    if(method == "") return(NULL)
+
+    # Nothing to do.
+    results <- list()
+    results$input <- x
+    results$output <- y
+    if(nrow(x) <= resol) return(results)
+
+    # Prepare result matrices.
+    results$input <- matrix(NA, nrow=resol, ncol=ncol(x))
+    results$output <- matrix(NA, nrow=resol, ncol=ncol(x))
+    colnames(results$input) <- colnames(x)
+    colnames(results$output) <- colnames(x)
+
+    # Reduce resolution.
+    ranked <- (method == "uniform") || (method == "tapered")
+    for(vn in colnames(x)) {
+       rows <- is.finite(x[,vn]*y[,vn])
+       u <- x[rows,vn]
+       v <- y[rows,vn]
+
+       # Remove duplicates.
+       mask <- which(!duplicated(u))
+       u <- u[mask]
+       v <- v[mask]
+       n <- length(u)
+       if(n < 2) next
+
+       # Sort by input value.
+       sorted <- order(u)
+       u <- u[sorted]
+       v <- v[sorted]
+
+       # Set sentinel points.
+       if(!ranked) {
+           q <- c(1, 10, (resol - 10), (resol - 1))/resol
+           sigma.u <- stats::quantile(u, c(0.01, 0.1, 0.9, 0.99), na.rm=T)
+           sigma.v <- stats::quantile(v, c(0.01, 0.1, 0.9, 0.99), na.rm=T)
+           delta.u <- diff(sigma.u)
+           delta.v <- diff(sigma.v)
+           u <- c((u[1] - 3*delta.u[1]), u, (u[n] + 3*delta.u[3]))
+           v <- c((v[1] - 3*delta.v[1]), v, (v[n] + 3*delta.v[3]))
+       }
+
+       # Select sampling points.
+       n <- length(u)
+       pivots <- seq(from=2, to=(n-1), length.out=(resol-2))
+       pivots <- c(1, pivots, n)
+       u.pivots <- stats::approx(x=(1:n), y=u, xout=pivots)$y
+
+       # Interpolate output values.
+       results$input[,vn] <- u.pivots
+       results$output[,vn] <- stats::approx(x=u, y=v, xout=u.pivots)$y
+    }
+    return(results)
 }

@@ -10,5 +10,7 @@ mdreal
 Trainer::distance(const Point& pnt, const mdsize bmu) const {
   if(bmu >= prototypes.size()) return medusa::rnan();
   vector<mdreal> vals = pnt.data();
-  return Trainer::euclidean(vals, prototypes[bmu]);
+  if(formula == 'e') return Trainer::euclid(vals, prototypes[bmu]);
+  if(formula == 'p') return Trainer::pearson(vals, prototypes[bmu]);
+  return medusa::rnan();
 }

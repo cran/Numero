@@ -11,38 +11,67 @@ standardize scale of each variable.
 }
 
 \usage{
-nroPreprocess(data, training = NULL, strata = NULL, key = NULL)
+nroPreprocess(data, method = "standard", clip = 3.0, resolution = 100)
 }
 
 \arguments{
   \item{data}{
 A matrix or a data frame. 
   }
+
+  \item{method}{
+Method for standardizing scale and location, see details below.
+  }
+
+  \item{clip}{
+Range for clipping extreme values in multiples of standard deviations.
+  }
   
-  \item{training}{
-A character vector that contains the headings of feature columns that
-are intended for model training and data point matching.
+  \item{resolution}{
+Maximum number of sampling points to capture distribution shape.
   }
+}
 
-  \item{strata}{
-The heading of the column that defines data batches; each batch will be
-processed separately.
-  }
+\details{
+Standardization methods include empty string for no action, "standard"
+for centering by mean and division by standard deviation, "uniform" for
+normalized ranks between -1 and 1 and "tapered" for a version of the
+rank-based method that puts more samples around zero.
 
-  \item{key}{
-The heading of the column that contains row identifiers.
-  }
+Clipping is not applied if the method is rank-based.
 }
 
 \value{
-A list with three members is returned: 'original' contains a subset of the
-original dataset were unusable rows were removed, 'values' contains those
-columns that could be converted to numbers, and 'features' contains
-the standardized training columns.
+A matrix (or data frame) of numerical values. A value mapping model is
+stored in the attribute "mapping". The names of binary columns are stored
+in the attribute "binary".
 }
 
 \author{
-Song Gao
-Stefan Mutter
 Ville-Petteri Makinen
+}
+
+\examples{
+# Import data.
+fname <- system.file("extdata", "finndiane.txt", package = "Numero")
+dataset <- read.delim(file = fname)
+
+# Show original data characteristics.
+print(summary(dataset))
+
+# Detect binary columns.
+ds <- nroPreprocess(dataset, method = "")
+print(attr(ds,"binary"))
+
+# Centering and scaling cholesterol.
+ds <- nroPreprocess(dataset$CHOL)
+print(summary(ds))
+
+# Centering and scaling.
+ds <- nroPreprocess(dataset)
+print(summary(ds))
+
+# Tapered ranks.
+ds <- nroPreprocess(dataset, method = "tapered")
+print(summary(ds))
 }

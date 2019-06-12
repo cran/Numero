@@ -40,7 +40,7 @@ nro_label(SEXP topo_R, SEXP data_R, SEXP binflags_R, SEXP sigma_R) {
   IntegerVector binflags(binflags_R);
   for(mdsize j = 0; j < columns.size(); j++) {
     vector<mdreal>& values = columns[j];
-
+    
     /* Calculate deviations from mean. */
     vector<mdreal> amps = abacus::transform(values, "z");
     for(mdsize i = 0; i < amps.size(); i++)

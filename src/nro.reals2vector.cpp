@@ -12,10 +12,8 @@ nro::reals2vector(const vector<mdreal>& values) {
   mdsize nelem = values.size();
   NumericVector array(nelem);
   for(mdsize i = 0; i < nelem; i++) {
-    if(array[i] == rlnan)
-      array[i] = NA_REAL;
-    else
-      array[i] = values[i];
+    if(values[i] == rlnan) array[i] = NA_REAL;
+    else array[i] = values[i];
   }
   return array;
 }

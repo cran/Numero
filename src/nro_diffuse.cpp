@@ -8,7 +8,7 @@
  */
 RcppExport SEXP
 nro_diffuse(SEXP topo_R, SEXP bmus_R, SEXP data_R) {
-  
+
   /* Check inputs. */
   vector<mdsize> bmus = nro::vector2sizes(bmus_R);
   vector<vector<mdreal> > vectors = nro::matrix2reals(data_R, 0.0);
@@ -32,23 +32,23 @@ nro_diffuse(SEXP topo_R, SEXP bmus_R, SEXP data_R) {
     vector<mdreal> ones(bmus.size(), 1.0);
     vector<mdreal> counts = topo.diffuse(bmus, ones);
     res.push_back(NumericMatrix(), "planes");
-    res.push_back(nro::reals2vector(counts), "histogram");
+    res.push_back(nro::reals2vector(counts), "histograms");
     return res;
   }
-
-  /* Create a simulation engine. R-style indexing switched to C++. */
+  
+  /* Create a simulation engine. */
   Engine eng(topo);
   for(mdsize i = 0; i < vectors.size(); i++) {
     eng.insert(long2string(i), bmus[i], vectors[i]);
     vectors[i].clear(); /* reduce memory footprint */
   }
   
-  /* Estimate component planes. */
+  /* Estimate component planes and histograms. */
   vector<vector<mdreal> > planes = eng.average();
-  vector<mdreal> hgram = eng.histogram();
+  vector<vector<mdreal> > hgrams = eng.histograms();
   
   /* Return results. */
   res.push_back(nro::reals2matrix(planes), "planes");
-  res.push_back(nro::reals2vector(hgram), "histogram");
+  res.push_back(nro::reals2matrix(hgrams), "histograms");
   return res;
 }

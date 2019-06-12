@@ -19,10 +19,8 @@ abacus::transform(const vector<mdreal>& x, const string& name) {
   if(name == "z") {
     mdreal mu = statistic(x, "mean");
     mdreal sigma = statistic(x, "sd");
-    if((sigma == rlnan) || (sigma < 1e-20)) {
-      worry("Cannot calculate z-scores.\n", __FILE__);
-      return y;
-    }
+    if(sigma == rlnan) return x;
+    if(sigma < 1e-20) return vector<mdreal>(nelem, 0.0);
     y.resize(nelem, rlnan);
     for(mdsize i = 0; i < nelem; i++) {
       if(x[i] == rlnan) continue;

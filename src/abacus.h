@@ -47,7 +47,8 @@ namespace abacus {
     bool add(const medusa::mdsize, const medusa::mdsize,
 	     const medusa::mdreal);
 
-    /* Return column vector. */
+    /* Return column vector. The length is either zero if the column is
+       empty or equal to the size of the matrix if data are found.*/
     std::vector<medusa::mdreal> column(const medusa::mdsize) const;
 
     /* Number of elements. */
@@ -77,7 +78,8 @@ namespace abacus {
     /* Return and erase a data element. */
     medusa::mdreal remove(const medusa::mdsize, const medusa::mdsize);
 
-    /* Return row vector. */
+    /* Return row vector. The length is either zero if the row is empty
+       or equal to the order of the matrix if data are found. */
     std::vector<medusa::mdreal> row(const medusa::mdsize) const;
 
     /* Number of rows. */

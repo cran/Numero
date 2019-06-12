@@ -19,7 +19,7 @@ Model::distances(const string& key) const {
 
   /* Check if a trainer exists. */
   if((p->trainer).size() < 1)
-    p->trainer = Trainer(p->codebook, p->topology, 0, 0.0);
+    p->trainer = Trainer(p->codebook, p->topology, 0, 0.0, p->metric);
   
   /* Estimate distances. */
   return (p->trainer).distances(pos->second);

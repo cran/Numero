@@ -18,10 +18,11 @@ Engine::insert(const string& key, const mdsize unit,
   if(unit >= (p->topology).size()) return "Unusable map unit.";
 
   /* Check if any unusable values. */
+  mdsize nvalid = 0;
   for(mdsize j = 0; j < values.size(); j++)
-    if(values[j] == rlnan) return "Unusable data value.";
-  if(values.size() < 1) return "No usable data.";
-
+    nvalid += (values[j] != rlnan);
+  if(nvalid < 1) return "No usable data.";
+ 
   /* Check that dimensions match. */
   mdsize ncols = (p->data).order();
   if(ncols < 1) ncols = values.size();
@@ -36,6 +37,7 @@ Engine::insert(const string& key, const mdsize unit,
     (p->data).insert(rank, j, values[j]);
   
   /* Reset engine state. */
+  if(nvalid < values.size()) p->complete = false;
   (p->cache).clear();
   return "";
 }

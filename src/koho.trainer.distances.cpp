@@ -9,8 +9,14 @@
 vector<mdreal>
 Trainer::distances(const Point& pnt) const {
   vector<mdreal> values = pnt.data();
-  vector<mdreal> delta(prototypes.size());
-  for(mdsize i = 0; i < prototypes.size(); i++)
-    delta[i] = Trainer::euclidean(values, prototypes[i]);
+  vector<mdreal> delta(prototypes.size(), medusa::rnan());
+  if(formula == 'e') {
+    for(mdsize i = 0; i < prototypes.size(); i++)
+      delta[i] = Trainer::euclid(values, prototypes[i]);
+  }
+  if(formula == 'p') {
+    for(mdsize i = 0; i < prototypes.size(); i++)
+      delta[i] = Trainer::pearson(values, prototypes[i]);
+  }
   return delta;
 }

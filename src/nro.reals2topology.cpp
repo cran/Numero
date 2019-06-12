@@ -3,6 +3,8 @@
 
 #include "nro.h"
 
+#define N_TOPO_COLS 6
+
 /*
  *
  */
@@ -14,14 +16,14 @@ nro::reals2topology(const vector<vector<mdreal> >& vectors) {
   if(vectors.size() == 1)
     if(vectors[0].size() == 1)
       return Topology(vectors[0][0]);
-
+  
   /* Check unit coordinates. */
   mdsize nunits = vectors.size();
   vector<punos::Unit> units(nunits);
   for(mdsize i = 0; i < nunits; i++) {
     const vector<mdreal>& x = vectors[i];
-    if(x.size() != 6) return Topology();
-    for(mdsize j = 0; j < x.size(); j++)
+    if(x.size() < N_TOPO_COLS) return Topology();
+    for(mdsize j = 0; j < N_TOPO_COLS; j++)
       if(x[j] == rlnan) return Topology();
     units[i].x = x[0];
     units[i].y = x[1];

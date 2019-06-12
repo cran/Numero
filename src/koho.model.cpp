@@ -14,10 +14,12 @@ Model::Model() {
 /*
  *
  */
-Model::Model(const Topology& topo, const mdsize nsub, const mdreal eq) {
+Model::Model(const Topology& topo, const mdsize nsub,
+	     const mdreal eq, const string& s) {
   ModelBuffer* p = new ModelBuffer();
   p->ntrain = nsub;
   p->equality = eq;
+  p->metric = s;
   p->topology = topo;
   this->buffer = p;
 }

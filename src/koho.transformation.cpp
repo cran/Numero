@@ -12,9 +12,15 @@ Transformation::Transformation() {}
  *
  */
 Transformation::Transformation(const vector<mdreal>& values) {
+  mdreal rlnan = medusa::rnan();
+
+  /* Find usable values. */
+  for(mdsize i = 0; i < values.size(); i++) {
+    if(values[i] == rlnan) continue;
+    this->lookup.push_back(values[i]);
+  }
   
   /* Find distinct values and sort them. */
-  this->lookup = values;
   uniqreal(this->lookup);
   sortreal(this->lookup, 1);
   
@@ -27,6 +33,22 @@ Transformation::Transformation(const vector<mdreal>& values) {
  *
  */
 Transformation::~Transformation() {}
+
+/*
+ *
+ */
+void
+Transformation::restore(vector<mdreal>& array) const {
+  this->process(array, output, lookup);
+}
+
+/*
+ *
+ */
+void
+Transformation::transform(vector<mdreal>& array) const {
+  this->process(array, lookup, output);
+}
 
 /*
  *
@@ -58,8 +80,8 @@ Transformation::process(vector<mdreal>& array,
   for(mdsize i = 0; i < array.size(); i++) {
     mdreal value = array[i];
     if(value == rlnan) continue;
-
-    /* Exact matches to edges. */
+ 
+    /* Exact match to the edge. */
     if(value == vmin.first) {
       array[i] = rmin.first;
       continue;
@@ -68,7 +90,7 @@ Transformation::process(vector<mdreal>& array,
       array[i] = rmax.second;
       continue;
     }
-    
+
     /* Extrapolate small value. */
     if(value < vmin.first) {
       mdreal ratio = (value - vmin.second)/(vmin.first - vmin.second);
@@ -84,12 +106,11 @@ Transformation::process(vector<mdreal>& array,
       array[i] = (rmax.first + delta);
       continue;
     }
-
+    
     /* Find the segment in the lookup table. */
     Site locus = medusa::binsearch(valsFrom, value);
     mdsize a = locus.bounds.first;
-    mdsize b = locus.bounds.second;
-    
+    mdsize b = locus.bounds.second;  
     if((a >= nelem) || (b >= nelem)) {
       array[i] = rlnan;
       continue;
@@ -100,20 +121,4 @@ Transformation::process(vector<mdreal>& array,
     mdreal wB = locus.weights.second;
     array[i] = (wA*(valsTo[a]) + wB*(valsTo[b]));
   }
-}
-
-/*
- *
- */
-void
-Transformation::restore(vector<mdreal>& array) const {
-  this->process(array, output, lookup);
-}
-
-/*
- *
- */
-void
-Transformation::transform(vector<mdreal>& array) const {
-  this->process(array, lookup, output);
 }

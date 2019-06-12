@@ -7,8 +7,7 @@ Self-organizing map
 
 \description{
 Interpolates the initial district profiles of a self-organizing map based
-on pre-determined seed profiles. The function is named after Teuvo Kohonen,
-the inventor of the self-organizing map.
+on pre-determined seed profiles.
 }
 
 \usage{
@@ -17,7 +16,7 @@ nroKohonen(seeds, radius = 3)
 
 \arguments{
   \item{seeds}{
-A data matrix of K rows and N columns.
+A matrix or a data frame of K rows and N columns.
   }
 
 \item{radius}{
@@ -26,21 +25,43 @@ Map radius.
 }
 
 \value{
-A list containing two named elements: 'centroids' contains the
-N-dimensional district profiles, and 'topology' is an H x 6 matrix
+A list containing three named elements: \code{centroids} contains the
+N-dimensional district profiles, and \code{topology} is an H x 6 matrix
 that contains the 2D spatial layout for the map districts: the first
 two columns (X, Y) indicate the positions of districts in Cartesian
 coordinates, the other four columns (RADIUS1, RADIUS2, ANGLE1, ANGLE2)
 define the perimeter of the district areas for visualisation on
 a circular map.
+
+The function is named after Teuvo Kohonen, the inventor of the
+self-organizing map.
 }
 
-\author{
-Song Gao
-Stefan Mutter
-Ville-Petteri Makinen
+\references{
+Gao S, Mutter S, Casey AE, Mäkinen V-P (2018) Numero: a
+statistical framework to define multivariable subgroups in complex
+population-based datasets, Int J Epidemiology,
+https://doi.org/10.1093/ije/dyy113
 }
 
 \seealso{
-Please see \code{\link{nroKmeans}} as a means to create the seed profiles.
+Please see \code{\link{nroKmeans}()} to create the seeds.
+}
+
+\examples{
+# Import data.
+fname <- system.file("extdata", "finndiane.txt", package = "Numero")
+dataset <- read.delim(file = fname)
+
+# Prepare training data.
+trvars <- c("CHOL", "HDL2C", "TG", "CREAT", "uALB")
+trdata <- scale.default(dataset[,trvars]) 
+
+# K-means clustering.
+km <- nroKmeans(data = trdata)
+
+# Self-organizing map.
+sm <- nroKohonen(seeds = km)
+print(head(sm$centroids))
+print(head(sm$topology))
 }

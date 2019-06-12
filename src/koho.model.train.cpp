@@ -8,8 +8,8 @@
  *
  */
 string
-Model::train(vector<pair<string, mdsize> >& layout,
-	     vector<mdreal>& history) {
+Model::train(vector<Resident>& layout, vector<mdreal>& history) {
+  mdreal rlnan = medusa::rnan();
   ModelBuffer* p = (ModelBuffer*)buffer;
   unordered_map<string, Point>& points = p->points;
 
@@ -31,7 +31,8 @@ Model::train(vector<pair<string, mdsize> >& layout,
   topocopy.rewire(rho);
   
   /* Create the training engine. */
-  Trainer trainer(p->codebook, topocopy, p->ntrain, p->equality);
+  Trainer trainer(p->codebook, topocopy, p->ntrain,
+		  p->equality, p->metric);
   
   /* Make pointers to points. */
   vector<Point*> pointers;
@@ -63,6 +64,14 @@ Model::train(vector<pair<string, mdsize> >& layout,
  
       /* Perform a training cycle. */
       mdreal delta = trainer.cycle(mask, topocopy);
+
+      /* Check if initial centroids were available. */
+      if(delta == rlnan) {
+	if(batch.size() > 0) return "Training cycle failed.";
+	if(history.size() < 1) delta = trainer.cycle(mask, topocopy);
+      }
+
+      /* Store training error. */
       batch.push_back(delta);
     }
 
@@ -81,10 +90,11 @@ Model::train(vector<pair<string, mdsize> >& layout,
   /* Return final layout. */
   for(unordered_map<string, Point>::iterator it = points.begin();
       it != points.end(); it++) {
-    pair<string, mdsize> entry;
-    entry.first = it->first;
-    entry.second = (it->second).location();
-    layout.push_back(entry);
+    Resident res;
+    res.identity = it->first;
+    res.district = (it->second).location();
+    res.residual = trainer.distance(it->second, res.district);
+    layout.push_back(res);
   }
   return "";
 }

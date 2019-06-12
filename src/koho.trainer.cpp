@@ -6,25 +6,30 @@
 /*
  *
  */
-Trainer::Trainer() {}
+Trainer::Trainer() {
+  this->formula = 'e';
+}
 
 /*
  *
  */
 Trainer::Trainer(const Matrix& codebook, const Topology& topo,
-		 const mdsize ntrain, const mdreal eq) {
+		 const mdsize ntrain, const mdreal eq, const string& s) {
+  this->formula = 'e';
+  if(s == "pearson") this->formula = 'p';
   
   /* Optimal subset capacities. */
   mdsize nunits = topo.size();
   vector<mdsize> subsizes(nunits, 0);
   for(mdsize i = 0; i < ntrain; i++)
     subsizes[nunits-(i%nunits)-1] += 1;
-    
+
   /* Create subsets. */
   (this->subsets).resize(nunits);
   for(mdsize k = 0; k < nunits; k++) {
     mdsize cap = subsizes[k];
-    cap += (mdsize)((1.0 - eq)*(ntrain - cap));
+    mdreal rho = (exp(-5.0) - exp(-5.0*eq))/(exp(-5.0) - 1.0);
+    cap += (mdsize)(rho*(ntrain - cap - nunits));
     (this->subsets[k]).configure(k, cap);
   }
 

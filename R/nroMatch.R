@@ -1,24 +1,41 @@
 nroMatch <- function(
-    som,
-    data) {
+    centroids,
+    data,
+    metric=NULL) {
 
     # Check if input is a list.
-    if((is.list(som) == FALSE) || is.data.frame(som))
-        som <- list(centroids=som)
-    
+    som <- list()
+    if(!is.data.frame(centroids) && is.list(centroids)) {
+	som <- centroids
+        centroids <- centroids$centroids
+    }
+
+    # Check distance metric.
+    if(!is.null(metric) && !is.null(som$metric)) {
+        warning("Metric set according to centroids.")
+        metric <- som$metric
+    }
+    if(is.null(metric)) metric <- som$metric
+    if(is.null(metric)) metric <- "euclid"
+    metric <- as.character(metric[[1]])
+
     # Check variable names.
-    vars <- colnames(som$centroids)
-    pos <- match(vars, colnames(data))
-    mask <- which(pos > 0)
-    if(length(mask) < 1) stop("Incompatible data")
-    cols <- pos[mask]
-    if(length(cols) < length(vars))
-        warning("Incomplete coverage of variables.")  
+    vars <- colnames(centroids)
+    if(length(vars) < 1) stop("No column names.")
+    vars <- intersect(vars, colnames(data))
+    if(length(vars) < 1) stop("Incompatible inputs.")
+    if(length(vars) < ncol(centroids))
+        warning("Incomplete coverage of variables.")
+
+    # Convert inputs to numeric matrices.
+    centroids <- nroRcppMatrix(centroids[,vars], trim=FALSE)
+    data <- nroRcppMatrix(data[,vars], trim=FALSE)
 
     # Find best-matching units.
     res <- .Call("nro_match",
-                 as.matrix(som$centroids),
-                 as.matrix(data[,cols]),
+                 as.matrix(centroids),
+                 as.matrix(data),
+		 as.character(metric),
                  PACKAGE="Numero")
     if(class(res) == "character" ) stop(res)
     
@@ -26,21 +43,27 @@ nroMatch <- function(
     res <- data.frame(res, stringsAsFactors=FALSE)
 
     # Check if training history is available.
-    delta <- NA
+    delta <- NA; sigma <- NA
     if(is.null(som$history) == FALSE)
         delta <- som$history[length(som$history)]
+    if(is.null(som$layout) == FALSE) {
+        sigma <- stats::quantile(som$layout$RESIDUAL,
+	                         c(0.3085, 0.6915), na.rm=T)
+        sigma <- (sigma[2] - sigma[1])
+    }
 
     # Set mismatched labels to NA.
     bmus <- as.integer(res$DISTRICT)
     bmus[which(bmus == 0)] <- NA
     res$DISTRICT <- NULL
 
-    # Quality compared with the average matching error after training.
-    res$QUALITY <- 2*(delta + 1e-9)/(res$RESIDUAL + delta + 1e-9)
+    # Standardize residuals against the the training error.
+    res$RESIDUAL.z <- (res$RESIDUAL - delta)/(sigma + 1e-9)
 
     # Separate primary output from other information.
     names(bmus) <- rownames(data)
+    rownames(res) <- rownames(data)
     attr(bmus, "quality") <- res
-    attr(bmus, "features") <- vars
+    attr(bmus, "variables") <- vars
     return(bmus)
 }

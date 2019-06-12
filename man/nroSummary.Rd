@@ -12,7 +12,7 @@ variable.
 }
 
 \usage{
-nroSummary(data, districts, regions, categlim = 8)
+nroSummary(data, districts, regions, categlim = 8, capacity = 10)
 }
 
 \arguments{
@@ -26,28 +26,76 @@ please see \link{nroMatch} for a typical usage case.
   }
 
   \item{regions}{
-An vector of K elements that defines if a district belongs to a
-larger region (i.e. a subgroup).
+An vector of K elements or a data frame of K rows that defines if a
+district belongs to a larger region (i.e. a subgroup), see details.
   }
+  
   \item{categlim}{
 The threshold for the number of unique values before a variable is
 considered continuous.
+  }
+
+  \item{capacity}{
+Maximum number of subgroups to compare.
   }
 }
 
 \details{
 The region vector must have K elements where K is the total number of
-map districts. Accordingly, the value at element [i] indicates the region
-for the district [i].
+map districts. The value at element [i] indicates the region for the
+district [i].
+
+The region input can also be a data frame of K rows where the column
+REGION will be used for assigning district to regions, and REGION.label
+will be used as the character label as seen on the map, see the output
+from \code{\link{nroPlot}()} as an example.
+
+Safeguards are in place to prevent crashes from empty categories; this
+reduces statistical power slightly when numbers are small.
 }
 
 \value{
 A data frame of summary statistics that contains a row for every
-combination of subgroups and variables.
+combination of subgroups and variables. The chi-squared test is used for
+comparisons with respect to categorical variables, and rank-regulated t-test
+and ANOVA are applied to continuous variables. Region labels for each row
+are stored in the attribute "labels" and a list that contains the subsets
+of rows in each region is stored in the attribute "subgroups".
 }
 
 \author{
-Song Gao
-Stefan Mutter
 Ville-Petteri Makinen
+}
+
+\examples{
+# Import data.
+fname <- system.file("extdata", "finndiane.txt", package = "Numero")
+dataset <- read.delim(file = fname)
+
+# Prepare training data.
+trvars <- c("CHOL", "HDL2C", "TG", "CREAT", "uALB")
+trdata <- scale.default(dataset[,trvars])
+
+# K-means clustering.
+km <- nroKmeans(data = trdata)
+
+# Self-organizing map.
+sm <- nroKohonen(seeds = km)
+sm <- nroTrain(som = sm, data = trdata)
+
+# Assign data points into districts.
+matches <- nroMatch(centroids = sm, data = trdata)
+
+# Calculate district averages for urinary albumin.
+plane <- nroAggregate(topology = sm, districts = matches,
+                      data = dataset$uALB)
+
+# Assign subgroups based on urinary albumin.
+regns <- rep("HighAlb", length.out=length(plane))
+regns[which(plane < quantile(plane, 0.67))] <- "MiddleAlb"
+regns[which(plane < quantile(plane, 0.33))] <- "LowAlb"
+
+# Calculate summary statistics.
+st <- nroSummary(data = dataset, districts = matches, regions = regns)
+print(st[,c("VARIABLE","SUBGROUP","MEAN","P.chisq","P.t","P.anova")])
 }

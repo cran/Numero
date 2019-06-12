@@ -18,15 +18,18 @@ nro::matrix2reals(const SEXP& data, const mdreal jitter) {
   /* Convert to C++ row matrix. */
   vector<vector<mdreal> > rows(nrows);
   for(mdsize j = 0; j < ncols; j++) {
-    
-    /* Copy column vector. */
+
+    /* Check for non-finite values. */
     NumericVector values = mtx(_, j);
+    LogicalVector flags = Rcpp::is_finite(values);
+      
+    /* Copy column vector. */
     vector<mdreal> array(nrows, rlnan);
     for(mdsize i = 0; i < nrows; i++) {
-      if(NumericVector::is_na(values[i])) continue;
+      if(!flags[i]) continue;
       array[i] = values[i];
     }
-    
+
     /* Add pseudo-random jitter. */
     if(jitter > 0.0) {
       mdreal sigma = abacus::statistic(array, "sd");

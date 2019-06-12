@@ -37,7 +37,7 @@ public:
  *
  */
 RcppExport SEXP
-nro_figure( SEXP fname_R, SEXP data_R, SEXP bbox_R ) {
+nro_figure(SEXP fname_R, SEXP data_R, SEXP bbox_R) {
   string fname = as<string>(fname_R);
   string data = as<string>(data_R);
   vector<mdreal> bbox = nro::vector2reals(bbox_R);

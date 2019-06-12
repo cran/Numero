@@ -7,16 +7,15 @@
  *
  */
 vector<mdsize>
-nro::vector2sizes( const SEXP& data ) {  
+nro::vector2sizes(const SEXP& data) {  
   mdsize sznan = medusa::snan();
   vector<mdsize> array;
-  NumericVector values = as<NumericVector>( data );
+  NumericVector values(data);
+  LogicalVector flags = Rcpp::is_finite(values);
   mdsize nelem = values.size();
   for(mdsize i = 0; i < nelem; i++) {
-    if( NumericVector::is_na( values[ i ] ) )
-      array.push_back( sznan );
-    else
-      array.push_back( (mdsize)(values[ i ] + 0.5) );
+    if(flags[i]) array.push_back((mdsize)(values[ i ] + 0.5));
+    else array.push_back(sznan);
   }
   return array;
 }

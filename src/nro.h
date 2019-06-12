@@ -10,8 +10,10 @@
 #include <cfloat>
 #include <cctype>
 #include <cmath>
+#include <ctime>
 #include <string>
 #include <vector>
+#include <random>
 #include <algorithm>
 #include <Rcpp.h>
 #include "medusa.h"
@@ -19,8 +21,6 @@
 #include "scriptum.h"
 #include "punos.h"
 #include "koho.h"
-
-#define nro_NMAX_FALSE 20
 
 using namespace std;
 using namespace Rcpp;

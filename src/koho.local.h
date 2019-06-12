@@ -100,6 +100,7 @@ namespace koho_local {
    */
   class Trainer {
   private:
+    char formula;
     vector<Subset> subsets;
     vector<vector<mdreal> > prototypes;
   private:
@@ -107,14 +108,16 @@ namespace koho_local {
     void update(const Topology&);
   public:
     Trainer();
-    Trainer(const Matrix&, const Topology&, const mdsize, const mdreal);
+    Trainer(const Matrix&, const Topology&, const mdsize,
+	    const mdreal, const string&);
     ~Trainer();
     mdreal cycle(vector<Point*>&, const Topology&);
     Matrix codebook() const;
     mdreal distance(const Point&, const mdsize) const;
     vector<mdreal> distances(const Point&) const;
     mdsize size() const;
-    static mdreal euclidean(const vector<mdreal>&, const vector<mdreal>&);
+    static mdreal euclid(const vector<mdreal>&, const vector<mdreal>&);
+    static mdreal pearson(const vector<mdreal>&, const vector<mdreal>&);
   };
   
   /*
@@ -124,17 +127,20 @@ namespace koho_local {
   public:
     mdsize ntrain;
     mdreal equality;
+    string metric;
     Matrix codebook;
     Trainer trainer;
   public:
     ModelBuffer() : Buffer() {
       this->ntrain = medusa::snan();
       this->equality = 0.0;
+      this->metric = "euclid";
     };
     ModelBuffer(const void* ptr) : Buffer(ptr) {
       ModelBuffer* p = (ModelBuffer*)ptr;
       this->ntrain = p->ntrain;
       this->equality = p->equality;
+      this->metric = p->metric;
       this->codebook = p->codebook;
       this->trainer = p->trainer;
     };
@@ -173,29 +179,27 @@ namespace koho_local {
    *
    */
   class EngineBuffer : public Buffer {
-  private:
-    vector<mdsize> units;
   public:
+    bool complete;
     mt19937 twister;
-    vector<mdsize> mask;
-    vector<mdsize> bmus;
-    vector<mdreal> freq;
+    pair<vector<mdsize>, vector<mdsize> > bmus;
+    vector<vector<mdreal> > freqs;
     vector<ColumnCache> cache;
     Matrix data;
   public:
-    EngineBuffer() : Buffer() {};
+    EngineBuffer() : Buffer() {
+      this->complete = true;
+    };
     EngineBuffer(const void* ptr) : Buffer(ptr) {
       EngineBuffer* p = (EngineBuffer*)ptr;
+      this->complete = p->complete;
       this->twister = p->twister;
-      this->units = p->units;
-      this->mask = p->mask;
       this->bmus = p->bmus;
-      this->freq = p->freq;
+      this->freqs = p->freqs;
       this->cache = p->cache;
       this->data = p->data;
     };
     ~EngineBuffer() {};
-    vector<vector<mdreal> > diffuse();
     void prepare();
   };
 };

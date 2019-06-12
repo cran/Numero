@@ -1,85 +1,101 @@
 nroSummary <- function(
     data,
     districts,
-    regions,
-    categlim=8) {
-    if(is.null(regions)) {
-        warning("No regions defined.")
-        return(data.frame())
+    regions=NULL,
+    categlim=8,
+    capacity=10) {
+
+    # Check inputs.
+    if(is.vector(data))
+        data <- data.frame(X=data, stringsAsFactors=FALSE)
+    if(is.matrix(regions) || is.data.frame(regions)) {
+        regions <- regions[,"REGION"]
+	names(regions) <- regions[,"REGION.label"]
+    }
+    rlabels <- names(regions)
+    categlim <- as.integer(categlim[[1]])
+    capacity <- as.integer(capacity[[1]])
+
+    # Districts define subgroups directly.
+    g <- districts
+
+    # If available, merge districts into regions.
+    if(length(regions) > 0) {
+        districts <- as.integer(districts)
+
+        # Remove unmatched data points.
+        mask <- which((districts > 0) & (districts <= length(regions)))
+        districts <- districts[mask]
+
+        # Assign data points to regional subgroups.
+	g <- rep(NA, nrow(data))
+        g[mask] <- regions[districts]
     }
 
-    # Training variables.
-    trvars <- attr(districts, "features")
-    trvars <- as.character(trvars)
-    
-    # Exclude unmatched data points.
-    districts <- as.integer(districts)
-    mask <- which((districts > 0) & (districts <= length(regions)))
-    districts <- districts[mask]
-    data <- data[mask,]
+    # Set identities.
+    names(g) <- rownames(data)
 
-    # Assign data points to subgroups.
-    g <- regions[districts]
-    if(sum(is.na(g)) > 0) {
-        warning("Unusable regions.")
-        return(nroSummary.empty())
-    }
-    if(length(unique(g)) < 2) {
+    # Check subgroups.
+    t <- table(g)
+    if(sum(is.na(g)) > 0)
+        warning("Unusable district(s) or region(s) detected.")
+    if(length(t) < 2) {
         warning("Less than two subgroups.")
-        return(nroSummary.empty())
+        return(NULL)
+    }
+    if(length(t) > capacity) {
+        warning("Subgroup capacity exceeded.")
+        return(NULL)
     }
 
     # Process data columns.
-    results <- data.frame()
+    output <- data.frame()
     for(vn in colnames(data)) {
-        nlev <- nlevels(as.factor(data[,vn]))
-	stats <- "Unusable values."
-        if(nlev > categlim) stats <- nroSummary.real(data[,vn], g)
-	else stats <- nroSummary.categ(data[,vn], g)
-	if(is.character(stats)) {
-	    warning(paste(vn, ": ", stats, sep=""))
+        x <- data[,vn]
+        nlev <- nlevels(as.factor(x))
+
+        # Unusable values.
+        if(nlev < 2) {
+	    warning(paste(vn, ": Unusable values.", sep=""))
             next
         }
-	stats <- data.frame(VARIABLE=vn, stats)
-	results <- rbind(results, stats)
+
+        # Categorical data.
+        if((nlev <= categlim) || (is.numeric(x) == FALSE)) {
+	    stats <- nroSummary.categ(x, g)
+	    if(is.character(stats)) {
+	        warning(paste(vn, ": ", stats, sep=""))
+            }
+	    else {
+	        stats <- data.frame(VARIABLE=vn, stats, stringsAsFactors=F)
+	        output <- rbind(output, stats)
+	    }
+	    next
+        }
+
+        # Numerical data.
+	stats <- nroSummary.real(x, g)
+	if(is.character(stats)) {
+	    warning(paste(vn, ": ", stats, sep=""))
+        }
+	else {
+	    stats <- data.frame(VARIABLE=vn, stats, stringsAsFactors=F)
+	    output <- rbind(output, stats)
+	}
     }
 
-    # Erase P-values from training variables.
-    pos <- match(results$VARIABLE, trvars)
-    rows <- which(pos > 0)
-    results[rows,c("P.chisq","P.t","P.anova")] <- NA
-    return(results)
-}
+    # Add region labels.
+    if(length(rlabels) > 0) {
+        pos <- match(output$SUBGROUP, regions)
+        rows <- which(pos > 0)
+        output$LABEL[rows] <- rlabels[pos[rows]]
+    }
 
-#---------------------------------------------------------------------------
-
-nroSummary.empty <- function() {
-    stats <- data.frame(VARIABLE=NA)
-    stats$SUBGROUP <- NA
-    stats$N <- NA
-    stats$MEAN <- NA
-    stats$MEDIAN <- NA
-    stats$SD <- NA
-    stats$TYPE <- NA
-    stats$P.chisq <- NA
-    stats$P.t <- NA
-    stats$P.anova <- NA
-    return(stats)
-}
-
-#---------------------------------------------------------------------------
-
-nroSummary.uniform <- function(x, name) {
-    stats <- data.frame(SUBGROUP=name)
-    stats$N <- sum(0*x == 0)
-    stats$MEAN <- mean(x, na.rm=TRUE)
-    stats$MEDIAN <- stats::median(x, na.rm=TRUE)
-    stats$SD <- stats::sd(x, na.rm=TRUE)
-    stats$TYPE <- "singular"
-    stats$P.chisq <- NA
-    stats$P.t <- NA
-    stats$P.anova <- NA
-    return(stats)
+    # Finish results.
+    attr(output, "labels") <- g
+    attr(output, "subgroups") <- split(1:nrow(data), g)
+    rownames(output) <- NULL
+    return(output)
 }
 
 #---------------------------------------------------------------------------
@@ -87,28 +103,37 @@ nroSummary.uniform <- function(x, name) {
 nroSummary.categ <- function(x, g) {
 
     # Check if enough data.
-    mask <- which(is.na(x) == FALSE)
-    if(length(mask) < 10) return("Too few data.")
+    mask <- which((is.na(x) == FALSE) & (is.na(g) == FALSE))
+    if(length(mask) < 10) return("Too few usable data.")
+    x <- x[mask]
+    g <- g[mask]
 
     # Split into subgroups.
-    xsets <- split(x[mask], g[mask])
+    xsets <- split(x, g)
     if(length(xsets) < 2) return("Only one subgroup.")
 
     # Recode if binary.
-    levs <- levels(as.factor(x[mask]))
-    nlevs <- length(levs)
+    xfact <- as.factor(x)
+    xlevs <- levels(xfact)
+    nlevs <- length(xlevs)
     if(nlevs == 2) {
         xsets <- lapply(xsets, function(v, l) {
 	    v <- (v == l)
-        }, levs[2])
-	levs <- c(TRUE, FALSE)
+        }, xlevs[2])
+	xlevs <- c(TRUE, FALSE)
+	xfact <- (as.integer(xfact) - 1)
     }
 
     # Subgroup sizes.
     stats <- list()
     stats$N <- lapply(xsets, function(v) {
-        return(sum(0*v == 0))
+        return(sum(is.na(v) == FALSE))
     })
+
+    # Add extra class labels to every subgroup to ensure tests
+    # work (this will slightly dilute the results).
+    for(j in 1:length(xsets))
+        xsets[[j]] <- c(xsets[[j]], xlevs)
 
     # Estimate basic subgroup stats.
     stats$MEAN <- rep(NA, length(xsets))
@@ -119,7 +144,7 @@ nroSummary.categ <- function(x, g) {
     # Convert to data frame.
     stats <- lapply(stats, as.double)
     stats <- as.data.frame(stats)
-    stats <- data.frame(SUBGROUP=names(xsets), stats)
+    stats <- data.frame(SUBGROUP=names(xsets), LABEL=NA, stats)
 
     # Add P-value columns.
     stats$TYPE <- "categ"
@@ -129,29 +154,27 @@ nroSummary.categ <- function(x, g) {
     stats$P.anova <- NA
 
     # Find the biggest subgroup.
-    mu <- mean(x, na.rm=TRUE)
     ind <- which.max(stats$N)
     if(length(ind) < 1) return("Unusable subgroups.")
 
-    # Add extra class labels to every subgroup to ensure Chi2-test
-    # works (this will slightly dilute the results).
-    for(k in 1:length(xsets))
-        xsets[[k]] <- c(xsets[[k]], levs)
-
-    # Chi-squared test.
-    suppressWarnings(
+    # Chi-squared test by subgroup.
+    suppressWarnings({
     stats$P.chisq <- lapply(xsets, function(v, v0) {
         bits <- c(rep(0, length(v)), rep(1, length(v0)))
         st <- stats::chisq.test(c(v, v0), bits)
 	return(st$p.value)
-    }, xsets[[ind]]))
+    }, xsets[[ind]])})
     stats$P.chisq <- as.double(stats$P.chisq)
-    
-    # Analysis of variance with randomized design.
-    tmp <- data.frame(X=x, G=as.factor(g))
-    fit <- stats::aov(formula=X~G, data=tmp)
-    stats$P.anova <- unlist(summary(fit))["Pr(>F)1"]
-    stats$P.anova <- as.double(stats$P.anova)
+
+    # Chi-squared test for whole data.
+    suppressWarnings(st <- stats::chisq.test(x, g))
+
+    # Add extra row for full test.
+    stats <- rbind(stats[1,], stats)
+    stats[1,c("SUBGROUP", "MEAN","MEDIAN","SD","P.t","P.anova")] <- NA
+    if(nlevs == 2) stats$MEAN[1] <- mean(xfact, na.rm=TRUE)
+    stats$N[1] <- length(x)
+    stats$P.chisq[1] <- st$p.value
 
     # Return results.
     return(stats)
@@ -160,12 +183,16 @@ nroSummary.categ <- function(x, g) {
 #---------------------------------------------------------------------------
 
 nroSummary.real <- function(x, g) {
-
+    suppressWarnings(x <- as.numeric(x))
+  
     # Check if enough data.
     mask <- which(0*x == 0)
-    sigma <- stats::sd(x, na.rm=TRUE)
     if(length(mask) < 10) return("Too few data.")
+    sigma <- stats::sd(x[mask], na.rm=TRUE)
+    if(!is.finite(sigma)) return("Unusable data.")
     if(sigma < 1e-9) return("Too low variance.")
+    x <- x[mask]
+    g <- g[mask]
 
     # Convert to tapered ranks.
     z <- (rank(x, na.last="keep") - 1)
@@ -173,8 +200,8 @@ nroSummary.real <- function(x, g) {
     z <- 0.5*(z + z^3)
 
     # Split into subgroups.
-    xsets <- split(x[mask], g[mask])
-    zsets <- split(z[mask], g[mask])
+    xsets <- split(x, g)
+    zsets <- split(z, g)
     if(length(xsets) < 2) return("Only one subgroup.")
 
     # Subgroup sizes.
@@ -190,8 +217,8 @@ nroSummary.real <- function(x, g) {
 
     # Convert to data frame.
     stats <- lapply(stats, as.double)
-    stats <- as.data.frame(stats)
-    stats <- data.frame(SUBGROUP=names(xsets), stats)
+    stats <- as.data.frame(stats, stringsAsFactors=FALSE)
+    stats <- data.frame(SUBGROUP=names(xsets), LABEL=NA, stats)
 
     # Add P-value columns.
     stats$TYPE <- "real"
@@ -203,18 +230,36 @@ nroSummary.real <- function(x, g) {
     mu <- mean(x, na.rm=TRUE)
     ind <- which.min(abs(stats$MEAN - mu))
     if(length(ind) < 1) return("Unusable subgroups.")
-    
+
     # Rank-regulated T-tests against the reference group.
     stats$P.t <- lapply(zsets, function(v, v0) {
+        xsigma <- stats::sd(v, na.rm=TRUE)
+	ysigma <- stats::sd(v0, na.rm=TRUE)
+        if(!is.finite(xsigma)) return(1.0)
+	if(!is.finite(ysigma)) return(1.0)
+        if(xsigma < 1e-20) return(1.0)
+	if(ysigma < 1e-20) return(1.0)
         return(stats::t.test(x=v, y=v0)$p.value)
     }, zsets[[ind]])
     stats$P.t <- as.double(stats$P.t)
 
     # Analysis of variance with randomized design.
-    tmp <- data.frame(Z=as.double(z), G=as.factor(g))
-    fit <- stats::aov(formula=Z~G, data=tmp)
-    stats$P.anova <- unlist(summary(fit))["Pr(>F)1"]
-    stats$P.anova <- as.double(stats$P.anova)
+    p.anova <- 1.0
+    try({
+        tmp <- data.frame(Z=as.double(z), G=as.factor(g))
+        fit <- stats::aov(formula=Z~G, data=tmp)
+        p.anova <- unlist(summary(fit))["Pr(>F)1"]
+        p.anova <- as.double(p.anova)
+    }, silent=TRUE)
+
+    # Add extra row for ANOVA.
+    stats <- rbind(stats[1,], stats)
+    stats[1,c("SUBGROUP", "MEAN","MEDIAN","SD","P.t","P.chisq")] <- NA
+    stats$N[1] <- length(x)
+    stats$MEAN[1] <- mean(x, na.rm=TRUE)
+    stats$MEDIAN[1] <- stats::median(x, na.rm=TRUE)
+    stats$SD[1] <- stats::sd(x, na.rm=TRUE)
+    stats$P.anova[1] <- p.anova
 
     # Return results.
     return(stats)

@@ -2,11 +2,19 @@ nroAggregate <- function(
     topology,
     districts,
     data=NULL) {
-    info <- attr(data, "numero")
 
-    # Convert vector input to matrix.
-    if(is.factor(data)) data <- as.numeric(data)
-    if(is.vector(data)) data <- as.matrix(data)
+    # Check if input is a list.
+    if(!is.data.frame(topology) && is.list(topology))
+        topology <- topology$topology
+
+    # Ensure topology is a numeric matrix.
+    topology <- nroRcppMatrix(topology, trim=FALSE)
+
+    # Make sure map info is available.
+    if((length(districts) < 1) || (ncol(topology) < 1)) {
+        warning("Empty inputs.")
+	return(NULL)
+    }
 
     # Estimate sample histogram.
     if(is.null(data)) {
@@ -16,11 +24,22 @@ nroAggregate <- function(
 		     matrix(nrow=0, ncol=0),
                      PACKAGE="Numero")
         if(class(res) == "character") stop(res)
-	res$planes <- data.frame(res$planes, stringsAsFactors=FALSE)
-        return(res)
+	return(as.numeric(res$histograms))
     }
 
-    # Check input sizes.
+    # Convert data to numeric matrix.
+    data <- nroRcppMatrix(data, trim=FALSE)
+    binary <- attr(data, "binary")
+
+    # Remove empty columns.
+    mu <- colMeans(data, na.rm=TRUE)
+    data <- as.matrix(data[,which(0*mu == 0)])
+    if(ncol(data) < 1) {
+       warning("No usable data.")
+       return(NULL)
+    }
+
+    # Check compatibility.
     if(nrow(data) != length(districts))
         stop("Incompatible inputs.")
 
@@ -33,19 +52,25 @@ nroAggregate <- function(
     if(class(res) == "character") stop(res)
 
     # Transpose to column-major format.
+    hgrams <- t(res$histograms)
     planes <- t(res$planes)
-    
-    # Set column names.
-    if(length(colnames(data)) > 0)
-        colnames(planes) <- colnames(data)
-    else
-        colnames(planes) <- (1:ncol(data))
 
-    # Convert to data frame.
-    planes <- data.frame(planes, stringsAsFactors=FALSE)
+    # Convert to a data frame or a vector.
+    if(ncol(planes) > 1) {
+        hgrams <- data.frame(hgrams, stringsAsFactors=FALSE)
+        planes <- data.frame(planes, stringsAsFactors=FALSE)
+        colnames(planes) <- colnames(data)
+        colnames(hgrams) <- colnames(data)
+	rownames(planes) <- 1:nrow(planes)
+	rownames(hgrams) <- 1:nrow(hgrams)
+    }
+    else {
+        planes <- as.vector(planes)
+        hgrams <- as.vector(hgrams)
+    }
 
     # Finish results.
-    attr(planes, "histogram") <- as.numeric(res$histogram)
-    attr(planes, "numero") <- info
+    attr(planes, "histogram") <- hgrams
+    attr(planes, "binary") <- intersect(binary, colnames(data))
     return(planes)
 }

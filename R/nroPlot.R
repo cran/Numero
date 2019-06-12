@@ -5,25 +5,34 @@ nroPlot <- function(
     values=NULL,
     subplot=NULL,
     interactive=FALSE,
+    clear=NULL,
     file=NULL) {
-    if(is.null(labels)) labels <- character()
 
     # Convert inputs to matrices.
     if(is.factor(colors)) colors <- as.character(colors)
     if(is.factor(labels)) labels <- as.character(labels)
     if(is.vector(colors)) colors <- as.matrix(colors)
     if(is.vector(labels)) labels <- as.matrix(labels)
-    if(is.vector(values)) labels <- as.matrix(values)
-
-    # Default column names.
-    if(length(colnames(colors)) < 1)
-        colnames(colors) <- paste(1:ncol(colors))
+    if(is.vector(values)) values <- as.matrix(values)
 
     # Default labels.
+    if(is.null(labels)) labels <- matrix(nrow=0, ncol=0)
     if(nrow(labels) < 1) {
         labels <- matrix("", nrow=nrow(colors), ncol=ncol(colors))
         colnames(labels) <- colnames(colors)
     }
+
+    # Default column names.
+    if(length(colnames(colors)) < 1)
+        colnames(colors) <- paste(1:ncol(colors))
+    if(length(colnames(labels)) < 1)
+        colnames(labels) <- colnames(colors)
+    if((length(values) > 0) && (length(colnames(values)) < 1))
+        colnames(values) <- colnames(colors)
+   
+    # Check if input is a list.
+    if(is.list(elements) && !is.data.frame(elements))
+        elements <- elements$topology
 
     # Check inputs.
     if(nrow(elements) != nrow(colors)) stop("Incompatible colors.")
@@ -33,23 +42,79 @@ nroPlot <- function(
 
     # Make sure all data are available.
     elements <- data.frame(elements, stringsAsFactors=FALSE)
+    if(is.null(elements$REGION)) elements$REGION <- ""
     if(is.null(elements$REGION.label)) elements$REGION.label <- ""
     if(is.null(elements$REGION.color)) elements$REGION.color <- ""
-    if(is.null(elements$REGION)) elements$REGION <- ""
 
-    # Create base figure.
+    # Check that all labels are single characters.
+    flags <- sapply(elements$REGION.label, nchar)
+    if(sum(flags > 1) > 0) {
+        labels <- matrix("", nrow=nrow(labels), ncol=ncol(labels))
+        warning("Multi-character region labels not supported.")
+    }
+
+    # Collect parameters.
     param <- list()
     param$colors <- colors
     param$labels <- labels
     param$values <- values
-    param <- nroPlot.multi(elements, param, subplot)
+    param$interactive <- as.logical(interactive[[1]])
+    param$clear <- param$interactive
+    if(!is.null(clear)) param$clear <- clear
 
-    # Launch interactive mode.
-    if(interactive) elements <- nroPlot.interface(elements, param)
+    # Make variable names of uniform length.
+    vars <- paste(names(values), "                ")
+    vars <- sapply(vars, substr, start=1, stop=16)
+    param$variables <- as.character(vars)
+
+    # Determine subplot geometry.
+    if(length(subplot) < 2) {
+        subplot <- sqrt(ncol(colors) + 1)
+        subplot <- floor(c(subplot, subplot))
+	while((subplot[1])*(subplot[2]) < ncol(colors))
+	    subplot[2] <- (subplot[2] + 1)
+    }
+    subplot <- pmax(subplot, 1, na.rm=TRUE)
+    param$nrows <- subplot[[1]]
+    param$ncols <- subplot[[2]]
+
+    # Set font size adjustment.
+    param$plotcap <- (param$nrows)*(param$ncols)
+    param$cexcoeff <- 1.3/log(0.8*sqrt(param$plotcap) + 1.72)
+
+    # Set plot size parameters.
+    param$xgap <- 0.5
+    param$ygap <- 0.8
+    param$rmax <- max(elements$RADIUS2, na.rm=TRUE)
+    param$wplot <- 2*(param$rmax + param$xgap)
+    param$hplot <- 2*(param$rmax + param$ygap)
+    param$xbounds <- c(0, (param$ncols)*(param$wplot))
+    param$ybounds <- c(0, (param$nrows)*(param$hplot))
+    if(param$interactive == FALSE)
+	param$ybounds[2] <- (param$ybounds[2] - 0.7)
+
+    # Set colormap for highlights.
+    param$colormap <- nroPlot.colormap()
+
+    # Trigger a new plot.
+    param$trigger <- 0
+    param$nplots <- 0
 
     # Save figure as Scalable Vector Graphics.
-    if(is.null(file)) return(elements)
-    nbytes <- nroPlot.save(file, elements, param)
+    if(is.null(file) == FALSE) {
+        nbytes <- nroPlot.save(file, elements, param)
+        return(elements)
+    }
+
+    # Create base figure.
+    param <- nroPlot.multi(elements, param)
+
+    # Launch interactive mode.
+    if(param$interactive)
+        elements <- nroPlot.interface(elements, param)
+
+    # Clear remnant figures in RStudio.
+    if(param$clear) nroPlot.multi(elements, param)
     return(elements)
 }
 
@@ -101,6 +166,12 @@ nroPlot.exit <- function(elements, subgrp, name, param=NULL) {
    subnames <- elements$REGION
    if(sum(subnames == name) > 0) {
        cat("Subgroup '", name, "' already exists.", sep="")
+       return(NULL)
+   }
+
+   # Check if name is reserved.
+   if(name == "not_selected") {
+       cat("Cannot use '", name, "' for a selected subgroup.", sep="")
        return(NULL)
    }
 
@@ -195,7 +266,11 @@ nroPlot.interface <- function(elements, param) {
 	       ans <- ""
 	       while(ans != "n") {
 	           ans <- readline("End session (y/n): ")
-	           if(ans == "y") return(elements)
+	           if(ans == "y") {
+		       skipped <- which(elements$REGION == "")
+                       elements$REGION[skipped] <- "not_selected"
+		       return(elements)
+		   }
 	       }
 	       cat(greet); next
 	    }
@@ -203,9 +278,15 @@ nroPlot.interface <- function(elements, param) {
             # Ask for subgroup identifier.
 	    res <- NULL; name <- ""
 	    while(is.null(res)) {
-	        msg <- "\nEnter subgroup name (leave empty to go back): " 
+	        msg <- "\nSubgroup name (empty to cancel, 'q' to exit): " 
                 name <- readline(msg)
 		if(nchar(name) < 1) break
+		if((name == "q") || (name == "'q'")) {
+		    mask <- which(elements$REGION.label == "?")
+		    vars <- c("REGION","REGION.label","REGION.color")
+		    elements[mask,vars] <- ""
+		    return(elements)
+                }
                 res <- nroPlot.exit(elements, subgrp, name, param)
             }
             if(nchar(name) < 1) {cat(greet); next}
@@ -243,10 +324,14 @@ nroPlot.interface <- function(elements, param) {
             elements$REGION.label[ind] <- "?"
 	}
 
-        # Print values on the map.
-        if(is.null(param$values) == FALSE) {
-	    cat("\n"); print(param$values[ind,])
-	 }
+        # Print values from the currently selected district.
+        if(!is.null(param$values)) {
+	    vals <- as.double(param$values[ind,])
+	    vals <- formatC(vals, format="g", digits=3, flag="#")
+	    for(j in 1:length(vals))
+	      cat("\n", param$variables[j], " ", vals[j], sep="")
+            cat("\n")
+	}
 
         # Redraw plots.
 	param <- nroPlot.multi(elements, param, targets=ind)
@@ -256,43 +341,9 @@ nroPlot.interface <- function(elements, param) {
 
 #----------------------------------------------------------------------------
 
-nroPlot.multi <- function(elements, param, mfrow=c(), targets=c()) {
+nroPlot.multi <- function(elements, param, targets=c()) {
     colrs <- param$colors
     labls <- param$labels
-
-    # Set visualization parameters.
-    if(is.null(param$nrows)) {
-
-        # Determine subplot layout.
-        if(length(mfrow) < 1) {
-          mfrow <- sqrt(ncol(colrs) + 1)
-          mfrow <- floor(c(mfrow, mfrow))
-	  while((mfrow[1])*(mfrow[2]) < ncol(colrs))
-	      mfrow[2] <- (mfrow[2] + 1)
-        }
-
-        # Set font size adjustment.
-        param$nrows <- mfrow[1]
-        param$ncols <- mfrow[2]
-	param$plotcap <- (param$nrows)*(param$ncols)
-        param$cexcoeff <- 1.3/log(0.8*sqrt(param$plotcap) + 1.72)
-
-        # Set plot size parameters.
-        param$xgap <- 0.5
-        param$ygap <- 1.0
-        param$rmax <- max(elements$RADIUS2, na.rm=TRUE)
-        param$wplot <- 2*(param$rmax + param$xgap)
-        param$hplot <- 2*(param$rmax + param$ygap)
-        param$xbounds <- c(0, (param$ncols)*(param$wplot))
-        param$ybounds <- c(0, (param$nrows)*(param$hplot))
-
-        # Set colormap for highlights.
-	param$colormap <- nroPlot.colormap()
-
-        # Trigger a new plot.
-	param$trigger <- 0
-	param$nplots <- 0
-    }
 
     # Shorthands for parameters.
     colrs <- param$colors
@@ -313,6 +364,7 @@ nroPlot.multi <- function(elements, param, mfrow=c(), targets=c()) {
 
     # Create a new plot.
     if(resetflag) {
+        if(param$clear) grDevices::graphics.off()
         graphics::par(pty="m", mar=c(0,0,0,0))
         graphics::plot(x=NA, y=NA, asp=1, xlab=NA, ylab=NA,
              axes=FALSE, xlim=xbounds, ylim=ybounds)
@@ -322,23 +374,22 @@ nroPlot.multi <- function(elements, param, mfrow=c(), targets=c()) {
 
     # Draw map colorings.
     nplots <- 0
-    for(vn in colnames(colrs)) {
-        if(nplots >= nrows*ncols) {
-	    if(is.null(param$warn.subplot)) {
-	        warning("Too many subplots to fit in figure.")
-	        param$warn.subplot = TRUE
-	    }
-            break
+    titles <- colnames(colrs)
+    for(j in 1:ncol(colrs)) { 
+        if(j > nrows*ncols) {
+            warning("Too many subplots to fit in figure.")
+            param$warn.subplot = TRUE
+	    break
         }
-
+	
         # Determine position offsets.
         dx <- ((nplots%%ncols)*wplot + rmax + xgap)
         dy <- (floor(nplots/ncols)*hplot + rmax + ygap)
         dy <- (ybounds[2] - dy)
 
         # Set colrs and labls.
-	elements$COLOR <- colrs[,vn]
-	elements$LABEL <- labls[,vn]
+	elements$COLOR <- colrs[,j]
+	elements$LABEL <- labls[,j]
 
         # Set label colors.
         elements$LABEL.color <- "black"
@@ -352,7 +403,8 @@ nroPlot.multi <- function(elements, param, mfrow=c(), targets=c()) {
 
         # Write title text if a full refresh.
 	if(!resetflag) next
-        graphics::text(x=dx, y=(dy + rmax + 0.5), labels=vn, cex=cexcoeff)
+        graphics::text(x=dx, y=(dy + rmax + 0.5),
+	               labels=titles[j], cex=cexcoeff)
     }
 
     # Update the event counter.
@@ -371,13 +423,13 @@ nroPlot.save <- function(file, elements, param) {
     nrows <- param$nrows
     ncols <- param$ncols
     wplot <- param$wplot
-    hplot <- param$hplot
+    hplot <- (param$hplot + 0.5) # extra space for time stamp
     rmax <- param$rmax
     xgap <- param$xgap
-    ygap <- param$ygap
+    ygap <- param$ygap # extra gap for time stamp
     xbounds <- param$xbounds
     ybounds <- param$ybounds
-    
+
     # Set file path.
     fname <- path.expand(file)
     if(nchar(fname) < 1) stop("Unusable file name.")
@@ -409,7 +461,7 @@ nroPlot.save <- function(file, elements, param) {
         dx <- (jc*wplot + rmax + xgap)
         dy <- (jr*hplot + rmax + ygap)
 
-        # Create a new plot.
+       # Create a new plot.
         res <- .Call("nro_circus",
 	             c(dx, dy),
                      as.matrix(topo),
@@ -445,8 +497,7 @@ nroPlot.save <- function(file, elements, param) {
 
 #----------------------------------------------------------------------------
 
-nroPlot.single <- function(elements, offsets=c(0,0),
-                           scale=1, targets=NULL) {
+nroPlot.single <- function(elements, offsets=c(0,0), scale=1, targets=NULL) {
 
     # Draw background circle if untargeted refresh.
     rmax <- max(elements$RADIUS2, na.rm=TRUE)
@@ -454,8 +505,8 @@ nroPlot.single <- function(elements, offsets=c(0,0),
     flexC <- rep(-0.77, length(angC))
     if(is.null(targets)) {
         graphics::xspline(x=(rmax*cos(angC) + offsets[1]),
-            y=(rmax*sin(angC) + offsets[2]),
-            shape=flexC, lwd=3*scale, border="grey70", open=FALSE)
+            y=(rmax*sin(angC) + offsets[2]), shape=flexC,
+	    lwd=3*scale, border="grey70", col="grey90", open=FALSE)
     }
 
     # Default selection mask.
@@ -515,8 +566,8 @@ nroPlot.single <- function(elements, offsets=c(0,0),
         yp <- elem$Y[mask]
 	cl <- elem$REGION.color[mask]
 	lb <- elem$REGION.label[mask]
-        graphics::points(x=xp, y=yp, pch=16, col=cl, cex=2.7*scale)
-        graphics::points(x=xp, y=yp, col="white", cex=2.7*scale)
+        graphics::points(x=xp, y=yp, pch=16, col=cl, cex=2.2*scale)
+        graphics::points(x=xp, y=yp, col="white", cex=2.2*scale)
         graphics::text(x=xp, y=yp, cex=0.8*scale, font=2,
 	    labels=lb, col="white")
     }
