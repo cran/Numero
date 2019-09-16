@@ -284,6 +284,7 @@ numero.clean.filter <- function(ds, rnames, na.freq, num.only) {
       n1 <- sum((x == 1), na.rm=TRUE)
       if((n0 + n1) == sum(bits.fin)) binary <- c(binary, vn)
       numerics <- c(numerics, vn)
+      ds[,vn] <- x # enforce correct class
     }
 
     # Print report.

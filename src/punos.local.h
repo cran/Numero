@@ -41,7 +41,7 @@ namespace punos_local {
   public:
     mdreal sigma;
     mdreal maxradius;
-    vector<Unit> coord;
+    vector<District> coord;
     vector<mdreal> levels;
     vector<LinkMap> network;
   public:
@@ -67,7 +67,7 @@ namespace punos_local {
   /* Utility functions. */
   extern vector<mdreal> smoothen(const vector<mdreal>&,
 				 const vector<LinkMap>&);
-};
+}
 
 using namespace punos_local;
 

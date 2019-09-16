@@ -8,7 +8,7 @@
  *
  */
 Frame
-Topology::write(const mdreal x0, const mdreal y0,
+Topology::write(const mdreal xorig, const mdreal yorig,
 		const vector<string>& labels,
 		const vector<Color>& colors,
 		const Style& base) const {
@@ -16,43 +16,50 @@ Topology::write(const mdreal x0, const mdreal y0,
   mdreal rho = TopologyBuffer::scale();
 
   /* Check input. */
-  const vector<Unit>& units = p->coord;
-  if(labels.size() != units.size()) return Frame();
-  if(colors.size() != units.size()) return Frame();
+  const vector<District>& districts = p->coord;
+  if((labels.size() != districts.size()) ||
+     (colors.size() != districts.size())) {
+    medusa::worry("Incompatible inputs.", __FILE__);
+    return Frame();
+  }
 
-  /* Force labels to the center of unit areas. */
+  /* Force labels to the center of district areas. */
   Style sty = base;
+  sty.pointable = false;
   sty.anchor = "middle";
 
   /* Open group. */
   Frame fr;
-  fr.group(1);
+  fr.group(base.identity);
 
   /* Write labels. */
   for(mdsize k = 0; k < labels.size(); k++) {
     const string& label = labels[k];
+    const Color& c = colors[k];
     if(label.size() < 1) continue;
+    if(c.opacity <= 0.0) continue;
 
     /* Scale positions to canvas coordinates. */
-    const Unit& u = units[k];
-    mdreal x = rho*(x0 + u.x);
-    mdreal y = rho*(y0 + u.y);
+    const District& u = districts[k];
+    mdreal x = (xorig + rho*(u.x));
+    mdreal y = (yorig + rho*(u.y));
 
     /* Fine tune label position. */
     if(label[0] == '+') x -= 0.33*(sty.fontsize);
     if(label[0] == '-') x -= 0.33*(sty.fontsize);
 
-    /* Set label color. */
-    sty.fillcolor = colors[k];
-    sty.strokecolor = colors[k];
+    /* Set label color and identity. */
+    sty.fillcolor = c;
+    sty.strokecolor = c;
+    if(base.identity.size() > 0)
+      sty.identity = (base.identity + "_" + long2string(k));
     fr.stylize(sty);
 
     /* Write label. */
-    bool flag = fr.text(x, y, label);
-    if(!flag) return Frame();
+    if(!fr.text(x, y, label)) return Frame();
   }
 
   /* Close group. */
-  fr.group(-1);
+  fr.group();
   return fr;
 }

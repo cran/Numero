@@ -25,18 +25,18 @@ nro_kohonen(SEXP seeds_R, SEXP rho_R) {
   /* Create map topology. */
   vector<mdreal> epochs(1, 0.0);
   punos::Topology topo(epochs, (mdsize)(rho + 0.5));
-  mdsize nunits = topo.size();
-  if(nunits < 1) return CharacterVector("Cannot create topology.");
+  mdsize ndistricts = topo.size();
+  if(ndistricts < 1) return CharacterVector("Cannot create topology.");
 
   /* Interpolate component planes. */
   vector<vector<mdreal> > protos = topo.interpolate(seeds);
-  if(protos.size() != nunits)
+  if(protos.size() != ndistricts)
     return CharacterVector("Prototype interpolation failed.");
 
   /* Collect coordinate data. */
-  vector<vector<mdreal> > coord(nunits);
-  for(mdsize i = 0; i < nunits; i++) {
-    punos::Unit u = topo[i];
+  vector<vector<mdreal> > coord(ndistricts);
+  for(mdsize i = 0; i < ndistricts; i++) {
+    punos::District u = topo[i];
     vector<mdreal>& c = coord[i];
     c.push_back(u.x);
     c.push_back(u.y);

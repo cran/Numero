@@ -16,7 +16,7 @@ Engine::shuffle(const bool flag) {
   vector<mdsize>& loci = (p->bmus).first;
   mdsize nelem = loci.size();
   if(nelem < 1) return false;
-
+  
   /* If some data are missing or if sampling with replacement,
      histograms need to be updated. */
   if(p->complete == false) (p->freqs).clear();

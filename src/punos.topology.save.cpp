@@ -24,7 +24,7 @@ Topology::save(const string& fname) const {
   
   /* Save coordinate headings. */
   vector<string> array(7);
-  array[0] = "\nUNIT";
+  array[0] = "\nDISTRICT";
   array[1] = "X";
   array[2] = "Y";
   array[3] = "RADIUSa";
@@ -35,15 +35,15 @@ Topology::save(const string& fname) const {
 
   /* Save coordinate data. */
   for(mdsize i = 0; i < (p->coord).size(); i++) {
-    Unit unit = p->coord[i];
-    if(unit.x == rlnan) panic("Unusable unit.", __FILE__, __LINE__);
+    District district = p->coord[i];
+    if(district.x == rlnan) panic("Unusable district.", __FILE__, __LINE__);
     array[0] = long2string(i);
-    array[1] = real2string(unit.x);
-    array[2] = real2string(unit.y);
-    array[3] = real2string(unit.radii.first);
-    array[4] = real2string(unit.radii.second);
-    array[5] = real2string(unit.angles.first);
-    array[6] = real2string(unit.angles.second);
+    array[1] = real2string(district.x);
+    array[2] = real2string(district.y);
+    array[3] = real2string(district.radii.first);
+    array[4] = real2string(district.radii.second);
+    array[5] = real2string(district.angles.first);
+    array[6] = real2string(district.angles.second);
     n += f.write(array, '\t');
   }
 

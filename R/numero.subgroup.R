@@ -1,7 +1,7 @@
 numero.subgroup <- function(
     results,
     variables,
-    elements=NULL,
+    topology=NULL,
     reference=NULL,
     gain=1.0,
     detach=FALSE,
@@ -12,7 +12,7 @@ numero.subgroup <- function(
 
     # Default inputs.
     if(is.null(variables)) variables <- colnames(results$planes)
-    if(is.null(elements)) elements <- results$som$topology
+    if(is.null(topology)) topology <- results$som$topology
     if(is.null(reference)) reference <- results
     detach <- as.character(detach[[1]])
 
@@ -73,7 +73,7 @@ numero.subgroup <- function(
     # Set colors and labels.
     colrs <- nroColorize(values=comps, amplitudes=amplitudes,
                          ranges=ranges, palette=palette)
-    labls <- nroLabel(topology=elements, values=comps)
+    labls <- nroLabel(topology=topology, values=comps)
 
     # Launch a detached window.
     if(detach != "FALSE") {
@@ -89,22 +89,20 @@ numero.subgroup <- function(
     }
 
     # Interactive subgrouping.
-    try(elements <- nroPlot(elements=elements,
-        colors=colrs, labels=labls, values=comps,
+    try(topology <- nroPlot(topology=topology, colors=colrs, labels=labls,
         interactive=TRUE, clear=(detach == "FALSE")), silent=TRUE)
 
     # Convert to data frame.
-    elements <- as.data.frame(elements, stringsAsFactors=FALSE)
+    topology <- as.data.frame(topology, stringsAsFactors=FALSE)
 
     # Print report.
-    t <- table(elements$REGION)
-    nsubs <- length(table(t))
+    t <- table(topology$REGION)
     if(sum(names(t) == "not_selected") < 1) {
+        nsubs <- length(t)
         cat("\n", nsubs, " subgroup(s) selected\n", sep="")
-    }
-    else {
-        nsubs <- (nsubs - 1)
+    } else {
+        nsubs <- (length(t) - 1)
         cat("\n", nsubs, " + 1 subgroup(s) selected\n", sep="")
     }
-    return(elements)
+    return(topology)
 }

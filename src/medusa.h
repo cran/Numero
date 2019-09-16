@@ -161,6 +161,6 @@ namespace medusa {
 
   /* Version information. */
   extern std::string version();
-};
+}
 
 #endif /* medusa_INCLUDED */

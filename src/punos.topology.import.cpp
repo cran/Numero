@@ -85,11 +85,11 @@ load_coord(TopologyBuffer* p, File& f) {
   /* Find first row. */
   while(f.error().size() < 1) {
     vector<string> fields = f.read('\t', 1);
-    if(fields[0] == "UNIT") break;
+    if(fields[0] == "DISTRICT") break;
   }
 
   /* Import data rows. */
-  vector<Unit> units; Unit u;
+  vector<District> districts; District u;
   while(f.error().size() < 1) {
     vector<string> fields = f.read('\t', 0);
     if(fields.size() != 7) break;
@@ -101,34 +101,34 @@ load_coord(TopologyBuffer* p, File& f) {
       if(values[j] == rlnan) return "Unusable value.";
     }
 
-    /* Check unit identity. */
+    /* Check district identity. */
     mdsize key = (mdsize)(values[0] + 0.5);
-    if(key != units.size()) return "Inconsistent unit data.";
+    if(key != districts.size()) return "Inconsistent district data.";
     
-    /* Store unit. */
+    /* Store district. */
     u.x = values[1];
     u.y = values[2];
     u.radii.first = values[3];
     u.radii.second = values[4];
     u.angles.first = values[5];
     u.angles.second = values[6];
-    units.push_back(u);
+    districts.push_back(u);
   }
 
   /* Check if any data. */
-  if(units.size() < 1) return "No units.";
+  if(districts.size() < 1) return "No districts.";
 
   /* Determine map radius. */
   mdreal rmax = rlnan;
-  for(mdsize i = 0; i < units.size(); i++) {
-    if(rmax == rlnan) rmax = units[i].radii.second;
-    if(units[i].radii.second < rmax) continue;
-    rmax = units[i].radii.second;
+  for(mdsize i = 0; i < districts.size(); i++) {
+    if(rmax == rlnan) rmax = districts[i].radii.second;
+    if(districts[i].radii.second < rmax) continue;
+    rmax = districts[i].radii.second;
   }
   
   /* Update object. */
   p->maxradius = rmax;
-  p->coord = units;
+  p->coord = districts;
   return "";
 }
 

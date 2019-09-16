@@ -24,9 +24,9 @@ Engine::insert(const string& key, const mdsize unit,
   if(nvalid < 1) return "No usable data.";
  
   /* Check that dimensions match. */
-  mdsize ncols = (p->data).order();
-  if(ncols < 1) ncols = values.size();
-  if(values.size() != ncols) return "Incompatible input.";
+  if(p->order < 1) p->order = values.size();
+  if(values.size() != p->order)
+    return "Incompatible input.";
 			       
   /* Insert a new data point. */
   mdsize rank = (p->points).size();

@@ -10,7 +10,8 @@ K-means clustering for multi-dimensional data.
 }
 
 \usage{
-nroKmeans(data, k = 3, subsample = NULL, balance = 0, metric = "euclid")
+nroKmeans(data, k = 3, subsample = NULL, balance = 0,
+          metric = "euclid", message = NULL)
 }
 
 \arguments{
@@ -28,6 +29,10 @@ Penalty parameter for size difference between clusters.
   }
   \item{metric}{
 Distance metric in data space, either "euclid" or "pearson".
+  }
+  \item{message}{
+If positive, progress information is printed at the specified
+interval in seconds.
   }
 }
 

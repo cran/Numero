@@ -60,7 +60,7 @@ namespace akkad_local {
    *
    */
   typedef map<string, FieldSet> InstrMap;
-};
+}
 
 using namespace akkad_local;
 

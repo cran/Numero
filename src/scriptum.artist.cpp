@@ -23,7 +23,7 @@ Artist::Artist(const string& fname) {
     worry(("Cannot open '" + fname + "'."), "");
     return;
   }
-
+  
   /* Print prolog. */
   string protext = p->prolog(Color());
   p->filesize += fprintf(p->output, "%s", protext.c_str());

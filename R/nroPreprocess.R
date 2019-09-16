@@ -91,8 +91,15 @@ nroPreprocess.std <- function(x, method, clip=NA) {
     tmin <- min(t, na.rm=TRUE)
     if((tmin >= 0) && (sum(is.finite(t)) >= 10)) {
          t.log <- log(t + 1e-20)
-         suppressWarnings(w <- stats::shapiro.test(t))
-         suppressWarnings(w.log <- stats::shapiro.test(t.log))
+
+         # Downsample for Shapiro test.
+         mask <- which(0*t.log == 0)
+         if(length(mask) > 5000)
+	     mask <- sample(mask, size=5000)    
+
+         # Test for normality.
+         suppressWarnings(w <- stats::shapiro.test(t[mask]))
+         suppressWarnings(w.log <- stats::shapiro.test(t.log[mask]))
 	 if((w$p.value < 0.05) && (w$statistic < w.log$statistic)) {
              x <- log(x + 1e-20)
              t <- t.log

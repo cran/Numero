@@ -17,9 +17,9 @@ nro_diffuse(SEXP topo_R, SEXP bmus_R, SEXP data_R) {
 
   /* Get map topology. */
   vector<vector<mdreal> > topodata = nro::matrix2reals(topo_R, 0.0);
-  punos::Topology topo = nro::reals2topology(topodata);
+  punos::Topology topo = nro::reals2topology(topodata, SIGMA_nro);
   if(topo.size() < 1) return CharacterVector("Unusable topology.");
-
+  
   /* Switch to C++ indexing. */
   for(mdsize i = 0; i < bmus.size(); i++) {
     if(bmus[i] > 0) bmus[i] -= 1;

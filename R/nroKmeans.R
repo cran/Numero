@@ -3,7 +3,8 @@ nroKmeans <- function(
     k=3,
     subsample=NULL,
     balance=0,
-    metric="euclid"){
+    metric="euclid",
+    message=NULL){
 
     # Convert data to numeric matrix.
     data <- nroRcppMatrix(data, trim=TRUE)
@@ -15,6 +16,45 @@ nroKmeans <- function(
         warning("Unusable row(s) excluded.")
     if(length(attr(data, "excl.columns")) > 0)
         warning("Unusable column(s) excluded.")
+
+    # Ensure inputs are safe for C++.
+    if(is.null(k)) k <- 3
+    else k <- as.integer(k[[1]])
+    if(is.null(subsample)) subsample <- nrow(data)
+    else subsample <- as.integer(subsample[[1]])
+    if(is.null(balance)) balance <- 0.0
+    else balance <- as.double(balance[[1]])
+    if(is.null(message)) message <- -1.0
+    else message <- as.double(message[[1]])
+    if(is.null(metric)) metric <- "euclid"
+    else metric <- as.character(metric[[1]])
+
+    # Check subsample size.
+    if(!is.finite(subsample)) subsample <- nrow(data)
+    if(subsample > nrow(data)) subsample <- nrow(data)
+    if(subsample < (k + 10)) stop("Too small subsample.")
+
+    # Check distance metric.
+    if((metric != "euclid") && (metric != "pearson"))
+        stop("Unknown distance metric.")
+    
+    # Check message interval.
+    if(!is.finite(message)) message <- -1.0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     # Ensure parameter inputs are safe for C++.
     k <- as.integer(k[[1]])
@@ -43,6 +83,11 @@ nroKmeans <- function(
     if((metric != "euclid") && (metric != "pearson"))
         stop("Unknown distance metric.")
  
+    # Check message interval.
+    if(is.null(message)) message <- -1.0
+    message <- as.double(message[[1]])
+    if(!is.finite(message)) message <- -1.0
+
     # Estimate centroids.
     res <- .Call("nro_train",
                  as.matrix(k),
@@ -51,6 +96,7 @@ nroKmeans <- function(
 		 as.character(metric),
                  as.integer(subsample),
                  as.double(balance),
+		 as.double(message),
                  PACKAGE="Numero")
     if(class(res) == "character") stop(res)
     

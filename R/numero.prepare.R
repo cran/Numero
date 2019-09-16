@@ -16,18 +16,18 @@ numero.prepare <- function(
 
     # Create a new pipeline.
     if(is.null(pipeline)) {
- 	cat("\nSetting up:\n")
+        cat("\nSetting up:\n")
         pipeline <- list(batch=batch)
 
         # Select variables.
-	convars <- intersect(confounders, colnames(data))
-	batvars <- intersect(batch, colnames(data))
-	datvars <- intersect(variables, colnames(data))
+        convars <- intersect(confounders, colnames(data))
+        batvars <- intersect(batch, colnames(data))
+        datvars <- intersect(variables, colnames(data))
         datvars <- setdiff(datvars, c(convars, batch))
         convars <- setdiff(convars, batch)
 
         # Convert to numeric and trim empty rows and columns.
-	ds <- nroRcppMatrix(data[,c(convars, datvars)], trim=TRUE)
+        ds <- nroRcppMatrix(data[,c(convars, datvars)], trim=TRUE)
         convars <- intersect(convars, colnames(ds))
         datvars <- intersect(datvars, colnames(ds))
 
@@ -35,42 +35,53 @@ numero.prepare <- function(
         cat(length(convars), " / ", length(confounders),
             " confounder column(s)\n", sep="")
         cat(length(batvars), " / ", length(batch),
-	    " batch column(s)\n", sep="")
+            " batch column(s)\n", sep="")
         cat(length(datvars), " / ", length(variables),
             " data column(s)\n", sep="")
-	if(length(datvars) < 3) {
-	    cat("too few data columns\n")
-	    return(NULL)
-	}
+        if(length(datvars) < 3) {
+            cat("too few data columns\n")
+            return(NULL)
+        }
 
         # First round of preprocessing.
         suppressWarnings(ds <- nroPreprocess(data=ds, method=method))
         pipeline$mapping1 <- attr(ds, "mapping")
 
         # Regression model of confounding.
-	if(length(convars) > 0) {
-	    ds <- numero.prepare.regress(ds, convars)
+        if(length(convars) > 0) {
+            ds <- numero.prepare.regress(ds, convars)
             pipeline$adjustment <- attr(ds, "adjustment")
         }
 
         # Correction model for batch differences.
-	if(length(batvars) > 0) {
+        if(length(batvars) > 0) {
             ds <- numero.prepare.flatten(ds, data, batvars)
             pipeline$correction <- attr(ds, "correction")
         }
 
         # Second round of preprocessing.
-	if((length(convars) + length(batvars)) > 0) {
+        if((length(convars) + length(batvars)) > 0) {
             suppressWarnings(ds <- nroPreprocess(data=ds, method=method))
             pipeline$mapping2 <- attr(ds, "mapping")
-	}
+        }
+
+        # Prune collinear variables.
+        #if(!is.null(modules)) {
+        #    suppressWarnings(ds <- nroPrune(data=ds, modules=modules))
+        #    pipeline$modules <- attr(ds, "modules")
+        #}
     }
 
-    # First round of preprocessing.
+    # Check if pipeline is in the attribute.
+    if(is.data.frame(pipeline) || is.matrix(pipeline)) 
+        pipeline <- attr(pipeline, "pipeline")
+
+    # First round of preprocessing, keep empty rows.
     cat("\nProcessing:\n")
     if(!is.null(pipeline$mapping1)) {
-        suppressWarnings(ds <- nroPostprocess(data, pipeline$mapping1))
-	cat(ncol(ds), " column(s) standardized\n", sep="")
+        suppressWarnings(ds <- nroPostprocess(data=data,
+            mapping=pipeline$mapping1, trim=FALSE))
+        cat(ncol(ds), " column(s) standardized\n", sep="")
     }
 
     # Adjust for confounding.
@@ -84,11 +95,18 @@ numero.prepare <- function(
         subsets <- attr(ds, "subsets")
     }
 
-    # Second round of preprocessing.
+    # Second round of preprocessing with removal of empty rows.
     if(!is.null(pipeline$mapping2)) {
-        suppressWarnings(ds <- nroPostprocess(ds, pipeline$mapping2))
-	cat(ncol(ds), " column(s) re-standardized\n", sep="")
+        suppressWarnings(ds <- nroPostprocess(data=ds,
+            mapping=pipeline$mapping2, trim=TRUE))
+        cat(ncol(ds), " column(s) re-standardized\n", sep="")
     }
+
+    # Prune collinear variables.
+    #if(!is.null(pipeline$modules)) {
+    #    suppressWarnings(ds <- nroPrune(ds, pipeline$modules))
+    #    cat(ncol(ds), " column(s) after pruning\n", sep="")
+    #}
 
     # Final report.
     if(is.null(ds)) ds <- data.frame()
@@ -131,12 +149,12 @@ numero.prepare.regress <- function(ds, convars) {
 
         # Regress confounding variance.
         m <- stats::lm.fit(x=confs[mask,], y=y[mask])
-	n <- sum(is.finite(m$residuals))
-	if(n < 10) next
+        n <- sum(is.finite(m$residuals))
+        if(n < 10) next
 
         # Update results.
         coeff[vn,] <- as.double(m$coefficients)
-	ds[mask,vn] <- m$residuals
+        ds[mask,vn] <- m$residuals
     }
     
     # Remove failed models.
@@ -227,8 +245,8 @@ numero.prepare.flatten <- function(ds, ds.orig, batch) {
         model.in <- ds[rows,]
         model.out <- ds.new[rows,]
         model.in <- apply(model.in, 2, stats::quantile, probs=q, na.rm=T)
-        model.out <- apply(model.out, 2, stats::quantile, probs=q, na.rm=T)	
-	mappings[[sn]] <- list(input=model.in, output=model.out)
+        model.out <- apply(model.out, 2, stats::quantile, probs=q, na.rm=T)
+        mappings[[sn]] <- list(input=model.in, output=model.out)
     }
 
     # Return results.
@@ -242,20 +260,21 @@ numero.prepare.flatten <- function(ds, ds.orig, batch) {
 
 #--------------------------------------------------------------------------
 
-numero.prepare.correct <- function(ds, data, param) {
+numero.prepare.correct <- function(ds, ds.orig, param) {
     if(length(ds) < 1) return(NULL)
-    if(nrow(ds) != nrow(data)) stop("Incompatible inputs.")
+
+    if(nrow(ds) != nrow(ds.orig)) stop("Incompatible inputs.")
     if(is.null(param)) return(ds)
 
     # Check batch info.
-    batch <- intersect(colnames(data), param$batch)
+    batch <- intersect(colnames(ds.orig), param$batch)
     if(length(batch) < 1) {
         cat("batch column missing\n")
         return(NULL)
     }
 
     # Separate batches.
-    labels <- data[,param$batch]
+    labels <- ds.orig[,param$batch]
     subsets <- split(1:length(labels), labels)
 
     # Check compatibility of mappings.
@@ -270,8 +289,9 @@ numero.prepare.correct <- function(ds, data, param) {
     vars <- intersect(colnames(ds), param$variables)
     for(sn in names(subsets)) {
         rows <- subsets[[sn]]
-	suppressWarnings(
-        ds[rows,vars] <- nroPostprocess(ds[rows,vars], mappings[[sn]]))
+        map <- mappings[[sn]]
+        suppressWarnings(
+        ds[rows,vars] <- nroPostprocess(ds[rows,vars], map))
     }
 
     # Show report.

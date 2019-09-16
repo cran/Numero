@@ -7,7 +7,7 @@
 was created for another dataset}
 
 \usage{
-nroPostprocess(data, mapping)
+nroPostprocess(data, mapping, reverse = FALSE, trim = FALSE)
 }
 
 \arguments{
@@ -17,6 +17,14 @@ A matrix or a data frame with column names.
 
   \item{mapping}{
 A list object or a matrix or a data frame. 
+  }
+  
+  \item{reverse}{
+If true, standardized data will be reverted back to original scale. 
+  }
+  
+  \item{trim}{
+If true, unusable rows and columns are removed. 
   }
 }
 
@@ -31,10 +39,7 @@ to determine the positions of the input values with respect to the rows
 in the model. These positions are then used to interpolate corresponding
 output values in \code{mapping$output}.
 
-The mapping elements must have identical row and columns names.
-
-The output data frame may have less rows and columns than the input
-depending on how many values were usable.
+The mapping elements must have consistent row and column names.
 }
 
 \value{

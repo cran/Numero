@@ -6,7 +6,7 @@ Label pruning
 }
 
 \description{
-Optimize the selection of labels on map districts.
+Optimize the look and selection of labels on map districts.
 }
 
 \usage{
@@ -27,11 +27,11 @@ Minimum distance between map districts with non-empty labels.
 }
 
 \details{
-The function assigns non-empty labels for districts based on the absolute
+The function assigns visible labels for districts based on the absolute
 deviations from the average district value. The most extreme districts are
 picked first, and then the remaining districts are prioritized based on
 their value and distance to the other districts already labeled. Columns
-that are listed in the attribute 'binary' in 'values' are given
+that are listed in the attribute "binary" in \code{values} are given
 percentage labels.
 
 Topology can be either the output from \code{\link{nroKohonen}()} or a
@@ -40,8 +40,9 @@ aforementioned output list.
 }
 
 \value{
-A data frame with K rows and N columns that contains labels for
-the map districts for each of the columns in \code{values}.
+A data frame with K rows and N columns that contains easy-to-read labels
+for the map districts for each of the columns in \code{values}. The output
+has the attribute "visible" that contains binary flags to guide visibility.
 }
 
 \references{
@@ -75,9 +76,11 @@ planes <- nroAggregate(topology = sm, districts = matches, data = dataset)
 
 # District labels for cholesterol.
 chol <- nroLabel(topology = sm, values = planes$CHOL)
+print(head(attr(chol, "visible")))
 print(head(chol))
 
 # District labels for all variables.
 colrs <- nroLabel(topology = sm, values = planes)
+print(head(attr(colrs, "visible")))
 print(head(colrs))
 }

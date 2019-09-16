@@ -261,6 +261,6 @@ namespace abacus {
 
   /* Version information. */
   extern std::string version();
-};
+}
 
 #endif /* abacus_INCLUDED */

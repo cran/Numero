@@ -5,35 +5,55 @@ nroSummary <- function(
     categlim=8,
     capacity=10) {
 
-    # Check inputs.
-    if(is.vector(data))
+    # Convert vector to data matrix.
+    if(is.vector(data)) {
+        keys <- names(data)
         data <- data.frame(X=data, stringsAsFactors=FALSE)
-    if(is.matrix(regions) || is.data.frame(regions)) {
-        regions <- regions[,"REGION"]
-	names(regions) <- regions[,"REGION.label"]
+	rownames(data) <- keys
     }
-    rlabels <- names(regions)
+
+    # Check data consistency.
+    keys <- intersect(names(districts), rownames(data))
+    if(length(districts) != nrow(data)) {
+	if(length(keys) < 1) stop("Incompatible inputs.")
+	districts <- districts[keys]
+        data <- data[keys,]
+    }
+    else {
+        if(length(keys) > 0) {
+	    districts <- districts[keys]
+            data <- data[keys,]
+        }
+    }
+
+    # Check regions and labels.
+    if(is.null(regions)) regions <- districts
+    if(is.vector(regions)) {
+        labls <- as.integer(as.factor(regions))
+        regions <- data.frame(REGION=regions, REGION.label=labls,
+            stringsAsFactors=FALSE)
+        warning("Region labels set to defaults.")
+    }
+
+    # Check inputs.
     categlim <- as.integer(categlim[[1]])
     capacity <- as.integer(capacity[[1]])
 
-    # Districts define subgroups directly.
-    g <- districts
+    # Exclude unusable districts.
+    districts <- as.integer(round(districts))
+    districts[which(districts > nrow(regions))] <- NA
+    districts[which(districts < 0)] <- NA
 
-    # If available, merge districts into regions.
-    if(length(regions) > 0) {
-        districts <- as.integer(districts)
+    # Merge districts into regions.
+    mask <- which(districts > 0)
+    g <- NA*districts
+    g.labels <- rep("", length(g))
+    g[mask] <- regions[districts[mask],"REGION"]
+    g.labels[mask] <- regions[districts[mask],"REGION.label"]
 
-        # Remove unmatched data points.
-        mask <- which((districts > 0) & (districts <= length(regions)))
-        districts <- districts[mask]
-
-        # Assign data points to regional subgroups.
-	g <- rep(NA, nrow(data))
-        g[mask] <- regions[districts]
-    }
-
-    # Set identities.
+    # Set row identities.
     names(g) <- rownames(data)
+    names(g.labels) <- rownames(data)
 
     # Check subgroups.
     t <- table(g)
@@ -85,14 +105,12 @@ nroSummary <- function(
     }
 
     # Add region labels.
-    if(length(rlabels) > 0) {
-        pos <- match(output$SUBGROUP, regions)
-        rows <- which(pos > 0)
-        output$LABEL[rows] <- rlabels[pos[rows]]
-    }
+    pos <- match(output$SUBGROUP, regions$REGION)
+    rows <- which(pos > 0)
+    output$LABEL[rows] <- regions[pos[rows],"REGION.label"]
 
     # Finish results.
-    attr(output, "labels") <- g
+    attr(output, "labels") <- g.labels
     attr(output, "subgroups") <- split(1:nrow(data), g)
     rownames(output) <- NULL
     return(output)
@@ -137,8 +155,11 @@ nroSummary.categ <- function(x, g) {
 
     # Estimate basic subgroup stats.
     stats$MEAN <- rep(NA, length(xsets))
-    stats$MEDIAN <- rep(NA, length(xsets))
     stats$SD <- rep(NA, length(xsets))
+    stats$MEDIAN <- rep(NA, length(xsets))
+    stats$MAD <- rep(NA, length(xsets))
+    stats$Q025 <- rep(NA, length(xsets))
+    stats$Q975 <- rep(NA, length(xsets))
     if(nlevs == 2) stats$MEAN <- lapply(xsets, mean, na.rm=TRUE)
 
     # Convert to data frame.
@@ -171,7 +192,8 @@ nroSummary.categ <- function(x, g) {
 
     # Add extra row for full test.
     stats <- rbind(stats[1,], stats)
-    stats[1,c("SUBGROUP", "MEAN","MEDIAN","SD","P.t","P.anova")] <- NA
+    stats[1,c("SUBGROUP", "MEAN","SD",
+        "MEDIAN","MAD","P.t","P.anova")] <- NA
     if(nlevs == 2) stats$MEAN[1] <- mean(xfact, na.rm=TRUE)
     stats$N[1] <- length(x)
     stats$P.chisq[1] <- st$p.value
@@ -212,8 +234,19 @@ nroSummary.real <- function(x, g) {
 
     # Estimate basic subgroup stats.
     stats$MEAN <- lapply(xsets, mean, na.rm=TRUE)
-    stats$MEDIAN <- lapply(xsets, stats::median, na.rm=TRUE)
     stats$SD <- lapply(xsets, stats::sd, na.rm=TRUE)
+    stats$MEDIAN <- lapply(xsets, stats::median, na.rm=TRUE)
+    stats$MAD <- rep(NA, length(xsets))
+    stats$Q025 <- rep(NA, length(xsets))
+    stats$Q975 <- rep(NA, length(xsets))
+    for(j in 1:length(xsets)) {
+        xj <- as.double(xsets[[j]])
+	muj <- as.double(stats$MEDIAN[j])
+        stats$MAD[j] <- stats::median(abs(xj - muj), na.rm=TRUE)
+        q95 <- stats::quantile(xj, c(0.025, 0.975), na.rm=TRUE)
+        stats$Q025[j] <- q95[1]
+        stats$Q975[j] <- q95[2]
+    }
 
     # Convert to data frame.
     stats <- lapply(stats, as.double)
@@ -254,11 +287,15 @@ nroSummary.real <- function(x, g) {
 
     # Add extra row for ANOVA.
     stats <- rbind(stats[1,], stats)
-    stats[1,c("SUBGROUP", "MEAN","MEDIAN","SD","P.t","P.chisq")] <- NA
+    stats[1,c("SUBGROUP", "MEAN","SD",
+        "MEDIAN","MAD","P.t","P.chisq")] <- NA
     stats$N[1] <- length(x)
     stats$MEAN[1] <- mean(x, na.rm=TRUE)
-    stats$MEDIAN[1] <- stats::median(x, na.rm=TRUE)
     stats$SD[1] <- stats::sd(x, na.rm=TRUE)
+    stats$MEDIAN[1] <- stats::median(x, na.rm=TRUE)
+    stats$MAD[1] <- stats::median(abs(x - stats$MEDIAN[1]), na.rm=TRUE)
+    stats$Q025[1] <- stats::quantile(x, 0.025, na.rm=TRUE)
+    stats$Q975[1] <- stats::quantile(x, 0.975, na.rm=TRUE)
     stats$P.anova[1] <- p.anova
 
     # Return results.

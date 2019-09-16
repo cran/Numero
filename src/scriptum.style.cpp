@@ -7,16 +7,17 @@
  *
  */
 Style::Style() {
+  (this->pointable) = false;
   (this->anchor) = "start";
   (this->angle) = 0.0;
   (this->fillcolor).red = 0.7;
   (this->fillcolor).green = 0.7;
   (this->fillcolor).blue = 0.7;
   (this->fillcolor).opacity = 1.0;
-  (this->fontfamily) = "Helvetica";
-  (this->fontsize) = 10.0;
+  (this->fontfamily) = "'Arial'";
+  (this->fontsize) = 12.0;
   (this->fontweight) = 500;
-  (this->identity) = medusa::snan();
+  (this->identity).clear();
   (this->origin).resize(2, 0.0);
   (this->padding) = 0.0;
   (this->strokecolor).red = 0.0;

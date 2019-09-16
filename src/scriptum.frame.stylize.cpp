@@ -13,8 +13,11 @@ Frame::stylize(const Style& st) {
   FrameBuffer* p = (FrameBuffer*)buffer;
   mdreal rlnan = medusa::rnan();
 
-  /* Text-anchor. */
+  /* Pointability. */
   Style& base = p->style;
+  base.pointable = st.pointable;
+  
+  /* Text-anchor. */
   if(st.anchor == "start") base.anchor = st.anchor;
   if(st.anchor == "middle") base.anchor = st.anchor;
   if(st.anchor == "end") base.anchor = st.anchor;
@@ -62,8 +65,11 @@ Frame::stylize(const Style& st) {
   if(base.strokewidth < 0.0) base.strokewidth = 0.0;
   if(base.strokewidth > 1e3) base.strokewidth = 1e3;
 
-  /* Identity. */
-  base.identity = st.identity;
+  /* Identity and value. */
+  base.identity = medusa::string2safe(st.identity, 255);
+  base.values.resize(st.values.size());
+  for(mdsize i = 0; i < st.values.size(); i++)
+    base.values[i] = medusa::string2safe(st.values[i], 255);
   
   /* Apply changes. */
   scriptum_local::style2code(p->linestycode, p->textstycode, base);

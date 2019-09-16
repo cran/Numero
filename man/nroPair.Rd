@@ -6,14 +6,18 @@
 \description{Pair up closest matching rows from two datasets}
 
 \usage{
-nroPair(data.x, data.y)
+nroPair(data.x, data.y, subsample = 500)
 }
 
 \arguments{
   \item{data.x}{
 A matrix or a data frame with column names.
   }
-  
+
+  \item{subsample}{
+Maximum number of pairings to test per row.
+  }
+
   \item{data.y}{
 A matrix or a data frame with column names.
   }

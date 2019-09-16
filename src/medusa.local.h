@@ -89,7 +89,7 @@ namespace medusa_local {
   };
 
   /* Global list of file pointers. */
-};
+}
 
 using namespace medusa_local;
 

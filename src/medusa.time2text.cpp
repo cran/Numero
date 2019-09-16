@@ -18,7 +18,7 @@ medusa::time2text(const mdreal t) {
   /* Report days and hours. */
   if(day >= 1.0) {
     hrs -= ((unsigned long)day)*24;
-    sprintf(buf, "%ld d %ld h", (unsigned long)day,
+    sprintf(buf, "%ldd %ldh", (unsigned long)day,
 	    (unsigned long)(hrs + 0.5));
     return string(buf);
   }
@@ -26,7 +26,7 @@ medusa::time2text(const mdreal t) {
   /* Report hours and minutes. */
   if(hrs >= 1.0) {
     min -= ((unsigned long)hrs)*60;
-    sprintf(buf, "%ld h %ld min", (unsigned long)hrs,
+    sprintf(buf, "%ldh %ldm", (unsigned long)hrs,
 	    (unsigned long)(min + 0.5));
     return string(buf);
   }
@@ -34,13 +34,13 @@ medusa::time2text(const mdreal t) {
   /* Report minutes and seconds. */
   if(min >= 1.0) {
     sec -= ((unsigned long)min)*60;
-    sprintf(buf, "%ld min %ld s", (unsigned long)min,
+    sprintf(buf, "%ldm %lds", (unsigned long)min,
 	    (unsigned long)(sec + 0.5));
     return string(buf);
   }
 
   /* Report seconds . */
-  if(sec < 1.0) sprintf(buf, "<1 s");
-  else sprintf(buf, "%ld s", (unsigned long)(sec + 0.5));
+  if(sec < 1.0) sprintf(buf, "<1s");
+  else sprintf(buf, "%lds", (unsigned long)(sec + 0.5));
   return string(buf);
 }

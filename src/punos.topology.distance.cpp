@@ -10,10 +10,10 @@
 mdreal
 Topology::distance(const mdsize a, const mdsize b) const {
   TopologyBuffer* p = (TopologyBuffer*)buffer;
-  vector<Unit>& coord = p->coord;
-  mdsize nunits = coord.size();
-  if(a >= nunits) return medusa::rnan();
-  if(b >= nunits) return medusa::rnan();
+  vector<District>& coord = p->coord;
+  mdsize ndistricts = coord.size();
+  if(a >= ndistricts) return medusa::rnan();
+  if(b >= ndistricts) return medusa::rnan();
   mdreal dx = (coord[b].x - coord[a].x);
   mdreal dy = (coord[b].y - coord[a].y);
   return sqrt(dx*dx + dy*dy);

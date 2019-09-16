@@ -3,8 +3,8 @@
 
 \title{Self-organizing map statistics}
 
-\description{Evaluate regional variation of data values on a
-self-organizing map}
+\description{Assign new data to map districts and
+calculate quality measures}
 
 \usage{
 numero.quality(model, data = NULL)

@@ -43,7 +43,7 @@ static unordered_map<string, Palette> PaletteCache;
 Color
 scriptum::colormap(const mdreal q, const string& name) {
   if(PaletteCache.size() < 1) {
-    PaletteCache["gray"] = Palette("gray");
+    PaletteCache["grey"] = Palette("grey");
     PaletteCache["fire"] = Palette("fire");
     PaletteCache["jungle"] = Palette("jungle");
     PaletteCache["miami"] = Palette("miami");
@@ -61,8 +61,8 @@ scriptum::colormap(const mdreal q, const string& name) {
  */
 Palette::Palette(const string& name) {
 
-  /* Gray-scale. */
-  if(name == "gray") {
+  /* Grey-scale. */
+  if(name == "grey") {
     hues.push_back(RGB(  0,   0,   0));
     hues.push_back(RGB(127, 127, 127)); 
     hues.push_back(RGB(255, 255, 255));

@@ -35,8 +35,15 @@ nroLabel <- function(
     if(class(res) == "character") stop(res)
 
     # Convert to data frame.
-    res <- data.frame(res, stringsAsFactors=FALSE)
-    rownames(res) <- rownames(values)
-    colnames(res) <- colnames(values)
-    return(res)
+    res$labels <- data.frame(res$labels, stringsAsFactors=FALSE)
+    rownames(res$labels) <- rownames(values)
+    colnames(res$labels) <- colnames(values)
+    res$visible <- data.frame(res$visible, stringsAsFactors=FALSE)
+    rownames(res$visible) <- rownames(values)
+    colnames(res$visible) <- colnames(values)
+
+    # Return results.
+    output <- res$labels
+    attr(output, "visible") <- res$visible
+    return(output)
 }

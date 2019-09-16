@@ -2,9 +2,9 @@ nroPermute <- function(
     som,
     districts,
     data,
-    n=10000,
+    n=1000,
     clip=5.0,
-    message=NA) {
+    message=NULL) {
 
     # Convert data to numeric matrix.
     data <- nroRcppMatrix(data, trim=FALSE)
@@ -22,22 +22,23 @@ nroPermute <- function(
     if(nrow(data) != length(districts))
         stop("Incompatible inputs.")
 
-    # Set maximum number of cycles.
-    nmax <- as.integer(n[[1]])
-    if(!is.finite(nmax)) stop("Unusable number of permutations.")
-    if(nmax < 10) stop("Too few permutations.")
+    # Ensure inputs are safe for C++.
+    if(is.null(n)) n <- 1000
+    else n <- as.integer(n[[1]])
+    if(is.null(clip)) clip <- 5.0
+    else clip <- as.double(clip[[1]])
+    if(is.null(message)) message <- -1.0
+    else message <- as.double(message[[1]])
+
+    # Check maximum number of cycles.
+    if(!is.finite(n)) stop("Unusable number of permutations.")
+    if(n < 10) stop("Too few permutations.")
 
     # Check clipping parameter for extreme values.
-    clip <- as.double(clip[[1]])
-    if(!is.finite(clip)) {
-        clip <- -1.0
-    }
-    else {
-        if(clip < 1.0) stop("Too small clip parameter.")
-    }
+    if(!is.finite(clip)) clip <- -1.0   
+    if(abs(clip) < 1.0) stop("Too small clip parameter.")
     
     # Check message interval.
-    message <- as.double(message[[1]])
     if(!is.finite(message)) message <- -1.0
 
     # Truncate extreme values.
@@ -83,8 +84,8 @@ nroPermute <- function(
     # Set maximum number of permutations.
     evmask <- which(trflags != "yes")
     trmask <- which(trflags == "yes")
-    numcycl <- rep(nmax, length.out=ncol(data))
-    numcycl[trmask] <- min(1000, nmax) 
+    numcycl <- rep(n, length.out=ncol(data))
+    numcycl[trmask] <- min(1000, n) 
 
     # Estimate statistics.
     res <- .Call("nro_permute",

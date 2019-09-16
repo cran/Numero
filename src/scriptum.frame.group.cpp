@@ -7,15 +7,23 @@
  *
  */
 mdsize
-Frame::group(const int flag) {
+Frame::group() {
   FrameBuffer* p = (FrameBuffer*)buffer;
-  if(flag > 0) {
-    p->append("\n<g>");
-    p->ngroups += 1;
-  }
-  if((flag < 0) && (p->ngroups > 0)) { 
-    p->append("\n</g>");
+  if(p->ngroups > 0) { 
+    p->append("</g>\n");
     p->ngroups -= 1;
   }
+  return p->ngroups;
+}
+
+/*
+ *
+ */
+mdsize
+Frame::group(const string& key) {
+  FrameBuffer* p = (FrameBuffer*)buffer;  
+  if(key.size() < 1) p->append("\n<g>");
+  else p->append("\n<g id=\"" + key + "\">");
+  p->ngroups += 1;
   return p->ngroups;
 }

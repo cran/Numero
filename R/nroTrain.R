@@ -2,7 +2,8 @@ nroTrain <- function(
     som,
     data,
     subsample=NULL,
-    metric="euclid") {
+    metric="euclid",
+    message=NULL) {
 
     # Convert data to numeric matrix.
     data <- nroRcppMatrix(data, trim=TRUE)
@@ -30,17 +31,24 @@ nroTrain <- function(
     # Ensure inputs are safe for C++.
     if(is.null(subsample)) subsample <- nrow(data)
     else subsample <- as.integer(subsample[[1]])
-    metric <- as.character(metric[[1]])
+    if(is.null(message)) message <- -1.0
+    else message <- as.double(message[[1]])
+    if(is.null(metric)) metric <- "euclid"
+    else metric <- as.character(metric[[1]])
 
     # Check subsample size.
     if(!is.finite(subsample)) subsample <- nrow(data)
     if(subsample > nrow(data)) subsample <- nrow(data)
-    if(subsample < 10) stop("Subsample smaller than ten.")
+    if(subsample < (nrow(centroids) + 10))
+        stop("Too small subsample.")
 
     # Check distance metric.
     if((metric != "euclid") && (metric != "pearson"))
         stop("Unknown distance metric.")
     
+    # Check message interval.
+    if(!is.finite(message)) message <- -1.0
+
     # Train the SOM.
     res <- .Call("nro_train",
                  as.matrix(topology),
@@ -49,6 +57,7 @@ nroTrain <- function(
          	 as.character(metric),
                  as.integer(subsample),
                  0.0,
+		 as.double(message),
                  PACKAGE="Numero" )
     if(class(res) == "character") stop(res)
 

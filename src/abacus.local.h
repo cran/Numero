@@ -177,7 +177,7 @@ namespace abacus_local {
     };
     ~MinimizerBuffer() {};
   };
-};
+}
 
 using namespace abacus_local;
 

@@ -8,42 +8,62 @@
  *
  */
 Frame
-Topology::paint(const mdreal x0, const mdreal y0,
-		const vector<Color>& colors) const {
+Topology::paint(const mdreal xorig, const mdreal yorig,
+		const vector<Color>& colors, const Style& base) const {
   TopologyBuffer* p = (TopologyBuffer*)buffer;
-
-  /* Check input. */
-  const vector<Unit>& units = p->coord;
-  if(colors.size() != units.size())
-    return Frame();
-
-  /* Check if anything to do. */
-  if(p->maxradius <= 0.0) return Frame();
+  char textbuf[256];
   
-  /* Set origin. */
-  mdreal rho = TopologyBuffer::scale();
-  mdreal xorig = rho*x0;
-  mdreal yorig = rho*y0;
-
+  /* Check input. */
+  const vector<District>& districts = p->coord;
+  if(colors.size() != districts.size()) {
+    medusa::worry("Incompatible input.", __FILE__);
+    return Frame();
+  }
+  
   /* Set base attributes. */
-  scriptum::Style sty;
+  Style sty = base;
+  sty.pointable = true;
   sty.strokewidth = 0.0;
-
+  
   /* Open group. */
   Frame fr;
+  fr.group(base.identity + "_map");
+  
+  /* Unit square. */
+  mdreal rho = TopologyBuffer::scale();
+  vector<mdreal> xcalibr(5, xorig);
+  vector<mdreal> ycalibr(5, yorig);
+  xcalibr[1] += rho;
+  xcalibr[2] += rho;
+  ycalibr[2] += rho;
+  ycalibr[3] += rho;
+
+  /* Create the calibration element. */
+  sty.values.resize(2);
+  sty.values[0] = base.identity;
+  sty.values[1] = long2string(districts.size());
+  sty.identity = (base.identity + "_calibration");
+  sty.fillcolor = Color("#ffffff");
+  sty.pointable = false;
   fr.stylize(sty);
-  fr.group(1);
+  if(!fr.curve(xcalibr, ycalibr)) return Frame();
+
+  /* Check if anything else to do. */
+  if(p->maxradius <= 0.0) {
+    fr.group();
+    return fr;
+  }
 
   /* Open subgroup. */
-  fr.group(1);
+  fr.group(base.identity + "_paint");
 
   /* Draw slices. */
   mdreal rmax = 0.0;
-  for(mdsize i = 0; i < units.size(); i++) {
+  for(mdsize i = 0; i < districts.size(); i++) {
     if(colors[i].opacity <= 0.0) continue;
 
     /* Scale positions to canvas coordinates. */
-    const Unit& u = units[i];
+    const District& u = districts[i];
     mdreal r1 = rho*(u.radii.first);
     mdreal r2 = rho*(u.radii.second);
     mdreal a1 = u.angles.first;
@@ -60,82 +80,46 @@ Topology::paint(const mdreal x0, const mdreal y0,
     /* Update circle radius. */
     if(r2 > rmax) rmax = r2;
 
+    /* Unique identity. */
+    string key = long2string(i);
+    sty.identity = (base.identity + "_paint_" + key);
+
+    /* Additional positional information. */
+    sty.values.resize(4);
+    sty.values[0] = base.identity;
+    sty.values[1] = key;
+    sprintf(textbuf, "%.4f", rho*(u.x));
+    sty.values[2] = string(textbuf);
+    sprintf(textbuf, "%.4f", rho*(u.y));
+    sty.values[3] = string(textbuf);
+    
     /* Set slice attributes. */
+    sty.pointable = true;
     sty.fillcolor = colors[i];
-    sty.strokecolor = colors[i];
-    sty.identity = i;
+    sty.strokewidth = 0.0;
     fr.stylize(sty);
 
     /* Draw slice. */
-    bool flag = fr.slice(xorig, yorig, r1, r2, a1, a2);
-    if(!flag) return Frame();
+    if(!fr.slice(xorig, yorig, r1, r2, a1, a2)) return Frame();
   }
- 
+  
   /* Close subgroup. */
-  fr.group(-1);
+  fr.group();
 
   /* Set line style. */
+  sty.pointable = false;
   sty.strokewidth = 0.5;
-  sty.strokecolor = scriptum::colormap(0.7, "gray");
+  sty.strokecolor = scriptum::colormap(0.7, "grey");
   sty.fillcolor.opacity = 0.0;
+  if(base.identity.size() > 0)
+    sty.identity = (base.identity + "_perimeter");
+  sty.values.clear();
   fr.stylize(sty);
 
   /* Enclose in a circle. */
-  if(fr.shape(xorig, yorig, rmax, "circle") == false)
-    return Frame();
+  if(!fr.shape(xorig, yorig, rmax, "circle")) return Frame();
 
   /* Close group. */
-  fr.group(-1);
+  fr.group();
   return fr;
 }
-
-#ifdef DUMMY  
-  /* Switch subgroup. */
-  fr.group(-1);
-  fr.group(1);
-
-  /* Set text style. */
-  sty.strokewidth = 0.0;
-  sty.fontsize = 0.8*(sty.fontsize);
-  sty.anchor = "middle";
-
-  /* Add unit indices. */
-  Color gray("A0A0A0");
-  for(mdsize i = 0; i < units.size(); i++) {
-    if(colors[i].opacity <= 0.0) continue;
-
-    /* Scale positions to canvas coordinates. */
-    const Unit& u = units[i];
-    mdreal x = rho*(x0 + u.x);
-    mdreal y = rho*(y0 + u.y);
-
-    /* Adjust color. */
-    Color c = colors[i];
-    mdreal kappa = 1.0;
-    mdreal delta = gray.contrast(c);
-    if(delta >= 0.0) {
-      if(c.red > 0.5) c.red -= 0.03;
-      if(c.green > 0.5) c.green -= 0.04;
-      if(c.blue > 0.5) c.blue -= 0.02;
-      kappa = 1.3;
-    }
-    else {
-      if(c.red < 0.5) c.red += 0.03;
-      if(c.green < 0.5) c.green += 0.02;
-      if(c.blue < 0.5) c.blue += 0.04;
-      kappa = 0.7;
-    }
-    c.red = pow(c.red, kappa);
-    c.blue = pow(c.blue, kappa);
-    c.green = pow(c.green, kappa);
-
-    /* Set color. */
-    sty.fillcolor = c;
-    fr.stylize(sty);
-
-    /* Write text. */
-    string txt = long2string(i + 1);
-    bool flag = fr.text(x, y, txt);
-    if(!flag) return Frame();
-  }
-#endif

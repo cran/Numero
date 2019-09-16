@@ -13,8 +13,8 @@ ArtistBuffer::prolog(const Color& color) const {
   char bytes[4090];
   char* p = bytes;
 
-  /* Begin document. */
-  p += sprintf(p, "<?xml version=\"1.0\"?>\n");
+  /* Document declaration. */
+  p += sprintf(p, "<?xml version=\"1.0\" standalone=\"yes\"?>\n");
   p += sprintf(p, "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n");
   p += sprintf(p, "\"http://www.w3.org/Graphics/");
   p += sprintf(p, "SVG/1.1/DTD/svg11.dtd\">\n");
@@ -33,9 +33,13 @@ ArtistBuffer::prolog(const Color& color) const {
   long width = (long)(xmax - xmin + 0.5);
   long height = (long)(ymax - ymin + 0.5);
 
-  /* Set size. */
-  p += sprintf(p, "\n<svg xmlns=\"http://www.w3.org/2000/svg\"\n");
-  p += sprintf(p, "x=\"0\" y=\"0\" ");
+  /* Set main element. */
+  p += sprintf(p, "\n<svg id=\"plot\"");
+  p += sprintf(p, "\ndraggable=\"false\"");
+  p += sprintf(p, "\nonload=\"initPage('plot', false)\"");
+  p += sprintf(p, "\nxmlns=\"http://www.w3.org/2000/svg\"");
+  p += sprintf(p, "\nstyle=\"user-select: none;\"");
+  p += sprintf(p, "\nx=\"0\" y=\"0\" ");
   p += sprintf(p, "width=\"%06ld\" ", width); /* fixed byte count  */
   p += sprintf(p, "height=\"%06ld\">\n", height);
 
@@ -44,8 +48,10 @@ ArtistBuffer::prolog(const Color& color) const {
   p += sprintf(p, "\n\t0,0\n\t%06ld,0", width);
   p += sprintf(p, "\n\t%06ld,%06ld", width, height);
   p += sprintf(p, "\n\t0,%06ld\"", height);
-  p += sprintf(p, "\nstyle=\"fill: ");
-  p += sprintf(p, "#%s;\"\n/>\n", color.hex().substr(0, 6).c_str());
+  p += sprintf(p, "\nstyle=\"");
+  p += sprintf(p, "\nfill: #%s;", color.hex().substr(0, 6).c_str());
+  p += sprintf(p, "\npointer-events: none;");
+  p += sprintf(p, "\"\nid=\"plot_background\"/>\n");
   
   /* Determine offset. */
   long dx = (long)(fabs(xmin) + 0.5);
@@ -54,8 +60,12 @@ ArtistBuffer::prolog(const Color& color) const {
   if(ymin > 0.0) dy *= -1;
 
   /* Set origin to zero. */
-  p += sprintf(p, "\n<g transform=");
-  p += sprintf(p, "\"translate(%06ld, ", dx);
-  p += sprintf(p, "%06ld)\">\n", dy);
+  p += sprintf(p, "\n<g transform=\"translate(");
+  p += sprintf(p, "%06ld, %06ld)\"", dx, dy);
+  p += sprintf(p, "\ntfx=\"%06ld\"", dx);
+  p += sprintf(p, "\ntfy=\"%06ld\"", dy);
+  p += sprintf(p, "\nid=\"plot_contents\">\n");
+ 
+  /* Return full prolog. */
   return string(bytes);
 }

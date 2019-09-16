@@ -22,5 +22,8 @@ Model::configure(const mdsize unit, const vector<mdreal>& values) {
   /* Replace codebook elements. */
   for(mdsize j = 0; j < values.size(); j++)
     (p->codebook).insert(unit, j, values[j]);
+
+  /* Reset training state. */
+  (p->state).clear();
   return "";
 }

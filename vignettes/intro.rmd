@@ -401,6 +401,7 @@ options(digits = 3)
 You can install Numero using the standard procedure:
 
 ``` {r eval=FALSE}
+# Install the package from a remote repository.
 install.packages("Numero")
 ```
 
@@ -413,9 +414,26 @@ group of functions.
 To activate and list the library functions, type
 
 ``` {r}
+# Activate the library.
 library("Numero")
 packageVersion("Numero")
 ls("package:Numero")
+```
+
+Each Numero function comes with a help page that contains a code example,
+such as
+
+``` {r eval=FALSE}
+# Access function documentation (not shown in vignette).
+? numero.create
+```
+
+You can run all the code examples in one go by typing
+
+``` {r eval=FALSE}
+# Run all code examples (not shown in vignette).
+fn <- system.file("extcode", "examples.R", package = "Numero")
+source(fn)
 ```
 
 Please use the tabs at the top to navigate to the next page.
@@ -457,7 +475,7 @@ Died during follow-up              |     13 (3.4%)     |     43 (19.1%)         
 
 The data are included in the package as a tab-delimited file:
 
-```{r}
+``` {r}
 # Import data.
 fname <- system.file("extdata", "finndiane.txt", package = "Numero")
 dataset <- read.delim(file = fname, stringsAsFactors = FALSE)
@@ -613,12 +631,10 @@ Outliers can be detected by plotting the distribution of quality measures:
 ``` {r dev="svg", results="hide", fig.width=7, fig.height=3, fig.align="center", fig.cap="Figure: Distribution of model residuals."}
 # Plot frequencies of data points at different quality levels.
 par(mar = c(5,4,1,0), mfrow = c(1,2))
-hist(x = qc.basic$layout$RESIDUAL,
-     breaks = seq(-0.2, 2.0, length.out = 50),
+hist(x = qc.basic$layout$RESIDUAL, breaks = 50,
      main = NULL, xlab = "RESIDUAL", ylab = "Number of data points",
      col = "#FFEFA0", cex = 0.8)
-hist(x = qc.basic$layout$RESIDUAL.z,
-     breaks = seq(-3, 20, length.out = 50),
+hist(x = qc.basic$layout$RESIDUAL.z, breaks = 50,
      main = NULL, xlab = "RESIDUAL.z", ylab = "Number of data points",
      col = "#FFEFA0", cex = 0.8)
 ```
@@ -694,7 +710,7 @@ Overall, the results above comprise the minimal information needed to color
 the SOM according to district averages.
 
 ``` {r dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The color intensity depends on how likely the observed regional variation would arise by chance; intense reds and intense blues indicate that these extremes would be very unlikely if the data point layout was random. The numbers show the average values in original units for selected districts."}
-# Plot map colorings for training variables.
+# Plot map colorings of training variables.
 numero.plot(results = stats.basic, variables = trvars, subplot = c(2,3))
 ```
 
@@ -737,7 +753,7 @@ subgrouping based on SOM colorings:
 
 ``` {r eval=FALSE}
 # Interactive subgrouping based on the training set.
-elem.basic <- numero.subgroup(results = stats.basic, variables = trvars)
+subgr.basic <- numero.subgroup(results = stats.basic, variables = trvars)
 ```
 
 Unfortunately, the R vignette format is not compatible with the interactive
@@ -767,13 +783,13 @@ workaround$REGION[bottoms] <- "LowALB"
 
 ``` {r}
 # Interactive selection not available in vignette.
-if(!exists("elem.basic")) elem.basic <- workaround
+if(!exists("subgr.basic")) subgr.basic <- workaround
 ```
 
 ``` {r origgrp1, dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The labels show the results from the subgrouping procedure."}
 # Plot results from the subgrouping procedure.
 numero.plot(results = stats.basic, variables = trvars,
-            elements = elem.basic, subplot = c(2,3))
+            topology = subgr.basic, subplot = c(2,3))
 ```
 
 It is evident from Figure 2 that the subgrouping workaround could be improved
@@ -814,7 +830,7 @@ numero.plot(results = stats.basic,
                           "DIAB_RETINO",
                           "MACROVASC",
                           "DECEASED"),
-            elements = stats.basic$som$topology, subplot = c(2,3))
+            topology = stats.basic$som$topology, subplot = c(2,3))
 ```
 
 ``` {r dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of selected variables with subgroup labels."}
@@ -826,7 +842,7 @@ numero.plot(results = stats.basic,
                           "DIAB_RETINO",
                           "MACROVASC",
                           "DECEASED"),
-            elements = elem.basic, subplot = c(2,3))
+            topology = subgr.basic, subplot = c(2,3))
 ```
 
 The subgroup with the highest urinary albumin (A: HighALB) overlaps with the
@@ -844,7 +860,7 @@ that combines the visual subgroupings with the original data:
 
 ``` {r}
 # Compare subgroups.
-report.basic <- numero.summary(results = stats.basic, elements = elem.basic)
+report.basic <- numero.summary(results = stats.basic, topology = subgr.basic)
 colnames(report.basic)
 ```
 
@@ -954,12 +970,10 @@ qc.adj <- numero.quality(model = modl.adj)
 ``` {r dev="svg", results="hide", fig.width=7, fig.height=3, fig.align="center", fig.cap="Figure: Distribution of model residuals. The training data were adjusted for age and sex."}
 # Plot frequencies of data points at different quality levels.
 par(mar = c(5,4,1,0), mfrow = c(1,2))
-hist(x = qc.adj$layout$RESIDUAL,
-     breaks = seq(-0.2, 2.0, length.out = 50),
+hist(x = qc.adj$layout$RESIDUAL, breaks = 20,
      main = NULL, xlab = "RESIDUAL", ylab = "Number of data points",
      col = "#FFEFA0", cex = 0.8)
-hist(x = qc.adj$layout$RESIDUAL.z,
-     breaks = seq(-3, 20, length.out = 50),
+hist(x = qc.adj$layout$RESIDUAL.z, breaks = 20,
      main = NULL, xlab = "RESIDUAL.z", ylab = "Number of data points",
      col = "#FFEFA0", cex = 0.8)
 ```
@@ -1094,7 +1108,7 @@ subgrouping based on SOM colorings
 
 ``` {r eval=FALSE}
 # Interactive subgrouping based on the training set.
-elem.adj <- numero.subgroup(results = stats.adj, variables = trvars)
+subgr.adj <- numero.subgroup(results = stats.adj, variables = trvars)
 ```
 
 As mentioned previously, the vignette format is not compatible with the
@@ -1124,13 +1138,13 @@ workaround$REGION[bottoms] <- "LowALB"
 
 ``` {r}
 # Interactive selection not available in vignette.
-if(!exists("elem.adj")) elem.adj <- workaround
+if(!exists("subgr.adj")) subgr.adj <- workaround
 ```
 
 ``` {r dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The labels show the results from the subgrouping procedure. The map was created from sex-adjusted data."}
 # Plot results from subgrouping procedure.
 numero.plot(results = stats.adj, variables = trvars,
-            elements = elem.adj, subplot = c(2,3))
+            topology = subgr.adj, subplot = c(2,3))
 ```
 
 Although the sex adjustment had a minor effect on the map colorings, we can
@@ -1161,7 +1175,7 @@ numero.plot(results = stats.adj,
                           "DIAB_RETINO",
                           "MACROVASC",
                           "DECEASED"),
-            elements = elem.adj, subplot = c(2,3))
+            topology = subgr.adj, subplot = c(2,3))
 ```
 
 The effect of the sex adjustment on the variable MALE is immediately
@@ -1186,7 +1200,7 @@ subgrouping, but not substantially:
 
 ``` {r}
 # Compare subgroups.
-report.adj <- numero.summary(results = stats.adj, elements = elem.adj)
+report.adj <- numero.summary(results = stats.adj, topology = subgr.adj)
 ```
 
 ``` {r}
@@ -1354,16 +1368,19 @@ may be undesirable in some circumstances.
 In this example, the rank preprocessing resulted in less skewed residuals
 compared to the earlier examples:
 
+``` {r}
+# Define comparable histogram bins.
+rz <- c(qc.adj$layout$RESIDUAL.z, qc.discov$layout$RESIDUAL.z)
+rz.breaks <- seq(min(rz, na.rm=TRUE), max(rz, na.rm=TRUE), length.out=20)
+``` 
 
 ``` {r dev="svg", results="hide", fig.width=7, fig.height=3, fig.align="center", fig.cap="Figure: Distribution of model residuals when the training data were preprocessed by scaling & centering or by tapered ranking."}
 # Plot frequencies of data points at different quality levels.
 par(mar = c(5,4,1,0), mfrow = c(1,2))
-hist(x = qc.adj$layout$RESIDUAL.z,
-     breaks = seq(-5, 5, length.out = 30),
+hist(x = qc.adj$layout$RESIDUAL.z, breaks = rz.breaks,
      main = NULL, xlab = "RESIDUAL.z (scale & center)",
      ylab = "Number of data points", col = "#FFEFA0", cex = 0.8)
-hist(x = qc.discov$layout$RESIDUAL.z,
-     breaks = seq(-5, 5, length.out = 30),
+hist(x = qc.discov$layout$RESIDUAL.z, breaks = rz.breaks,
      main = NULL, xlab = "RESIDUAL.z (rank)",
      ylab = "Number of data points", col = "#FFEFA0", cex = 0.8)
 ```
@@ -1437,10 +1454,11 @@ numero.plot(results = qc.mets, subplot = c(1,4))
 
 Lastly, the metabolic syndrome subset was created as an example with biased
 sampling and where the replication is not compatible with the discovery
-dataset. As mentioned above, the independent preprocessing will reproduce
-the even data point histogram and residuals (in most settings), therefore
-the quality measures alone cannot identify problems arising from these
-types of problems in study design.
+dataset. However, this is hard to detect from the quality plots. As mentioned
+above, the independent preprocessing will reproduce the even data point
+histogram and residuals (in most settings), therefore the quality measures
+alone cannot identify problems arising from these types of problems in
+study design.
 
 Please use the tabs at the top to navigate to the next page.
 
@@ -1553,7 +1571,7 @@ conduct the subgrouping based on SOM colorings
 
 ``` {r eval=FALSE}
 # Interactive subgrouping based on the training set.
-elem.discov <- numero.subgroup(results = stats.discov, variables = clinvars)
+subgr.discov <- numero.subgroup(results = stats.discov, variables = clinvars)
 ```
 
 However, the vignette format is not compatible with the interactive tool,
@@ -1583,13 +1601,13 @@ workaround$REGION[bottoms] <- "LowDiabKD"
 
 ``` {r}
 # Interactive selection not available in vignette.
-if(!exists("elem.discov")) elem.discov <- workaround
+if(!exists("subgr.discov")) subgr.discov <- workaround
 ```
 
 ``` {r dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The labels show the results from the subgrouping procedure."}
 # Plot results from subgrouping procedure.
 numero.plot(results = stats.discov, variables = clinvars,
-            elements = elem.discov, subplot = c(2,3))
+            topology = subgr.discov, subplot = c(2,3))
 ```
 
 Please use the tabs at the top to navigate to the next page.
@@ -1607,25 +1625,25 @@ subgroups in the discovery and replication sets:
 ``` {r eval=FALSE}
 # Compare subgroups.
 report.discov <- numero.summary(results = stats.discov,
-                                elements = elem.discov)
+                                topology = subgr.discov)
 report.replicA <- numero.summary(results = stats.replicA,
-                                 elements = elem.discov)
+                                 topology = subgr.discov)
 report.replicB <- numero.summary(results = stats.replicB,
-                                 elements = elem.discov)
+                                 topology = subgr.discov)
 report.mets <- numero.summary(results = stats.mets,
-                              elements = elem.discov)
+                              topology = subgr.discov)
 ```
 
 ``` {r echo=FALSE, results="hide"}
 suppressWarnings({
 report.discov <- numero.summary(results = stats.discov,
-                                elements = elem.discov)
+                                topology = subgr.discov)
 report.replicA <- numero.summary(results = stats.replicA,
-                                 elements = elem.discov)
+                                 topology = subgr.discov)
 report.replicB <- numero.summary(results = stats.replicB,
-                                 elements = elem.discov)
+                                 topology = subgr.discov)
 report.mets <- numero.summary(results = stats.mets,
-                              elements = elem.discov)})
+                              topology = subgr.discov)})
 ```
 
 The mortality rates in the discovery set are as expected with the
@@ -1673,6 +1691,86 @@ report.mets[rows,c("SUBGROUP","N","MEAN","P.chisq")]
 In all studies, we recommend careful verification of the design and the
 validity of assumptions using traditional statistical tests, SOM quality
 measures, SOM colorings and also the final subgroups comparisons.
+
+---
+###########################################################################
+---
+
+# Large datasets and maps
+
+The Numero package is also suitable for analyzing larger datasets (>100k
+rows of data). Given the increase in statistical power, the map radius
+can be safely increased, but this usually causes difficulties in plotting
+the colorings on screen due to the inefficient way the default R graphics
+are implemented. In particular, it may not be feasible to do the
+interactive part using the standard R plotting.
+
+It is possible to use web browsers for a better user experience. At the
+time of writing, up-to-date versions of Opera and Google Chrome worked well,
+whereas Safari and Firefox did not support all the graphical features.
+
+To view the map colorings, the plots need to be saved in a file first. Here,
+we are using the results from the basic example that was introduced in the
+beginning of the document:
+
+``` {r eval=FALSE}
+# Save map colorings of training variables.
+numero.plot(results = stats.basic, variables = trvars,
+            folder = "/tmp/Results")
+```
+
+``` {r echo=FALSE}
+s <- paste("\n", 
+    "*** numero.plot ***\n", 
+    "Thu Sep  5 15:44:02 2019\n", 
+    "\n", 
+    "Resources:\n", 
+    "5 column(s) included\n", 
+    "destination folder '/tmp/Results'\n", 
+    "\n", 
+    "Figure 1:\n", 
+    "5 subplot(s)\n", 
+    "file name '/tmp/Results/figure01.svg'\n", 
+    "97622 bytes saved in '/tmp/Results/figure01.svg'\n", 
+    "99982 bytes saved in '/tmp/Results/figure01.html'\n", 
+    "\n", 
+    "Summary:\n", 
+    "1 figure(s) -> '/tmp/Results'\n", sep="")
+cat(s)
+```
+
+You can replace the folder to something suitable in your computer. Here we
+used the temporary folder of a Linux system as an example. The command
+creates both a Scalable Vector Graphics (SVG) file that you can open in
+editors such as Inkscape, and a web page (HTML) that you can open in
+a browser. Importantly, the web page is interactive, and you can select
+regions of the SOM and click on empty space between plots to save
+the topology and regions in a tab-delimited text file.
+
+Assuming we assigned districts to different regions and downloaded the
+results in the file 'Downloads/regions.txt', we can then import the
+spreadsheet into R by typing
+
+``` {r eval=FALSE}
+# Import topology and region assignments.
+subgr <- read.delim(file = "Downloads/regions.txt", stringsAsFactors=FALSE)
+```
+
+and calculate subgroup statistics with
+
+
+``` {r eval=FALSE}
+# Calculate subgroup statistics.
+report <- numero.summary(results = stats.basic, topology = subgr)
+```
+
+as before.
+
+**Useful hints**: If it takes a long time to train a SOM for a large dataset,
+try setting the `subsample` parameter to something less than the number of
+rows in the training set. It may also take a long time to evaluate the map
+statistics; to reduce waiting time, you can assign data columns into smaller
+batches and then run each batch on a different processor in parallel.
 
 ---
 ###########################################################################

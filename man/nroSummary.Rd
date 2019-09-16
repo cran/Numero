@@ -12,7 +12,7 @@ variable.
 }
 
 \usage{
-nroSummary(data, districts, regions, categlim = 8, capacity = 10)
+nroSummary(data, districts, regions = NULL, categlim = 8, capacity = 10)
 }
 
 \arguments{
@@ -21,8 +21,8 @@ A vector of M elements or an M x N matrix of data values.
   }
   
   \item{districts}{ 
-A vector of M best-matching districts for each row in the data matrix,
-please see \link{nroMatch} for a typical usage case.
+A vector of M elements that indicate the best match out of K districts for
+each row in the data matrix, please see \link{nroMatch} for an example.
   }
 
   \item{regions}{
@@ -41,14 +41,17 @@ Maximum number of subgroups to compare.
 }
 
 \details{
-The region vector must have K elements where K is the total number of
-map districts. The value at element [i] indicates the region for the
-district [i].
+If defined, the region vector should have K elements where K is the total
+number of map districts. The value at element [i] indicates the region for
+the district [i].
 
 The region input can also be a data frame of K rows where the column
 REGION will be used for assigning district to regions, and REGION.label
 will be used as the character label as seen on the map, see the output
 from \code{\link{nroPlot}()} as an example.
+
+If the region vector is empty, each district is automatically assigned to
+its own region.
 
 Safeguards are in place to prevent crashes from empty categories; this
 reduces statistical power slightly when numbers are small.
@@ -94,6 +97,13 @@ plane <- nroAggregate(topology = sm, districts = matches,
 regns <- rep("HighAlb", length.out=length(plane))
 regns[which(plane < quantile(plane, 0.67))] <- "MiddleAlb"
 regns[which(plane < quantile(plane, 0.33))] <- "LowAlb"
+
+# Add label info and make a data frame.
+regns <- data.frame(REGION=regns, REGION.label="",
+    stringsAsFactors=FALSE)
+regns[which(regns$REGION == "HighAlb"),"REGION.label"] <- "H"
+regns[which(regns$REGION == "MiddleAlb"),"REGION.label"] <- "M"
+regns[which(regns$REGION == "LowAlb"),"REGION.label"] <- "L"
 
 # Calculate summary statistics.
 st <- nroSummary(data = dataset, districts = matches, regions = regns)

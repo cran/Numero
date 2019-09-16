@@ -13,7 +13,7 @@ nro_label(SEXP topo_R, SEXP data_R, SEXP binflags_R, SEXP sigma_R) {
 
   /* Get map topology.*/
   vector<vector<mdreal> > topodata = nro::matrix2reals(topo_R, 0.0);
-  punos::Topology topo = nro::reals2topology(topodata);
+  punos::Topology topo = nro::reals2topology(topodata, 0.0);
   if(topo.size() < 1)
     return CharacterVector("Unusable topology.");
 
@@ -35,9 +35,12 @@ nro_label(SEXP topo_R, SEXP data_R, SEXP binflags_R, SEXP sigma_R) {
     vectors[i].clear();
   }
 
-  /* Process columns. */
-  List res;
+  /* Indicators for binary variables. */
   IntegerVector binflags(binflags_R);
+
+  /* Process columns. */
+  List labels;
+  List visible;
   for(mdsize j = 0; j < columns.size(); j++) {
     vector<mdreal>& values = columns[j];
     
@@ -51,24 +54,22 @@ nro_label(SEXP topo_R, SEXP data_R, SEXP binflags_R, SEXP sigma_R) {
     vector<mdsize> sorted = sortreal(tmp, -1);
     
     /* Select labeled units. */
-    vector<int> flags(amps.size(), 0);
+    vector<bool> flags(amps.size(), true);
     for(mdsize k = 0; k < amps.size(); k++) {
 
       /* Skip units that have already been denied. */
       mdsize unit = sorted[k];
-      if(flags[unit] != 0) continue;
+      if(!flags[unit]) continue;
 
       /* Deny label from too close neighbors. */
       vector<mdsize> neigh = topo.neighbors(unit);
       for(vector<mdsize>::iterator pos = neigh.begin();
 	  pos != neigh.end(); pos++) {
+	if(*pos == unit) continue;
 	mdreal r = topo.distance(unit, *pos);
 	if(r > sigma) continue;
-	flags[*pos] = -1;
+	flags[*pos] = false;
       }
-      
-      /* Allow label for the current unit. */
-      flags[unit] = 1;
     }
 
     /* Check if only positive values. */
@@ -80,26 +81,34 @@ nro_label(SEXP topo_R, SEXP data_R, SEXP binflags_R, SEXP sigma_R) {
     if(xmin < 0.0) binary = false;
     if(xmax > 1.0) binary = false;
 
-    /* Set labels. */
-    vector<string> labels(amps.size());
+    /* Parse label text. */
+    vector<string> parsed(amps.size());
     for(mdsize k = 0; k < amps.size(); k++) {
-      if(flags[k] != 1) continue;
-      string txt = "Err";
-      if(binary) {
-	mdreal percent = 100*(values[k]);
-	if(percent < 0.1) txt = "<0.1%";
-	else txt = (medusa::real2text(percent) + "%");
-      }
-      else {
+      string& txt = parsed[k];
+      if(!binary)
 	txt = medusa::real2text(values[k]);
+      else {
+	mdreal percent = 100*(values[k]);
+	if(percent < 0.1) {
+	  if(percent < 0.05) txt = "0.0%";
+	  else txt = "0.1%";
+	}
+	else {
+	  txt = (medusa::real2text(percent) + "%");
+	}
       }
       if((xmin >= 0) && (txt[0] == '+')) txt = txt.substr(1);
-      labels[k] = txt;
     }
 
-    /* Update results. */
+    /* Save labels. */
     string name = ("Col" + long2string(j));
-    res.push_back(labels, name);
+    labels.push_back(parsed, name);
+    visible.push_back(flags, name);
   }
-  return res;
+
+  /* Return results. */
+  List output;
+  output.push_back(labels, "labels");
+  output.push_back(visible, "visible");
+  return output;
 }

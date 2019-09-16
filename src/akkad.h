@@ -122,6 +122,6 @@ namespace akkad {
 
   /* Version identification. */
   extern std::string version();
-};
+}
 
 #endif /* akkad_INCLUDED */

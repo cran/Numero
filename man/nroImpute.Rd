@@ -6,7 +6,7 @@
 \description{Find nearest neighbors by Euclidean distance and impute missing values.}
 
 \usage{
-nroImpute(data, subsample = 500, standard = TRUE)
+nroImpute(data, subsample = 500, standard = TRUE, message = NULL)
 }
 
 \arguments{
@@ -20,6 +20,11 @@ Maximum number of matchings to test per imputed row.
 
   \item{standard}{
 If \code{TRUE}, the scales of variables are standardized for processing.
+  }
+  
+  \item{message}{
+If positive, progress information is printed at the specified
+interval in seconds.
   }
 }
 

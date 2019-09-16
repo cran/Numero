@@ -45,6 +45,9 @@ namespace scriptum {
   class Style {
   public:
 
+    /* Determine if object can be pointed (e.g. by mouse). */
+    bool pointable;
+    
     /* Text-anchor: 'start', 'middle', 'end'. */
     std::string anchor;
 
@@ -63,8 +66,8 @@ namespace scriptum {
     /* Font weight: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900. */
     medusa::mdsize fontweight;
 
-    /* Identity number. */
-    medusa::mdsize identity;
+    /* Identifier (max 255 characters). */
+    std::string identity;
 
     /* Origin of the element coordinate system (pixels). */
     std::vector<medusa::mdreal> origin;
@@ -78,6 +81,11 @@ namespace scriptum {
     /* Stroke width (pixels). */
     medusa::mdreal strokewidth;
 
+    /* Optional values to attach to an element (max 255 characters
+       each). These will appear as v0="content", v1="content",
+       v2="content" et cetera in the SVG element. */
+    std::vector<std::string> values;
+    
   public:
     Style();
     ~Style();
@@ -108,10 +116,12 @@ namespace scriptum {
     /* Return current graphics code and remove it from the object. */
     virtual std::string flush();
 
-    /* Start/stop an element group. If argument is positive, a new
-       group is started, if negative the current active group is closed. 
-       Returns the number of open groups. */
-    medusa::mdsize group(const int);
+    /* Close the current group. Returns the number of remaining groups. */
+    medusa::mdsize group();
+    
+    /* Open a new element group with the specified identity.
+       Returns the current number of groups. */
+    medusa::mdsize group(const std::string&);
 
     /* Coordinate range that contains rendered elements. */
     virtual std::pair<medusa::mdreal, medusa::mdreal> horizontal() const;
@@ -170,8 +180,10 @@ namespace scriptum {
     ~Artist();
 
     /* Finish rendering and return the number of bytes. The background
-       will be filled according to the current style. */
-    unsigned long close();
+       will be filled according to the current style. The input is any
+       custom inline content that will be added within the 'svg' or
+       the HTML 'body' depending on the file format. */
+    unsigned long close(const std::string&);
 
     /* Start/stop an element group. If argument is positive, a new
        group is started, if negative the current active group is closed. 
@@ -181,9 +193,9 @@ namespace scriptum {
     /* Render graphics from a frame. */
     bool paint(Frame&);
   };
-
+  
   /* Version information. */
   extern std::string version();
-};
+}
 
 #endif /* scriptum_INCLUDED */

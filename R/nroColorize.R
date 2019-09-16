@@ -42,13 +42,6 @@ nroColorize <- function(
         amplitudes <- rep(amplitudes, length.out=ncol(values))
     }
 
-    # Pre-defined palette.
-    if(length(palette) < 2) {
-        palette <- .Call("nro_colorize",
-                         as.character(palette[[1]]),
-                         PACKAGE="Numero")
-    }
-
     # Center by the middle of the range.
     mu <- 0.5*(ranges[,1] + ranges[,2])
     z <- sweep(values, 2, mu, `-`)
@@ -60,28 +53,30 @@ nroColorize <- function(
     # Amplification factors.
     z <- sweep(z, 2, amplitudes[1:ncol(z)], `*`)
     z <- 0.5*(z + 1.0) # centered at 0.5
+    
+    # Set colors.
+    res <- .Call("nro_colorize",
+                 as.matrix(z),
+                 as.character(palette[[1]]),
+                 PACKAGE="Numero")
 
-    # Determine color indices.
-    ncolors <- length(palette)
-    ind <- round(z*ncolors + 0.5)
-    ind <- apply(ind, 2, function(x){
-        return(pmax(1, pmin(x, ncolors)))
-    })
+    # Convert to vector or data frame.
+    if(ncol(values) < 2) {
+        res$colors <- as.vector(res$colors[[1]])
+        res$contrast <- as.vector(res$contrast[[1]])
+	names(res$colors) <- rownames(values)
+	names(res$contrast) <- rownames(values)
+    }
+    else {
+        res$colors <- data.frame(res$colors, stringsAsFactors=FALSE)
+        res$contrast <- data.frame(res$contrast, stringsAsFactors=FALSE)
+	rownames(res$colors) <- rownames(values)
+	rownames(res$contrast) <- rownames(values)
+	colnames(res$colors) <- colnames(values)
+	colnames(res$contrast) <- colnames(values)
+    }
 
-    # Collect color values.
-    empty <- rep(NA, nrow(ind))
-    colrs <- apply(ind, 2, function(x, p){
-        mask <- which(is.finite(x))
-        y <- empty; y[mask] <- p[x[mask]]
-        return(y)
-    }, p=palette)
-
-    # Return a vector.
-    if(ncol(values) < 2) return(as.vector(colrs))
-
-    # Return a data frame.
-    colrs <- data.frame(colrs, stringsAsFactors=FALSE)
-    rownames(colrs) <- rownames(values)
-    colnames(colrs) <- colnames(values)
-    return(colrs)
+    # Return results.
+    attr(res$colors, "contrast") <- res$contrast
+    return(res$colors)
 }

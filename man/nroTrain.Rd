@@ -8,7 +8,7 @@ Iterative algorithm to adapt a self-organizing map (SOM) to a set of
 multivariable data.
 }
 \usage{
-nroTrain(som, data, subsample = NULL, metric = "euclid")
+nroTrain(som, data, subsample = NULL, metric = "euclid", message = NULL)
 }
 \arguments{
   \item{som}{
@@ -22,6 +22,10 @@ Number of rows used during a single training cycle.
   }
   \item{metric}{
 Distance metric in data space, either "euclid" or "pearson".
+  } 
+  \item{message}{
+If positive, progress information is printed at the specified
+interval in seconds.
   }
 }
 

@@ -1,6 +1,7 @@
 nroPair <- function(
     data.x,
-    data.y) {
+    data.y,
+    subsample = 500) {
 
     # Check variable names.
     vars <- colnames(data.x)
@@ -15,11 +16,13 @@ nroPair <- function(
     # Make sure inputs are numeric.
     data.x <- nroRcppMatrix(data.x, trim=FALSE)
     data.y <- nroRcppMatrix(data.y, trim=FALSE)
+    subsample <- as.integer(subsample[[1]])
 
     # Find best-matching units.
     res <- .Call("nro_pair",
                  as.matrix(data.x),
                  as.matrix(data.y),
+		 as.integer(subsample),
                  PACKAGE="Numero")
     if(class(res) == "character" ) stop(res)
 

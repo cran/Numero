@@ -6,9 +6,9 @@
 \description{Plot map colorings and save them as vector graphics}
 
 \usage{
-numero.plot(results, variables = NULL, elements = NULL, folder = NULL,
-            reference = NULL, subplot = c(3,3), gain = 1, detach = FALSE,
-	    capacity = 90)
+numero.plot(results, variables = NULL, topology = NULL, folder = NULL,
+            prefix = "figure", reference = NULL, subplot = NULL,
+	    gain = 1, detach = FALSE, capacity = 90)
 }
 
 \arguments{
@@ -19,11 +19,14 @@ statistical colorings.
 \item{variables}{
 A string vector that contains names of variables to show.
 }
-\item{elements}{
+\item{topology}{
 The topology of a SOM with subgroup labels.
 }
 \item{folder}{
 Folder path for saving figures.
+}
+\item{prefix}{
+Prefix for each figure file (if saving enabled).
 }
 \item{reference}{
 Reference color ranges and scales.
@@ -47,7 +50,7 @@ Maximum number of subplots to show on screen.
 The input \code{results} must contain the output from
 code{\link{numero.evaluate}()} or similar.
 
-The input argument \code{elements} can be the topology of a SOM or with
+The input argument \code{topology} can be the topology of a SOM or with
 additional columns as in the output from \code{\link{numero.subgroup}()}.
 
 The input argument \code{reference} follows the output format from
@@ -60,7 +63,10 @@ figure when the X11 display server is available (e.g. in Linux). To use
 detached windows in Mac, use the value "aqua". Setting \code{detach = TRUE}
 will use a more general approach, however, some systems may behave
 unpredictably. To create multiple figures that remain docked within the
-RStudio work window, set \code{detach = FALSE}. 
+RStudio work window, set \code{detach = FALSE}.
+
+If a destination folder is provided, all plots are saved in files
+without plotting them on screen.
 }
 
 \value{

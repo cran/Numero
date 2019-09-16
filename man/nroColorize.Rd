@@ -45,13 +45,15 @@ to a color that is between the middle and the last element. If
 \code{amplitude} is greater than 1, extreme low and high values are
 clipped to the first and last color in the palette, respectively.
 
-Available color palettes include "gray", "fire", "jungle", "miami", "rhodo"
+Available color palettes include "grey", "fire", "jungle", "miami", "rhodo"
 or "tan". Any other word will revert to a rainbow colormap.
 }
 
 \value{
-A data frame or a matrix of hexadecimal color codes as strings. If the
-output is a single column, it is converted to a vector.
+A data frame of hexadecimal color codes as strings. If the output is a
+single column, it is converted to a vector. The output also includes the
+attribute "contrast" that indicates which colors have a good contrast with
+black as opposed to white.
 
 If \code{amplitudes = NULL}, a data frame that contains the
 value ranges that would be used for colors is returned.

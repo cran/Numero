@@ -105,7 +105,7 @@ namespace scriptum_local {
 
   /* Utility functions. */
   extern void style2code(string&, string&, const Style&);
-};
+}
 
 using namespace scriptum_local;
 

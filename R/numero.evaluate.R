@@ -1,6 +1,7 @@
 numero.evaluate <- function(
     model,
-    data) {
+    data,
+    n=1000) {
 
     # Continue analyses.
     output <- list(stamp=date())
@@ -11,17 +12,24 @@ numero.evaluate <- function(
     if(is.null(model$layout)) stop("Map layout not available.")
     layout <- model$layout
 
+    # Check if dataset was pruned.
+    #if(!is.null(attr(data, "modules")))
+    #    stop("Pruned dataset (non-identifiable variables).")
+
     # Check that data and layout are compatible.
     cat("\nDataset:\n")
     pos <- match(rownames(data), rownames(layout))
     rows <- which(pos > 0)
-    cat(length(rows), " / ", nrow(data), " rows included\n", sep="")
     if(length(rows) < 1) {
         warning("Incompatible data and layout.")
         return(NULL)
     }
-    if(length(rows) != nrow(data)) data <- data[rows,]
-    if(length(rows) != nrow(layout)) layout <- layout[pos[rows],]
+
+    # Harmonize data and layout.
+    nprev <- nrow(data)
+    data <- data[rows,]
+    layout <- layout[pos[rows],]
+    cat(nrow(data), " / ", nprev, " rows included\n", sep="")
     cat(ncol(data), " columns included\n", sep="")
 
     # Add identities to district assignments.
@@ -36,7 +44,7 @@ numero.evaluate <- function(
     cat("\nStatistics:\n")
     suppressWarnings(
         stats <- nroPermute(som=model$som, districts=bmc,
-                            data=data, message=20.0))
+                            data=data, n=n, message=10))
     cat(nrow(stats), " variable(s)\n", sep="")
     cat(sum(stats$N.cycles), " permutation(s)\n", sep="")
 

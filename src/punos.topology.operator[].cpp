@@ -7,11 +7,11 @@
 /*
  *
  */
-Unit
+District
 Topology::operator[](const mdsize ind) const {
   TopologyBuffer* p = (TopologyBuffer*)buffer;
   if(ind > (p->coord).size()) {
-    Unit empty;
+    District empty;
     empty.x = medusa::rnan();
     empty.y = empty.x;
     return empty;

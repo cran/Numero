@@ -1,5 +1,6 @@
 \name{nroPlot}
 \alias{nroPlot}
+\alias{nroPlot.save}
 
 \title{
 Plot a self-organizing map
@@ -11,24 +12,22 @@ map colorings simultaneously.
 }
 
 \usage{
-nroPlot(elements, colors, labels = NULL, values = NULL, subplot = NULL,
-        interactive = FALSE, clear = NULL, file = NULL)
+nroPlot(topology, colors, labels = NULL, subplot = NULL,
+        interactive = FALSE, clear = NULL)
+nroPlot.save(file, topology, colors, labels = NULL, subplot = NULL)
 }
 
 \arguments{
-  \item{elements}{
-A data frame with K rows and six columns that contains the district positions
-of a self-organizing map.
+  \item{topology}{
+A data frame with K rows and six or more columns that contain the district
+positions of a self-organizing map and optional region assignments.
   }
   \item{colors}{
-A character vector with K elements or a K x N matrix of hexadecimal
+A character vector with K topology or a K x N matrix of hexadecimal
 color codes as strings.
   }
   \item{labels}{
-A character vector with K elements or a K x N matrix of district labels.
-  }
-  \item{values}{
-A vector with K elements or a K x N matrix of district values.
+A character vector with K topology or a K x N matrix of district labels.
   }
   \item{subplot}{
 A two-element vector that sets out the number of rows and columns for
@@ -41,18 +40,25 @@ If TRUE, all graphics devices are cleared when the plot is refreshed.
 If TRUE, an interactive version of the plot is launched.
   }
   \item{file}{
-If non-empty, the figure is saved as a Scalable Vector Graphics file
-instead of plotting on the R device.
+If non-empty, the figure is saved as an SVG or HTML file
+instead of plotting on graphics device.
   }
 }
 
 \details{
-The input \code{elements} must follow the topology format
+The input \code{topology} must follow the format from
 \code{\link{nroKohonen}()}, but may also contain the columns REGION,
-REGION.label and REGION.color that specify the name for a subset of
-districts, the single character labels to be shown on top of those districts,
-and the color of the labels. The input can also be the list object as in the
-output format of \code{\link{nroKohonen}()}.
+and REGION.label that specify the names for subsets of districts and the
+single character labels to be shown on top of those districts. The input
+can also be the list object as returned by \code{\link{nroKohonen}()}.
+
+The color input can include the attribute "contrast" that contains a
+binary vector or a matrix of equal size. If an element is set, it means
+a dark label or highlight will have better contrast with the background.
+
+The label input can include the attribute "visible" that contains a
+binary vector or a matrix of equal size. If an element is set, it means
+a label is visible, otherwise it will not be shown on the map.
 
 Some non-alphanumeric characters are not supported and will be
 automatically converted to '_'. Too long labels or column names will be
@@ -60,13 +66,20 @@ truncated.
 
 The default value for \code{clear} is TRUE to prevent multiple plot windows
 from accumulating within the RStudio. If you are running R from the terminal
-or using detached devices, setting \code{clear} will retain the current
-window when refreshing.
+or using detached devices, setting \code{clear} to FALSE will retain the
+current window when refreshing.
+
+If the file name ends with '.html', an interactive HTML document is
+produced, otherwise an SVG document is created. We recommend opening the
+HTML file with a web browser to select regions on large maps (i.e. when the
+R plot window becomes too slow to use). The HTML page allows you to assign
+subgroups and to save the results as tab-delimited text.
 }
 
 \value{
-A data frame with K rows that contains the topology and subgrouping
-information.
+The main function returns a data frame with K rows that contains the
+topology and subgrouping information. The \code{.save} version returns
+the number of bytes written in the output file.
 }
 
 \references{
@@ -113,6 +126,28 @@ stats <- nroPermute(som = sm, districts = matches, data = selected)
 colrs <- nroColorize(values = planes, amplitudes = stats)
 labls <- nroLabel(topology = sm, values = planes)
 
+# Add subgrouping information.
+topo <- sm$topology
+topo$REGION <- ""
+topo$REGION[1:8] <- "Center"
+topo$REGION[9:21] <- "Perimeter"
+
+# Add subgroup labels.
+topo$REGION.label <- ""
+topo$REGION.label[1:8] <- "C"
+topo$REGION.label[9:21] <- "P"
+
+# Add subgroup colors.
+topo$REGION.color <- ""
+topo$REGION.color[1:8] <- "#00f00060"
+topo$REGION.color[9:21] <- "#f000f060"
+
 # Plot colorings on screen.
-nroPlot(elements = sm, colors = colrs, labels = labls)
+nroPlot(topology = topo, colors = colrs, labels = labls)
+
+# Save colorings in file.
+#fn <- "colorings.html"
+#n <- nroPlot.save(file = fn, topology = topo,
+#    colors = colrs, labels = labls)
+#cat(n, " bytes saved in '", fn, "'\n", sep="")
 }

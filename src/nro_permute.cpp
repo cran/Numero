@@ -23,7 +23,7 @@ nro_permute_sync(abacus::Matrix& stats, vector<vector<mdreal> >& points,
     ndata += (e.size() < 1); /* excluded if any missing value */
     points[i].clear(); /* reduce memory footprint */
   }
-
+  
   /* Observed component planes. */
   vector<vector<mdreal> > observed = eng.average();
   mdsize nvars = observed.size();
@@ -83,6 +83,7 @@ nro_permute(SEXP topo_R, SEXP bmus_R, SEXP data_R,
 	    SEXP numcycl_R, SEXP lag_R) {
   vector<mdsize> numcycl = nro::vector2sizes(numcycl_R);
   mdreal lag = as<mdreal>(lag_R);
+  time_t stamp = time(NULL);
   
   /* Check inputs. */
   vector<mdsize> bmus = nro::vector2sizes(bmus_R);
@@ -95,13 +96,13 @@ nro_permute(SEXP topo_R, SEXP bmus_R, SEXP data_R,
   
   /* Get map topology. */
   vector<vector<mdreal> > topodata = nro::matrix2reals(topo_R, 0.0);
-  punos::Topology topo = reals2topology(topodata);
+  punos::Topology topo = reals2topology(topodata, SIGMA_nro);
   if(topo.size() < 1) return CharacterVector("Unusable topology.");
 
   /* Asynchronous permutations. That is, separate synchronous
      permutations for each single dimension. */
   abacus::Matrix stats;
-  time_t stamp = time(NULL);
+  time_t reset = stamp;
   mdsize nvars = vectors[0].size();
   for(mdsize j = 0; j < nvars; j++) {
     
@@ -121,14 +122,12 @@ nro_permute(SEXP topo_R, SEXP bmus_R, SEXP data_R,
     
     /* Progress message. */
     if(lag < 0.0) continue;
-    mdreal dt = difftime(time(NULL), stamp); 
-    if(dt >= lag) {
-      string msg = ("completed in " + medusa::time2text(dt));
-      Rprintf("%d / %d %s\n", (j + 1), nvars, msg.c_str());
-      stamp = time(NULL);
-    }
+    if(difftime(time(NULL), reset) < lag) continue;
+    string dt = medusa::time2text(difftime(time(NULL), stamp));
+    Rprintf("%.1f%% in %s\n", 100*(j + 1.0)/nvars, dt.c_str());
+    reset = time(NULL);
   }
-    
+
   /* Return results. */
   List res;
   res.push_back(nro::reals2vector(stats.row(0)), "SCORE");

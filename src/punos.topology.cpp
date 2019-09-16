@@ -18,7 +18,7 @@ Topology::Topology(const mdsize k) {
   TopologyBuffer* p = new TopologyBuffer();
 
   /* Unconnected centroids. */
-  vector<Unit>& coord = p->coord; coord.resize(k);
+  vector<District>& coord = p->coord; coord.resize(k);
   for(mdsize i = 0; i < k; i++) {
     coord[i].x = 0.0;
     coord[i].y = 0.0;
@@ -50,43 +50,43 @@ Topology::Topology(const vector<mdreal>& zpos,
     if(zpos[k] == rlnan) return;
   }
 
-  /* First unit. */
-  Unit unit;
+  /* First district. */
+  District district;
   double rad = 1.05/sqrt(M_PI);
-  unit.x = 0.0;
-  unit.y = 0.0;
-  unit.radii.first = 0.0;
-  unit.radii.second = rad;
-  unit.angles.first = 0.0;
-  unit.angles.second = 360;
-  vector<Unit> units(1, unit);
+  district.x = 0.0;
+  district.y = 0.0;
+  district.radii.first = 0.0;
+  district.radii.second = rad;
+  district.angles.first = 0.0;
+  district.angles.second = 360;
+  vector<District> districts(1, district);
   
   /* Create a concentric circular lattice. */
   while(rad < ncircles) {
     double rA = rad;
     double rB = (rA + 1.0);
     mdsize n_div = (mdsize)(M_PI*(rB*rB - rA*rA) + 0.5);
-    unit.radii.first = rA;
-    unit.radii.second = rB;
+    district.radii.first = rA;
+    district.radii.second = rB;
     for(mdsize i = 0; i < n_div; i++) {
       double phiA = (360.0*i/n_div - (11*n_div)%180);
       double phiB = (360.0*(i + 1)/n_div - (11*n_div)%180);
-      unit.x = 0.5*(rA + rB)*cos(M_PI*(phiA + phiB)/360.0);
-      unit.y = 0.5*(rA + rB)*sin(M_PI*(phiA + phiB)/360.0);
-      unit.angles.first = phiA;
-      unit.angles.second = phiB;
-      units.push_back(unit);
+      district.x = 0.5*(rA + rB)*cos(M_PI*(phiA + phiB)/360.0);
+      district.y = 0.5*(rA + rB)*sin(M_PI*(phiA + phiB)/360.0);
+      district.angles.first = phiA;
+      district.angles.second = phiB;
+      districts.push_back(district);
     }
     rad = rB;
-    if(units.size() > USHRT_MAX)
-      panic("Too many map units.", __FILE__, __LINE__);
+    if(districts.size() > USHRT_MAX)
+      panic("Too many map districts.", __FILE__, __LINE__);
   }
 
   /* Fine-tune coordinates to ensure correct surface area. */
-  mdsize nunits = units.size();
-  double scale = sqrt(nunits/M_PI)/rad;
-  for(mdsize i = 0; i < nunits; i++) {
-    Unit& u = units[i];
+  mdsize ndistricts = districts.size();
+  double scale = sqrt(ndistricts/M_PI)/rad;
+  for(mdsize i = 0; i < ndistricts; i++) {
+    District& u = districts[i];
     u.x *= scale;
     u.y *= scale;
     u.radii.first *= scale;
@@ -95,8 +95,8 @@ Topology::Topology(const vector<mdreal>& zpos,
 
   /* Determine maximum radius. */
   mdreal rmax = rlnan;
-  for(mdsize i = 0; i < nunits; i++) {
-    mdreal r = units[i].radii.second;
+  for(mdsize i = 0; i < ndistricts; i++) {
+    mdreal r = districts[i].radii.second;
     if(rmax == rlnan) rmax = r;
     if(rmax < r) rmax = r;
   }
@@ -104,16 +104,15 @@ Topology::Topology(const vector<mdreal>& zpos,
   /* Update object. */
   p->maxradius = rmax;
   p->levels = zpos;
-  p->coord = units;
+  p->coord = districts;
   this->buffer = p;
-  this->rewire(1.0);
 }
 
 /*
  *
  */
 Topology::Topology(const vector<mdreal>& zpos,
-		   const vector<Unit>& units) {
+		   const vector<District>& districts) {
   TopologyBuffer* p = new TopologyBuffer();
   mdreal rlnan = medusa::rnan();
 
@@ -127,8 +126,8 @@ Topology::Topology(const vector<mdreal>& zpos,
 
   /* Determine maximum radius. */
   mdreal rmax = rlnan;
-  for(mdsize i = 0; i < units.size(); i++) {
-    mdreal r = units[i].radii.second;
+  for(mdsize i = 0; i < districts.size(); i++) {
+    mdreal r = districts[i].radii.second;
     if(rmax == rlnan) rmax = r;
     if(rmax < r) rmax = r;
   }
@@ -136,7 +135,7 @@ Topology::Topology(const vector<mdreal>& zpos,
   /* Update object. */
   p->maxradius = rmax;
   p->levels = zpos;
-  p->coord = units;
+  p->coord = districts;
   this->buffer = p;
   this->rewire(1.0);
 }

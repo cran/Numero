@@ -7,8 +7,8 @@
 standardizing values.}
 
 \usage{
-numero.prepare(data, variables = NULL, confounders = NULL, batch = NULL,
-               method = "standard", pipeline = NULL)
+numero.prepare(data, variables = NULL, confounders = NULL,
+               batch = NULL, method = "standard", pipeline = NULL)
 }
 
 \arguments{
@@ -42,7 +42,7 @@ If a previous \code{pipeline} is available, it overrides all processing
 parameters irrespective of other input arguments.
 
 Due to safeguards against numerical instability, the standardized values
-may deviate slightly from the expected range (<0.1% error is typical).
+may deviate slightly from the expected range (<0.1 percent error is typical).
 }
 
 \value{

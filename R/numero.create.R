@@ -42,7 +42,7 @@ numero.create <- function(
 
     # K-means clustering.
     cat("\nK-means clustering:\n")
-    km <- nroKmeans(data=trdata, subsample=subsample)
+    km <- nroKmeans(data=trdata, subsample=subsample, message=10)
     cat(length(km$history), " training cycles\n", sep="")
 
     # Create a SOM.
@@ -50,7 +50,7 @@ numero.create <- function(
     sm <- nroKohonen(seeds=km$centroids, radius=radius)
     
     # Fit the SOM to training data.
-    sm <- nroTrain(som=sm, data=trdata, subsample=subsample)
+    sm <- nroTrain(som=sm, data=trdata, subsample=subsample, message=10)
     cat(length(sm$history), " training cycles\n", sep="")
 
     # Evaluate map quality.

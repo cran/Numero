@@ -3,12 +3,23 @@
 options(digits = 3)
 
 ## ----eval=FALSE----------------------------------------------------------
+#  # Install the package from a remote repository.
 #  install.packages("Numero")
 
 ## ------------------------------------------------------------------------
+# Activate the library.
 library("Numero")
 packageVersion("Numero")
 ls("package:Numero")
+
+## ----eval=FALSE----------------------------------------------------------
+#  # Access function documentation (not shown in vignette).
+#  ? numero.create
+
+## ----eval=FALSE----------------------------------------------------------
+#  # Run all code examples (not shown in vignette).
+#  fn <- system.file("extcode", "examples.R", package = "Numero")
+#  source(fn)
 
 ## ----eval=FALSE----------------------------------------------------------
 #  # Show readme file on screen (not shown in vignette).
@@ -50,12 +61,10 @@ qc.basic <- numero.quality(model = modl.basic)
 ## ----dev="svg", results="hide", fig.width=7, fig.height=3, fig.align="center", fig.cap="Figure: Distribution of model residuals."----
 # Plot frequencies of data points at different quality levels.
 par(mar = c(5,4,1,0), mfrow = c(1,2))
-hist(x = qc.basic$layout$RESIDUAL,
-     breaks = seq(-0.2, 2.0, length.out = 50),
+hist(x = qc.basic$layout$RESIDUAL, breaks = 50,
      main = NULL, xlab = "RESIDUAL", ylab = "Number of data points",
      col = "#FFEFA0", cex = 0.8)
-hist(x = qc.basic$layout$RESIDUAL.z,
-     breaks = seq(-3, 20, length.out = 50),
+hist(x = qc.basic$layout$RESIDUAL.z, breaks = 50,
      main = NULL, xlab = "RESIDUAL.z", ylab = "Number of data points",
      col = "#FFEFA0", cex = 0.8)
 
@@ -69,7 +78,7 @@ stats.basic <- numero.evaluate(model = qc.basic, data = dataset)
 summary(stats.basic)
 
 ## ----dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The color intensity depends on how likely the observed regional variation would arise by chance; intense reds and intense blues indicate that these extremes would be very unlikely if the data point layout was random. The numbers show the average values in original units for selected districts."----
-# Plot map colorings for training variables.
+# Plot map colorings of training variables.
 numero.plot(results = stats.basic, variables = trvars, subplot = c(2,3))
 
 ## ------------------------------------------------------------------------
@@ -78,7 +87,7 @@ stats.basic$statistics[c("CHOL","MALE","AGE","T1D_DURAT"),
 
 ## ----eval=FALSE----------------------------------------------------------
 #  # Interactive subgrouping based on the training set.
-#  elem.basic <- numero.subgroup(results = stats.basic, variables = trvars)
+#  subgr.basic <- numero.subgroup(results = stats.basic, variables = trvars)
 
 ## ----echo=FALSE, results=FALSE-------------------------------------------
 # Workaround for the vignette document, DO NOT USE IN REAL STUDIES!
@@ -98,12 +107,12 @@ workaround$REGION[bottoms] <- "LowALB"
 
 ## ------------------------------------------------------------------------
 # Interactive selection not available in vignette.
-if(!exists("elem.basic")) elem.basic <- workaround
+if(!exists("subgr.basic")) subgr.basic <- workaround
 
 ## ----origgrp1, dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The labels show the results from the subgrouping procedure."----
 # Plot results from the subgrouping procedure.
 numero.plot(results = stats.basic, variables = trvars,
-            elements = elem.basic, subplot = c(2,3))
+            topology = subgr.basic, subplot = c(2,3))
 
 ## ----dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of selected variables in the kidney disease dataset."----
 # Plot results from subgrouping procedure for non-biochemical variables.
@@ -114,7 +123,7 @@ numero.plot(results = stats.basic,
                           "DIAB_RETINO",
                           "MACROVASC",
                           "DECEASED"),
-            elements = stats.basic$som$topology, subplot = c(2,3))
+            topology = stats.basic$som$topology, subplot = c(2,3))
 
 ## ----dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of selected variables with subgroup labels."----
 # Plot results from subgrouping procedure for non-biochemical variables.
@@ -125,11 +134,11 @@ numero.plot(results = stats.basic,
                           "DIAB_RETINO",
                           "MACROVASC",
                           "DECEASED"),
-            elements = elem.basic, subplot = c(2,3))
+            topology = subgr.basic, subplot = c(2,3))
 
 ## ------------------------------------------------------------------------
 # Compare subgroups.
-report.basic <- numero.summary(results = stats.basic, elements = elem.basic)
+report.basic <- numero.summary(results = stats.basic, topology = subgr.basic)
 colnames(report.basic)
 
 ## ------------------------------------------------------------------------
@@ -161,12 +170,10 @@ qc.adj <- numero.quality(model = modl.adj)
 ## ----dev="svg", results="hide", fig.width=7, fig.height=3, fig.align="center", fig.cap="Figure: Distribution of model residuals. The training data were adjusted for age and sex."----
 # Plot frequencies of data points at different quality levels.
 par(mar = c(5,4,1,0), mfrow = c(1,2))
-hist(x = qc.adj$layout$RESIDUAL,
-     breaks = seq(-0.2, 2.0, length.out = 50),
+hist(x = qc.adj$layout$RESIDUAL, breaks = 20,
      main = NULL, xlab = "RESIDUAL", ylab = "Number of data points",
      col = "#FFEFA0", cex = 0.8)
-hist(x = qc.adj$layout$RESIDUAL.z,
-     breaks = seq(-3, 20, length.out = 50),
+hist(x = qc.adj$layout$RESIDUAL.z, breaks = 20,
      main = NULL, xlab = "RESIDUAL.z", ylab = "Number of data points",
      col = "#FFEFA0", cex = 0.8)
 
@@ -215,7 +222,7 @@ numero.plot(results = stats.adjM, variables = trvars,
 
 ## ----eval=FALSE----------------------------------------------------------
 #  # Interactive subgrouping based on the training set.
-#  elem.adj <- numero.subgroup(results = stats.adj, variables = trvars)
+#  subgr.adj <- numero.subgroup(results = stats.adj, variables = trvars)
 
 ## ----echo=FALSE, results=FALSE-------------------------------------------
 # Workaround for the vignette document, DO NOT USE IN REAL STUDIES!
@@ -235,12 +242,12 @@ workaround$REGION[bottoms] <- "LowALB"
 
 ## ------------------------------------------------------------------------
 # Interactive selection not available in vignette.
-if(!exists("elem.adj")) elem.adj <- workaround
+if(!exists("subgr.adj")) subgr.adj <- workaround
 
 ## ----dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The labels show the results from the subgrouping procedure. The map was created from sex-adjusted data."----
 # Plot results from subgrouping procedure.
 numero.plot(results = stats.adj, variables = trvars,
-            elements = elem.adj, subplot = c(2,3))
+            topology = subgr.adj, subplot = c(2,3))
 
 ## ----dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of selected variables with subgroup labels. The map was created from age and sex adjusted data."----
 # Plot results from subgrouping procedure for non-biochemical variables.
@@ -251,7 +258,7 @@ numero.plot(results = stats.adj,
                           "DIAB_RETINO",
                           "MACROVASC",
                           "DECEASED"),
-            elements = elem.adj, subplot = c(2,3))
+            topology = subgr.adj, subplot = c(2,3))
 
 ## ------------------------------------------------------------------------
 # District averages from unadjusted analysis.
@@ -263,7 +270,7 @@ summary(stats.adj$planes$MALE)
 
 ## ------------------------------------------------------------------------
 # Compare subgroups.
-report.adj <- numero.summary(results = stats.adj, elements = elem.adj)
+report.adj <- numero.summary(results = stats.adj, topology = subgr.adj)
 
 ## ------------------------------------------------------------------------
 # Show results for mortality rate.
@@ -323,15 +330,18 @@ qc.replicA <- numero.quality(model = modl.discov, data = trdata.replicA)
 qc.replicB <- numero.quality(model = modl.discov, data = trdata.replicB)
 qc.mets <- numero.quality(model = modl.discov, data = trdata.mets)
 
+## ------------------------------------------------------------------------
+# Define comparable histogram bins.
+rz <- c(qc.adj$layout$RESIDUAL.z, qc.discov$layout$RESIDUAL.z)
+rz.breaks <- seq(min(rz, na.rm=TRUE), max(rz, na.rm=TRUE), length.out=20)
+
 ## ----dev="svg", results="hide", fig.width=7, fig.height=3, fig.align="center", fig.cap="Figure: Distribution of model residuals when the training data were preprocessed by scaling & centering or by tapered ranking."----
 # Plot frequencies of data points at different quality levels.
 par(mar = c(5,4,1,0), mfrow = c(1,2))
-hist(x = qc.adj$layout$RESIDUAL.z,
-     breaks = seq(-5, 5, length.out = 30),
+hist(x = qc.adj$layout$RESIDUAL.z, breaks = rz.breaks,
      main = NULL, xlab = "RESIDUAL.z (scale & center)",
      ylab = "Number of data points", col = "#FFEFA0", cex = 0.8)
-hist(x = qc.discov$layout$RESIDUAL.z,
-     breaks = seq(-5, 5, length.out = 30),
+hist(x = qc.discov$layout$RESIDUAL.z, breaks = rz.breaks,
      main = NULL, xlab = "RESIDUAL.z (rank)",
      ylab = "Number of data points", col = "#FFEFA0", cex = 0.8)
 
@@ -392,7 +402,7 @@ clinvars <- c("uALB", "AGE", "DIAB_KIDNEY", "DIAB_RETINO",
 
 ## ----eval=FALSE----------------------------------------------------------
 #  # Interactive subgrouping based on the training set.
-#  elem.discov <- numero.subgroup(results = stats.discov, variables = clinvars)
+#  subgr.discov <- numero.subgroup(results = stats.discov, variables = clinvars)
 
 ## ----echo=FALSE, results=FALSE-------------------------------------------
 # Workaround for the vignette document, DO NOT USE IN REAL STUDIES!
@@ -412,34 +422,34 @@ workaround$REGION[bottoms] <- "LowDiabKD"
 
 ## ------------------------------------------------------------------------
 # Interactive selection not available in vignette.
-if(!exists("elem.discov")) elem.discov <- workaround
+if(!exists("subgr.discov")) subgr.discov <- workaround
 
 ## ----dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The labels show the results from the subgrouping procedure."----
 # Plot results from subgrouping procedure.
 numero.plot(results = stats.discov, variables = clinvars,
-            elements = elem.discov, subplot = c(2,3))
+            topology = subgr.discov, subplot = c(2,3))
 
 ## ----eval=FALSE----------------------------------------------------------
 #  # Compare subgroups.
 #  report.discov <- numero.summary(results = stats.discov,
-#                                  elements = elem.discov)
+#                                  topology = subgr.discov)
 #  report.replicA <- numero.summary(results = stats.replicA,
-#                                   elements = elem.discov)
+#                                   topology = subgr.discov)
 #  report.replicB <- numero.summary(results = stats.replicB,
-#                                   elements = elem.discov)
+#                                   topology = subgr.discov)
 #  report.mets <- numero.summary(results = stats.mets,
-#                                elements = elem.discov)
+#                                topology = subgr.discov)
 
 ## ----echo=FALSE, results="hide"------------------------------------------
 suppressWarnings({
 report.discov <- numero.summary(results = stats.discov,
-                                elements = elem.discov)
+                                topology = subgr.discov)
 report.replicA <- numero.summary(results = stats.replicA,
-                                 elements = elem.discov)
+                                 topology = subgr.discov)
 report.replicB <- numero.summary(results = stats.replicB,
-                                 elements = elem.discov)
+                                 topology = subgr.discov)
 report.mets <- numero.summary(results = stats.mets,
-                              elements = elem.discov)})
+                              topology = subgr.discov)})
 
 ## ------------------------------------------------------------------------
 # Show results for mortality rate in the discovery set.
@@ -460,6 +470,38 @@ report.replicB[rows,c("SUBGROUP","N","MEAN","P.chisq")]
 # Show results for mortality rate in metabolic syndrome subset.
 rows <- which(report.mets$VARIABLE == "DECEASED")
 report.mets[rows,c("SUBGROUP","N","MEAN","P.chisq")]
+
+## ----eval=FALSE----------------------------------------------------------
+#  # Save map colorings of training variables.
+#  numero.plot(results = stats.basic, variables = trvars,
+#              folder = "/tmp/Results")
+
+## ----echo=FALSE----------------------------------------------------------
+s <- paste("\n", 
+    "*** numero.plot ***\n", 
+    "Thu Sep  5 15:44:02 2019\n", 
+    "\n", 
+    "Resources:\n", 
+    "5 column(s) included\n", 
+    "destination folder '/tmp/Results'\n", 
+    "\n", 
+    "Figure 1:\n", 
+    "5 subplot(s)\n", 
+    "file name '/tmp/Results/figure01.svg'\n", 
+    "97622 bytes saved in '/tmp/Results/figure01.svg'\n", 
+    "99982 bytes saved in '/tmp/Results/figure01.html'\n", 
+    "\n", 
+    "Summary:\n", 
+    "1 figure(s) -> '/tmp/Results'\n", sep="")
+cat(s)
+
+## ----eval=FALSE----------------------------------------------------------
+#  # Import topology and region assignments.
+#  subgr <- read.delim(file = "Downloads/regions.txt", stringsAsFactors=FALSE)
+
+## ----eval=FALSE----------------------------------------------------------
+#  # Calculate subgroup statistics.
+#  report <- numero.summary(results = stats.basic, topology = subgr)
 
 ## ----echo=FALSE----------------------------------------------------------
 sessionInfo()

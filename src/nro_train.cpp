@@ -8,24 +8,27 @@
  */
 RcppExport SEXP
 nro_train(SEXP topo_R, SEXP codebook_R, SEXP data_R,
-	  SEXP metric_R, SEXP nsub_R, SEXP eq_R) {
+	  SEXP metric_R, SEXP nsub_R, SEXP eq_R, SEXP lag_R) {
   mdreal rlnan = medusa::rnan();
+  time_t stamp = time(NULL);
+  string err;
   
   /* Input parameters. */
   string metric = as<string>(metric_R);
   mdsize nsub = as<mdsize>(nsub_R);
   mdreal eq = as<mdreal>(eq_R);
+  mdreal lag = as<mdreal>(lag_R);
   
   /* Determine map topology. */
   vector<vector<mdreal> > topodata = nro::matrix2reals(topo_R, 0.0);
-  punos::Topology topo = nro::reals2topology(topodata);
+  punos::Topology topo = nro::reals2topology(topodata, SIGMA_nro);
   if(topo.size() < 1) return CharacterVector("Unusable topology.");
   
   /* Check prototypes. */
   vector<vector<mdreal> > protos = nro::matrix2reals(codebook_R, 0.0);
   if(protos.size() != topodata.size())
     return CharacterVector("Incompatible codebook.");
-  
+
   /* Check if K-means clustering. */
   if(topodata.size() == 1) {
     if(topodata[0].size() == 1)
@@ -43,7 +46,7 @@ nro_train(SEXP topo_R, SEXP codebook_R, SEXP data_R,
   if(ncols < 3) return CharacterVector("Too few dimensions.");
   
   /* Create a self-organizing map. */
-  koho::Model model(topo, nsub, eq, metric); string err;
+  koho::Model model(topo, nsub, eq, metric);
   for(mdsize k = 0; k < protos.size(); k++) {
     err = model.configure(k, protos[k]);
     if(err.size() > 0) return CharacterVector(err);
@@ -60,8 +63,22 @@ nro_train(SEXP topo_R, SEXP codebook_R, SEXP data_R,
   /* Fit the map to the training data. */
   vector<mdreal> history;
   vector<koho::Resident> layout;
-  err = model.train(layout, history);
-  if(err.size() > 0) return CharacterVector(err);
+  time_t reset = stamp;
+  while(true) {
+    vector<mdreal> trace;
+    if(lag >= 0.0) err = model.train(layout, trace, lag);
+    else err = model.train(layout, trace, rlnan);
+    history.insert(history.end(), trace.begin(), trace.end());
+    if(err.size() > 0) return CharacterVector(err);
+    if(trace.size() < 1) break;
+
+    /* Progress message. */
+    if(lag < 0.0) continue;
+    if(difftime(time(NULL), reset) < lag) continue;
+    string dt = medusa::time2text(difftime(time(NULL), stamp));
+    Rprintf("%d cycles in %s\n", history.size(), dt.c_str());
+    reset = time(NULL);
+  }
   
   /* Update prototypes. */
   protos.resize(topo.size());

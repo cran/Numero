@@ -81,6 +81,10 @@ numero.quality.statistics <- function(model, layout) {
     names(bmc) <- rownames(layout)
     layout$BMC <- NULL
 
+    # Add jitter to coverage to prevent numerical artefacts.
+    r <- stats::rnorm(nrow(layout))
+    layout$COVERAGE <- (layout$COVERAGE + 0.01*r)
+
     # Permutation analysis.
     stats <- nroPermute(som=model$som, districts=bmc,
                         data=layout, n=1000)

@@ -1,4 +1,8 @@
-nroPostprocess <- function(data, mapping) {
+nroPostprocess <- function(
+    data,
+    mapping,
+    reverse=FALSE,
+    trim=FALSE) {
 
     # Nothing to do.
     if(length(mapping) < 1) return(data)
@@ -6,8 +10,16 @@ nroPostprocess <- function(data, mapping) {
     # Check input.
     if(is.data.frame(mapping)) mapping <- attr(mapping, "mapping")
     if(is.matrix(mapping)) mapping <- attr(mapping, "mapping")
-    model.in <- mapping$input
-    model.out <- mapping$output
+
+    # Set operation mode.
+    if(reverse) {
+        model.in <- mapping$output
+        model.out <- mapping$input
+    }
+    else {
+        model.in <- mapping$input
+        model.out <- mapping$output
+    }
 
     # Check model data.
     if(nrow(model.in) != nrow(model.out))
@@ -35,12 +47,15 @@ nroPostprocess <- function(data, mapping) {
       xout <- as.double(data[,vn])
       mask <- which(is.finite(x*y))
       if(length(mask) < 3) next
-      output[,vn] <- stats::approx(x=x[mask], y=y[mask], rule=2, xout=xout)$y
+      output[,vn] <- stats::approx(x=x[mask], y=y[mask],
+                                   rule=2, xout=xout)$y
     }
 
     # Remove empty rows.
-    mu <- rowMeans(output, na.rm=TRUE)
-    output <- output[which(is.finite(mu)),]
+    if(trim) {
+        mu <- rowMeans(output, na.rm=TRUE)
+        output <- output[which(is.finite(mu)),]
+    }
     if(nrow(output) < 1) {
         warning("No usable rows.")
         return(NULL)
@@ -49,8 +64,11 @@ nroPostprocess <- function(data, mapping) {
         warning("Unusable row(s) excluded.")
 
     # Remove empty columns.
-    mu <- colMeans(output, na.rm=TRUE)
-    output <- output[,which(is.finite(mu))]
+    if(trim) {
+        mu <- colMeans(output, na.rm=TRUE)
+        output <- output[,which(is.finite(mu))]
+    }
+    if(is.vector(output)) output <- as.matrix(output)
     if(ncol(output) < 1) {
         warning("No usable columns.")
         return(NULL)

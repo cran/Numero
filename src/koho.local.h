@@ -31,7 +31,6 @@ using namespace abacus;
 using namespace punos;
 using namespace koho;
 
-
 /* Encapsulate with redundant namespace in case in a collection
    of modules another module has the same class name(s) in use. */
 namespace koho_local {
@@ -127,22 +126,31 @@ namespace koho_local {
   public:
     mdsize ntrain;
     mdreal equality;
+    mdreal escape;
     string metric;
+    mt19937 twister;
     Matrix codebook;
     Trainer trainer;
+    vector<mdreal> history;
+    map<string, mdreal> state;
   public:
     ModelBuffer() : Buffer() {
       this->ntrain = medusa::snan();
       this->equality = 0.0;
+      this->escape = medusa::rnan();
       this->metric = "euclid";
     };
     ModelBuffer(const void* ptr) : Buffer(ptr) {
       ModelBuffer* p = (ModelBuffer*)ptr;
       this->ntrain = p->ntrain;
       this->equality = p->equality;
+      this->escape = p->escape;
       this->metric = p->metric;
+      this->twister = p->twister;
       this->codebook = p->codebook;
       this->trainer = p->trainer;
+      this->history = p->history;
+      this->state = p->state;
     };
     ~ModelBuffer() {};
   };
@@ -181,6 +189,7 @@ namespace koho_local {
   class EngineBuffer : public Buffer {
   public:
     bool complete;
+    mdsize order;
     mt19937 twister;
     pair<vector<mdsize>, vector<mdsize> > bmus;
     vector<vector<mdreal> > freqs;
@@ -188,11 +197,13 @@ namespace koho_local {
     Matrix data;
   public:
     EngineBuffer() : Buffer() {
+      this->order = 0;
       this->complete = true;
     };
     EngineBuffer(const void* ptr) : Buffer(ptr) {
       EngineBuffer* p = (EngineBuffer*)ptr;
       this->complete = p->complete;
+      this->order = p->order;
       this->twister = p->twister;
       this->bmus = p->bmus;
       this->freqs = p->freqs;
@@ -202,7 +213,7 @@ namespace koho_local {
     ~EngineBuffer() {};
     void prepare();
   };
-};
+}
 
 using namespace koho_local;
 

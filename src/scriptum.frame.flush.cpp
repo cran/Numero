@@ -9,6 +9,6 @@
 string
 Frame::flush() {
   FrameBuffer* p = (FrameBuffer*)buffer;
-  while(this->group(-1) > 0) {}
+  while(this->group() > 0) {}
   return p->flush();
 }

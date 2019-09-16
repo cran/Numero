@@ -1,10 +1,11 @@
 numero.plot <- function( 
     results,
     variables=NULL,
-    elements=NULL,
+    topology=NULL,
     folder=NULL,
+    prefix="figure",
     reference=NULL,
-    subplot=c(3,3),
+    subplot=NULL,
     gain=1.0,
     detach=FALSE,
     capacity=90) {
@@ -14,14 +15,15 @@ numero.plot <- function(
 
     # Default inputs.
     if(is.null(variables)) variables <- colnames(results$planes)
-    if(is.null(elements)) elements <- results$som$topology
+    if(is.null(topology)) topology <- results$som$topology
     if(is.null(reference)) reference <- results
+    prefix <- as.character(prefix[[1]])
     detach <- as.character(detach[[1]])
 
     # Check capacity.
     cat("\nResources:\n")
     if(capacity < 2) {
-        cat("capacity less than two\n")
+        cat("capacity less than two\n", sep="")
         return(0)
     }
 
@@ -31,7 +33,7 @@ numero.plot <- function(
     variables <- intersect(variables, colnames(comps))
     cat(length(variables), " column(s) included\n", sep="")
     if(length(variables) < 2) {
-        cat("less than two usable variables\n")
+        cat("less than two usable variables\n", sep="")
         return(0)
     }
 
@@ -39,7 +41,7 @@ numero.plot <- function(
     comps <- comps[,variables]
     stats <- stats[variables,]
     if(nrow(stats) > capacity) {
-        cat("capacity exceeded, showing", capacity, "plots.\n")
+        cat("capacity exceeded, showing", capacity, "plots.\n", sep="")
         comps <- comps[,1:capacity]
 	stats <- stats[1:capacity,]
     }
@@ -48,13 +50,14 @@ numero.plot <- function(
     if(length(folder) > 0) {
         if(!dir.exists(folder)) dir.create(folder)
 	if(!dir.exists(folder)) {
-	    cat("destination '", folder, "' not available\n")
+	    cat("destination '", folder, "' not available\n", sep="")
 	    folder <- NULL
 	}
-	if(!is.null(folder)) cat("destination folder '", folder, "'\n")
+	if(!is.null(folder))
+	    cat("destination folder '", folder, "'\n", sep="")
     }
     else {
-        cat("destination folder not defined\n")
+        cat("destination folder not defined\n", sep="")
     }
 
     # Check if reference is usable.
@@ -68,22 +71,23 @@ numero.plot <- function(
     gain <- as.double(gain[[1]])
     if(!is.finite(gain)) {
         gain <- 1
-        cat("unusable gain, reverted to 1\n")
+        cat("unusable gain, reverted to 1\n", sep="")
     }
     if(gain <= 0.0) {
         gain <- 1
-        cat("non-positive gain, reverted to 1\n")
+        cat("non-positive gain, reverted to 1\n", sep="")
     }
 
     # Check if subplot is usable.
     if(length(subplot) < 2) {
-        cat("unusable subplot, reverted to c(3,3)\n")
-        subplot <- c(3,3)
+        if(is.null(folder)) subplot <- c(3,3)
+	else subplot <- c(10,4)
     }
-    subplot <- as.integer(subplot[c(1,2)])
+    subplot <- as.integer(subplot[1:2])
     if((subplot[1] < 1) || (subplot[2] < 1)) {
-        cat("unusable subplot, reverted to c(3,3)\n")
-        subplot <- c(3,3)
+        cat("unusable subplot, reverted to automatic\n", sep="")
+        if(is.null(folder)) subplot <- c(3,3)
+	else subplot <- c(10,4)
     }
 
     # Get coloring parameters.
@@ -99,7 +103,11 @@ numero.plot <- function(
     # Set colors and labels.
     colrs <- nroColorize(values=comps, amplitudes=amplitudes,
                          ranges=ranges, palette=palette)
-    labls <- nroLabel(topology=elements, values=comps)
+    labls <- nroLabel(topology=topology, values=comps)
+
+    # Extract attributes.
+    contrast <- attr(colrs, "contrast")
+    visible <- attr(labls, "visible")
 
     # Split into several figures.
     nfigs <- 0
@@ -110,16 +118,22 @@ numero.plot <- function(
         # Select colorings.
         mask <- (nfigs*nsubs + 1:nsubs)
         mask <- mask[which(mask <= nstats)]
+	if(length(mask) < 1) break
+
+        # Print progress message.
         nfigs <- (nfigs + 1)
-        cat("\nFigure ", nfigs, "\n", sep="")
+        cat("\nFigure ", nfigs, ":\n", sep="")
         cat(length(mask), " subplot(s)\n", sep="")
 
-        # Set file name.
-        fname <- NULL
+        # Set file names.
+        fn.svg <- NULL
+        fn.html <- NULL
         if(length(folder) > 0) {
-	    fname <- sprintf("figure%02d.svg", nfigs)
-	    fname <- file.path(folder, fname)
-	    cat("file name '", fname, "'\n", sep="")
+	    fn.svg <- sprintf("%s%02d.svg", prefix, nfigs)
+	    fn.svg <- file.path(folder, fn.svg)
+	    fn.html <- sprintf("%s%02d.html", prefix, nfigs)
+	    fn.html <- file.path(folder, fn.html)
+	    cat("file name '", fn.svg, "'\n", sep="")
         }
 
         # Make sure column names are preserved.
@@ -135,30 +149,37 @@ numero.plot <- function(
 	    colnames(comps.masked) <- cname
         }
 
-        # Create figure.
-	if(length(mask) > 0) {
+        # Restore attributes.
+        attr(colrs.masked, "contrast") <- as.matrix(contrast[,mask])
+        attr(labls.masked, "visible") <- as.matrix(visible[,mask])
 
-           # Launch a detached window.
-           if((length(fname) < 1) && (detach != "FALSE")) {
-               if(detach == "TRUE") grDevices::dev.new()
-               if(detach == "aqua") {
-	           if(capabilities("aqua")) grDevices::quartz()
-	           else warning("Quartz display server not available.")
-	       }
-               if(detach == "X11") {
-	           if(capabilities("X11")) grDevices::x11()
-	           else warning("X11 display server not available.")
-	       }
-           }
-
-           # Plot colorings.
-           nroPlot(elements=elements,
-                    colors=colrs.masked,
-	            labels=labls.masked,
-                    values=comps.masked,
-		    subplot=subplot, file=fname)
+        # Launch a detached window.
+        if((length(fn.svg) < 1) && (detach != "FALSE")) {
+            if(detach == "TRUE") grDevices::dev.new()
+            if(detach == "aqua") {
+                if(capabilities("aqua")) grDevices::quartz()
+	        else warning("Quartz display server not available.")
+	    }
+            if(detach == "X11") {
+	        if(capabilities("X11")) grDevices::x11()
+	        else warning("X11 display server not available.")
+	    }
         }
-	if(max(mask) >= nstats) break
+
+        # Plot colorings.
+	if(is.null(fn.svg)) {
+             nroPlot(topology=topology, colors=colrs.masked,
+	         labels=labls.masked, subplot=subplot)
+	     next
+	}
+
+        # Save colorings.
+        nbyt <- nroPlot.save(file=fn.svg, topology=topology,
+	    colors=colrs.masked, labels=labls.masked, subplot=subplot)
+        cat(nbyt, " bytes saved in '", fn.svg, "'\n", sep="")
+        nbyt <- nroPlot.save(file=fn.html, topology=topology,
+	    colors=colrs.masked, labels=labls.masked, subplot=subplot)
+        cat(nbyt, " bytes saved in '", fn.html, "'\n", sep="")
     }
 
     # Final report.

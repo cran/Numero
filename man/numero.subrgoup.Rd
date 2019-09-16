@@ -7,7 +7,7 @@
 multi-district regions as subgroups}
 
 \usage{
-numero.subgroup(results, variables, elements = NULL, reference = NULL,
+numero.subgroup(results, variables, topology = NULL, reference = NULL,
                 gain = 1, detach = FALSE, capacity = 9)
 }
 
@@ -19,7 +19,7 @@ statistical colorings.
 \item{variables}{
 A string vector that contains names of variables to show on screen.
 }
-\item{elements}{
+\item{topology}{
 A SOM topology or the output from a previous subgrouping session.
 }
 \item{reference}{
@@ -40,8 +40,8 @@ Maximum number of subplots to show on screen.
 The input \code{results} must contain the output from
 code{\link{numero.evaluate}()} or similar.
 
-The input argument \code{elements} can be the topology of a SOM or with
-additional columns as in the output from \code{\link{numero.subgroup}()}.
+The input argument \code{topology} can be the structure of a SOM or with
+additional columns as in the output from \code{\link{nroPlot}()}.
 
 The input argument \code{reference} follows the output format from
 \code{\link{numero.evaluate}()}.
@@ -82,6 +82,5 @@ modl <- numero.create(data = trdata)
 stats <- numero.evaluate(model = modl, data = dataset)
 
 # Define subgroups, uncomment to launch interactive window.
-warning("Interactive example of numero.subrgoup() disabled.")
 #elem <- numero.subgroup(results = stats, variables = trvars)
 }

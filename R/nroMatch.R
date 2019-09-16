@@ -9,6 +9,10 @@ nroMatch <- function(
 	som <- centroids
         centroids <- centroids$centroids
     }
+    if(length(centroids) < 1) {
+        warning("Empty input.")
+        return(NULL)
+    }
 
     # Check distance metric.
     if(!is.null(metric) && !is.null(som$metric)) {
@@ -47,8 +51,8 @@ nroMatch <- function(
     if(is.null(som$history) == FALSE)
         delta <- som$history[length(som$history)]
     if(is.null(som$layout) == FALSE) {
-        sigma <- stats::quantile(som$layout$RESIDUAL,
-	                         c(0.3085, 0.6915), na.rm=T)
+        sigma <- stats::quantile(som$layout$RESIDUAL, c(0.3085, 0.6915),
+                                 na.rm=TRUE)
         sigma <- (sigma[2] - sigma[1])
     }
 

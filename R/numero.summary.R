@@ -1,6 +1,6 @@
 numero.summary <- function(
     results,
-    elements,
+    topology,
     data=NULL,
     capacity=10) {
 
@@ -25,8 +25,15 @@ numero.summary <- function(
     }
     cat(ncol(data), " data column(s)\n", sep="")
 
+    # Convert topology to data frame.
+    topology <- as.data.frame(topology, stringsAsFactors=FALSE)
+    if(is.null(topology$REGION)) {
+        cat("no regions defined\n")
+        return(NULL)
+    }
+
     # Check subgroup capacity.
-    nsubs <- length(table(elements$REGION))
+    nsubs <- length(table(topology$REGION))
     if(nsubs < 2) {
         cat("less than two subgroups\n")
         return(NULL)
@@ -36,11 +43,18 @@ numero.summary <- function(
         return(NULL)
     }
 
+    # Check labels.
+    if(is.null(topology$REGION.label)) {
+        labls <- as.factor(topology$REGION)
+        topology$REGION.label <- as.integer(labls)
+	warning("Region labels set to defaults.")
+    }
+
     # Estimate subgroup statistics.
     cat("\nComparisons:\n")
     suppressWarnings(
         output <- nroSummary(data=data, districts=layout$BMC,
-                             regions=elements$REGION, capacity=capacity))
+                             regions=topology, capacity=capacity))
     if(length(output) < 1) {
         cat("no usable columns\n")
         return(output)
@@ -62,10 +76,5 @@ numero.summary <- function(
     # Unusable variables.
     nskip <- (ncol(data) - length(binary) - length(categ) - length(real))
     cat(nskip, " unusable column(s)\n", sep="")
-
-    # Clear P-values for training set.
-    pos <- match(output$VARIABLE, colnames(results$som$centroids))
-    output[which(pos > 0), c("P.chisq", "P.t", "P.anova")] <- NA
-    output$TRAINING <- is.finite(pos)
     return(output)
 }

@@ -7,7 +7,7 @@
 self-organizing map}
 
 \usage{
-numero.evaluate(model, data)
+numero.evaluate(model, data, n = 1000)
 }
 
 \arguments{
@@ -17,6 +17,10 @@ A list object that contains a self-organizing map and a data layout.
 
   \item{data}{
 A matrix or a data frame.
+  }
+
+  \item{n}{
+Maximum number of permutations per data column.
   }
 }
 

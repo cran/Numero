@@ -1,19 +1,16 @@
 nroPlot <- function(
-    elements,
+    topology,
     colors,
     labels=NULL,
-    values=NULL,
     subplot=NULL,
     interactive=FALSE,
-    clear=NULL,
-    file=NULL) {
+    clear=NULL) {
 
     # Convert inputs to matrices.
     if(is.factor(colors)) colors <- as.character(colors)
     if(is.factor(labels)) labels <- as.character(labels)
     if(is.vector(colors)) colors <- as.matrix(colors)
     if(is.vector(labels)) labels <- as.matrix(labels)
-    if(is.vector(values)) values <- as.matrix(values)
 
     # Default labels.
     if(is.null(labels)) labels <- matrix(nrow=0, ncol=0)
@@ -27,30 +24,38 @@ nroPlot <- function(
         colnames(colors) <- paste(1:ncol(colors))
     if(length(colnames(labels)) < 1)
         colnames(labels) <- colnames(colors)
-    if((length(values) > 0) && (length(colnames(values)) < 1))
-        colnames(values) <- colnames(colors)
    
     # Check if input is a list.
-    if(is.list(elements) && !is.data.frame(elements))
-        elements <- elements$topology
+    if(is.list(topology) && !is.data.frame(topology))
+        topology <- topology$topology
 
     # Check inputs.
-    if(nrow(elements) != nrow(colors)) stop("Incompatible colors.")
-    if(nrow(elements) != nrow(labels)) stop("Incompatible labels.")
+    if(nrow(topology) != nrow(colors)) stop("Incompatible colors.")
+    if(nrow(topology) != nrow(labels)) stop("Incompatible labels.")
     if(ncol(colors) != ncol(labels)) stop("Incompatible inputs.")
     subplot <- as.integer(subplot)
 
     # Make sure all data are available.
-    elements <- data.frame(elements, stringsAsFactors=FALSE)
-    if(is.null(elements$REGION)) elements$REGION <- ""
-    if(is.null(elements$REGION.label)) elements$REGION.label <- ""
-    if(is.null(elements$REGION.color)) elements$REGION.color <- ""
+    topology <- data.frame(topology, stringsAsFactors=FALSE)
+    if(is.null(topology$REGION)) topology$REGION <- ""
+    if(is.null(topology$REGION.label)) topology$REGION.label <- ""
+    if(is.null(topology$REGION.color)) topology$REGION.color <- ""
 
     # Check that all labels are single characters.
-    flags <- sapply(elements$REGION.label, nchar)
+    flags <- sapply(topology$REGION.label, nchar)
     if(sum(flags > 1) > 0) {
         labels <- matrix("", nrow=nrow(labels), ncol=ncol(labels))
         warning("Multi-character region labels not supported.")
+    }
+
+    # Populate values for compatibility with existing code.
+    values <- labels
+
+    # Apply label visibility for compatibility.
+    visible <- attr(labels, "visible")
+    for(j in 1:ncol(labels)) {
+        mask <- which(visible[,j] == FALSE)
+        labels[mask,j] <- ""
     }
 
     # Collect parameters.
@@ -63,7 +68,7 @@ nroPlot <- function(
     if(!is.null(clear)) param$clear <- clear
 
     # Make variable names of uniform length.
-    vars <- paste(names(values), "                ")
+    vars <- paste(colnames(colors), "                ")
     vars <- sapply(vars, substr, start=1, stop=16)
     param$variables <- as.character(vars)
 
@@ -85,7 +90,7 @@ nroPlot <- function(
     # Set plot size parameters.
     param$xgap <- 0.5
     param$ygap <- 0.8
-    param$rmax <- max(elements$RADIUS2, na.rm=TRUE)
+    param$rmax <- max(topology$RADIUS2, na.rm=TRUE)
     param$wplot <- 2*(param$rmax + param$xgap)
     param$hplot <- 2*(param$rmax + param$ygap)
     param$xbounds <- c(0, (param$ncols)*(param$wplot))
@@ -100,22 +105,15 @@ nroPlot <- function(
     param$trigger <- 0
     param$nplots <- 0
 
-    # Save figure as Scalable Vector Graphics.
-    if(is.null(file) == FALSE) {
-        nbytes <- nroPlot.save(file, elements, param)
-        return(elements)
-    }
-
     # Create base figure.
-    param <- nroPlot.multi(elements, param)
+    param <- nroPlot.multi(topology, param)
 
     # Launch interactive mode.
-    if(param$interactive)
-        elements <- nroPlot.interface(elements, param)
-
-    # Clear remnant figures in RStudio.
-    if(param$clear) nroPlot.multi(elements, param)
-    return(elements)
+    if(param$interactive) {
+        topology <- nroPlot.interface(topology, param)
+        if(param$clear) nroPlot.multi(topology, param) # RStudio remnants
+    }
+    return(topology)
 }
 
 #----------------------------------------------------------------------------
@@ -251,7 +249,7 @@ nroPlot.interface <- function(elements, param) {
     halolabls <- elements$REGION.label
 
     # Greeting text.
-    greet1 <- "\nPlease click on subplots for subgroup selection."
+    greet1 <- "\nPlease click on subplots to select subgroups."
     greet2 <- "\nTo update or exit, click outside the map colorings.\n"
     greet <- paste(greet1, greet2, sep="")
 
@@ -278,8 +276,8 @@ nroPlot.interface <- function(elements, param) {
             # Ask for subgroup identifier.
 	    res <- NULL; name <- ""
 	    while(is.null(res)) {
-	        msg <- "\nSubgroup name (empty to cancel, 'q' to exit): " 
-                name <- readline(msg)
+	        cat("\nSubgroup name (empty to cancel, 'q' to exit):\n") 
+                name <- readline()
 		if(nchar(name) < 1) break
 		if((name == "q") || (name == "'q'")) {
 		    mask <- which(elements$REGION.label == "?")
@@ -411,88 +409,6 @@ nroPlot.multi <- function(elements, param, targets=c()) {
     param$nplots <- nplots
     param$trigger <- (param$trigger - 1)
     return(param)
-}
-
-#----------------------------------------------------------------------------
-
-nroPlot.save <- function(file, elements, param) {
-
-    # Shorthands for parameters.
-    colrs <- param$colors
-    labls <- param$labels
-    nrows <- param$nrows
-    ncols <- param$ncols
-    wplot <- param$wplot
-    hplot <- (param$hplot + 0.5) # extra space for time stamp
-    rmax <- param$rmax
-    xgap <- param$xgap
-    ygap <- param$ygap # extra gap for time stamp
-    xbounds <- param$xbounds
-    ybounds <- param$ybounds
-
-    # Set file path.
-    fname <- path.expand(file)
-    if(nchar(fname) < 1) stop("Unusable file name.")
-
-    # Set placeholders for highlights.
-    if(is.null(elements$REGION.label)) elements$REGION.label <- ""
-    if(is.null(elements$REGION.color)) elements$REGION.color <- ""
-    topo <- elements[,c("X","Y","RADIUS1","RADIUS2","ANGLE1","ANGLE2")]
-  
-    # Set titles.
-    titles <- colnames(colrs)
-    if(length(titles) < 1) titles <- colnames(labls)
-    if(length(titles) < 1) titles <- paste(1:ncol(colrs))
-
-    # Make sure titles are distinct.
-    if(anyDuplicated(titles) > 0) {
-        warning("Duplicated plot titles.")
-        titles <- paste((1:length(titles)), titles, sep="_")
-    }
-
-    # Generate SVG code.
-    code <- ""
-    bbox <- c(NA, NA, NA, NA)
-    for(j in 1:length(titles)) {
-
-        # Determine position offsets.
-        jc <- (j - 1)%%ncols
-        jr <- floor((j - 1)/ncols)
-        dx <- (jc*wplot + rmax + xgap)
-        dy <- (jr*hplot + rmax + ygap)
-
-       # Create a new plot.
-        res <- .Call("nro_circus",
-	             c(dx, dy),
-                     as.matrix(topo),
-	   	     as.character(elements$REGION.color),
-	 	     as.character(elements$REGION.label),
-                     as.character(colrs[,j]),
-                     as.character(labls[,j]),
-                     as.character(titles[j]),
-                     as.character(Sys.time()),
-                     PACKAGE="Numero")
-        if(class(res) == "character") stop(res)
-
-        # Update figure data.
-        code <- paste(code, res$code)
-        bbox[1] <- min(bbox[1], res$bbox[1], na.rm=TRUE)
-	bbox[2] <- min(bbox[2], res$bbox[2], na.rm=TRUE)
-        bbox[3] <- max(bbox[3], res$bbox[3], na.rm=TRUE)
-        bbox[4] <- max(bbox[4], res$bbox[4], na.rm=TRUE)
-    }
-
-    # Save figure in file.
-    nbytes <- .Call("nro_figure",
-                    as.character(fname),
-                    as.character(code),
-                    as.numeric(bbox),
-                    PACKAGE="Numero")  
-    if(nbytes < 1) stop('Cannot save figure.')
-
-    # Print report.
-    cat(nbytes, " bytes -> '", fname, "'\n", sep="")
-    return(nbytes)
 }
 
 #----------------------------------------------------------------------------

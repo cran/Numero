@@ -7,7 +7,7 @@
 analysis}
 
 \usage{
-numero.summary(results, elements, data = NULL, capacity = 10)
+numero.summary(results, topology, data = NULL, capacity = 10)
 }
 
 \arguments{
@@ -17,7 +17,7 @@ A list object that contains the self-organizing map and its
 statistical colorings.
 }
 
-\item{elements}{
+\item{topology}{
 A SOM topology with additional labels that indicate selected regions.
 }
 
@@ -34,13 +34,13 @@ Maximum number of subgroups to compare.
 The input \code{results} must contain the output from
 code{\link{numero.evaluate}()} or similar.
 
-The input argument \code{elements} must be a topology of a SOM with
+The input argument \code{topology} must be a definition of a SOM with
 additional columns as in the output from \code{\link{numero.subgroup}()}.
 
 The function first looks for row names in \code{data} that are also included
 in \code{results}. The rows are then divided into subgroups according to the
 district assignments in \code{results} and the region labels in
-\code{elements}. 
+\code{topology}. 
 }
 
 \value{
@@ -79,7 +79,10 @@ elem <- data.frame(stats$som$topology, stringsAsFactors = FALSE)
 elem$REGION <- "MiddleAlb"
 elem$REGION[tops] <- "HighAlb"
 elem$REGION[bottoms] <- "LowAlb"
+elem$REGION.label <- "M"
+elem$REGION.label[tops] <- "H"
+elem$REGION.label[bottoms] <- "L"
 
 # Compare subgroups.
-cmp <- numero.summary(results = stats, elements = elem, data = dataset)
+cmp <- numero.summary(results = stats, topology = elem, data = dataset)
 }

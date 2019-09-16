@@ -11,7 +11,7 @@ regional patterns on a self-organizing maps using permutations.
 }
 
 \usage{
-nroPermute(som, districts, data, n = 10000, clip = 5.0, message = NA)
+nroPermute(som, districts, data, n = 1000, clip = 5.0, message = NULL)
 }
 
 \arguments{
@@ -29,7 +29,7 @@ M is the number of data points and N is the number of variables.
   }
   
   \item{n}{
-Maximum number of permutations.
+Maximum number of permutations per variable.
   }
 
   \item{clip}{

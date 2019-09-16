@@ -48,6 +48,10 @@ scriptum_local::style2code(string& linecode, string& textcode,
   /* Collect text properties. */
   string textprop(buf); p = buf; buf[0] = '\0';
 
+  /* Check if pointable. */
+  if(!sty.pointable)
+    p += sprintf(p, "\npointer-events: none;");
+  
   /* Fill color. */
   if(sty.fillcolor.opacity > 0.0) {
     string tmp = sty.fillcolor.hex();
@@ -69,18 +73,24 @@ scriptum_local::style2code(string& linecode, string& textcode,
   }
   else
     p += sprintf(p, "\nstroke: none;");
-
+  
   /* Collect line properties. */
   string lineprop(buf); p = buf; buf[0] = '\0';
 
   /* Finish style results. */
-  linecode.append("\nstyle=\"" + lineprop + "\"");
-  textcode.append("\nstyle=\"" + textprop + lineprop + "\"");
+  linecode.append("style=\"" + lineprop + "\"");
+  textcode.append("style=\"" + textprop + lineprop + "\"");
+
+  /* Add values. */
+  for(mdsize i = 0; i < sty.values.size(); i++) {
+    string vname = ("\nv" + long2string(i) + "=");
+    linecode.append(vname + "\"" + sty.values[i] + "\"");
+    textcode.append(vname + "\"" + sty.values[i] + "\"");
+  }
 
   /* Add identity. */
-  if(sty.identity != medusa::snan()) {
-    string key = long2string(sty.identity);
-    linecode.append("\nid=\"" + key + "\"");
-    textcode.append("\nid=\"" + key + "\"");
+  if(sty.identity.size() > 0) {
+    linecode.append("\nid=\"" + sty.identity + "\"");
+    textcode.append("\nid=\"" + sty.identity + "\"");
   }
 }

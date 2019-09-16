@@ -37,20 +37,28 @@ public:
  *
  */
 RcppExport SEXP
-nro_figure(SEXP fname_R, SEXP data_R, SEXP bbox_R) {
+nro_figure(SEXP fname_R, SEXP data_R, SEXP bbox_R, SEXP script_R) {
   string fname = as<string>(fname_R);
-  string data = as<string>(data_R);
-  vector<mdreal> bbox = nro::vector2reals(bbox_R);
+  vector<string> data = as<vector<string> >(data_R);
+  string script = as<string>(script_R);
 
+  /* Make sure bounding box is the right size. */
+  vector<mdreal> bbox = nro::vector2reals(bbox_R);
+  bbox.resize(4, 0.0);
+  
   /* Open output file. */
   Artist art(fname);
 
   /* Use the derived class to pass data to renderer. */
-  SVGFrame frame(data, bbox);
-
-  /* Create the figure. */
-  art.paint(frame);
-
+  for(mdsize i = 0; i < data.size(); i++) {
+    SVGFrame frame(data[i], bbox);
+    art.paint(frame);
+  }
+  
   /* Return file size. */
-  return wrap(art.close());
+  List output;
+  unsigned long nbytes = art.close(script);
+  output.push_back(long2string(nbytes), "nbytes");
+  output.push_back(long2text(nbytes), "text");
+  return output;
 }

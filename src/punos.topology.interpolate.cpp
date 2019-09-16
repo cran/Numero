@@ -8,7 +8,7 @@ static vector<mdsize> find_pivots(const vector<vector<mdreal> >&,
 				  const mdsize);
 static vector<mdreal> interp_plane(const vector<mdreal>&,
 				   const vector<mdsize>&,
-				   const vector<Unit>&,
+				   const vector<District>&,
 				   const vector<mdsize>&);
 static mdsize find_hermit(const vector<vector<mdreal> >&,
 			  const vector<vector<mdreal> >&);
@@ -22,28 +22,28 @@ vector<vector<mdreal> >
 Topology::interpolate(const vector<vector<mdreal> >& seeds) const {
   TopologyBuffer* p = (TopologyBuffer*)buffer;
   mdsize nseeds = seeds.size();
-  mdsize nunits = (p->coord).size();
+  mdsize ndistricts = (p->coord).size();
   if(nseeds < 3) panic("Too few seeds.\n", __FILE__, __LINE__);
   if(seeds[0].size() < 1) panic("No data.\n", __FILE__, __LINE__);
-  if(nunits < nseeds) panic("Too few units.\n", __FILE__, __LINE__);
+  if(ndistricts < nseeds) panic("Too few districts.\n", __FILE__, __LINE__);
 
   /* Check if anything to do. */
   if(p->maxradius <= 0.0) return vector<vector<mdreal> >();
   
-  /* Collect unit coordinates. */
-  vector<vector<mdreal> > loci(nunits);
-  for(mdsize i = 0; i < nunits; i++) {
+  /* Collect district coordinates. */
+  vector<vector<mdreal> > loci(ndistricts);
+  for(mdsize i = 0; i < ndistricts; i++) {
     loci[i].push_back(p->coord[i].x);
     loci[i].push_back(p->coord[i].y);
   }
 
   /* Spread points. */
-  vector<mdsize> unitpivots = find_pivots(loci, nseeds);
+  vector<mdsize> districtpivots = find_pivots(loci, nseeds);
   vector<mdsize> seedpivots = find_pivots(seeds, nseeds);
 
   /* Interpolate map according to point locations. */
   mdsize ndim = seeds[0].size();
-  vector<vector<mdreal> > proto(nunits);
+  vector<vector<mdreal> > proto(ndistricts);
   for(mdsize j = 0; j < ndim; j++) {
 
     /* Collect data column. */
@@ -53,8 +53,8 @@ Topology::interpolate(const vector<vector<mdreal> >& seeds) const {
 
     /* Update component plane. */
     vector<mdreal> y;
-    y = interp_plane(x, seedpivots, p->coord, unitpivots);
-    for(mdsize i = 0; i < nunits; i++)
+    y = interp_plane(x, seedpivots, p->coord, districtpivots);
+    for(mdsize i = 0; i < ndistricts; i++)
       proto[i].push_back(y[i]);
   }
   return proto;
@@ -98,24 +98,24 @@ find_pivots(const vector<vector<mdreal> >& vectors0,
  */
 vector<mdreal>
 interp_plane(const vector<mdreal>& data, const vector<mdsize>& dpivots,
-	     const vector<Unit>& units, const vector<mdsize>& upivots) {
+	     const vector<District>& districts, const vector<mdsize>& upivots) {
   mdreal rlnan = medusa::rnan();
 
   /* Check inputs. */
-  mdsize nunits = units.size();
+  mdsize ndistricts = districts.size();
   mdsize npivots = dpivots.size();
   if(upivots.size() != dpivots.size())
     panic("Inconsistent state.", __FILE__, __LINE__);
 
   /* Distance-based weights for map values. */
-  vector<mdreal> plane(nunits, rlnan);
-  for(mdsize i = 0; i < nunits; i++) {
+  vector<mdreal> plane(ndistricts, rlnan);
+  for(mdsize i = 0; i < ndistricts; i++) {
     double wsum = 0.0;
     for(mdsize k = 0; k < npivots; k++) {
       mdsize dpos = dpivots[k];
       mdsize upos = upivots[k];
-      mdreal dx = (units[i].x - units[upos].x);
-      mdreal dy = (units[i].y - units[upos].y);
+      mdreal dx = (districts[i].x - districts[upos].x);
+      mdreal dy = (districts[i].y - districts[upos].y);
       mdreal w = 1.0/(dx*dx + dy*dy + 0.1);
       if(plane[i] == rlnan) plane[i] = 0.0;
       plane[i] += w*(data[dpos]);

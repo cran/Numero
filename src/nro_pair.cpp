@@ -42,27 +42,82 @@ calc_euclidean(const vector<mdreal>& vA, const vector<mdreal>& vB) {
 /*
  *
  */
-RcppExport SEXP
-nro_pair(SEXP xdata_R, SEXP ydata_R) {
+static void
+make_pairs(vector<abacus::Element>& pairs,
+	   const vector<vector<mdreal> >& samples,
+	   const vector<vector<mdreal> >& pool,
+	   const mdsize nsub, const bool flip) {
   mdreal rlnan = medusa::rnan();
+  mt19937 twister;
+
+  /* Full sampling mask. */
+  vector<mdsize> full;
+  mdsize npool = pool.size();
+  for(mdsize k = 0; k < npool; k++)
+    full.push_back(k);
+
+  /* Find a peer for each sample. */
+  vector<mdsize> mask = full;
+  for(mdsize i = 0; i < samples.size(); i++) {
+
+    /* Randomized subsampling. */
+    if(nsub < npool) {
+      for(mdsize k = 0; k < nsub; k++) {
+	mdsize pos = twister()%npool;
+	mdsize swap = full[k];
+	full[k] = full[pos];
+	full[pos] = swap;
+      }
+
+      /* Re-populate and sort working mask. */
+      mask.resize(nsub);
+      for(mdsize k = 0; k < nsub; k++)
+	mask[k] = full[k];
+      std::sort(mask.begin(), mask.end());
+    }
+
+    /* Calculate pair-wise distances. */
+    Element e;
+    for(vector<mdsize>::iterator jt = mask.begin();
+	jt != mask.end(); jt++) {
+      if(flip) {
+	e.row = *jt;
+	e.column = i;
+      }
+      else {
+	e.row = i;
+	e.column = *jt;
+      }
+      e.value = calc_euclidean(samples[i], pool[*jt]);
+      if(e.value != rlnan) pairs.push_back(e);
+    }
+  }
+}
+
+/*
+ *
+ */
+RcppExport SEXP
+nro_pair(SEXP xdata_R, SEXP ydata_R, SEXP nsub_R) {
+  mdsize nsub = as<mdsize>(nsub_R);
   
   /* Check data. */
   vector<vector<mdreal> > xvect = nro::matrix2reals(xdata_R, 0.0);
   vector<vector<mdreal> > yvect = nro::matrix2reals(ydata_R, 0.0);
-  if(xvect.size() < 1) return CharacterVector("Empty input.");
-  if(yvect.size() < 1) return CharacterVector("Empty input.");
+  mdsize nx = xvect.size();
+  mdsize ny = yvect.size();
+  if(nx < 1) return CharacterVector("Empty input.");
+  if(ny < 1) return CharacterVector("Empty input.");
 
-  /* Evaluate distances between vectors. */
+  /* Calculate pair-wise distances. */
   vector<abacus::Element> pairs;
-  for(mdsize i = 0; i < xvect.size(); i++) {
-    for(mdsize j = 0; j < yvect.size(); j++) {
-      mdreal d = calc_euclidean(xvect[i], yvect[j]);
-      if(d == rlnan) continue;
-      Element e; e.row = i; e.column = j; e.value = d;
-      pairs.push_back(e);
-    }
+  if((nx <= nsub) && (ny <= nsub))
+    make_pairs(pairs, xvect, yvect, nsub, false);
+  else {
+    if(ny > nsub) make_pairs(pairs, xvect, yvect, nsub, false);
+    if(nx > nsub) make_pairs(pairs, yvect, xvect, nsub, true);
   }
-  
+
   /* Sort by distance. */
   std::sort(pairs.begin(), pairs.end(), ElementCompare());
   
@@ -70,8 +125,8 @@ nro_pair(SEXP xdata_R, SEXP ydata_R) {
   vector<mdsize> xmask;
   vector<mdsize> ymask;
   vector<mdreal> delta;
-  vector<bool> xflags(xvect.size(), false);
-  vector<bool> yflags(yvect.size(), false);
+  vector<bool> xflags(nx, false);
+  vector<bool> yflags(ny, false);
   for(mdsize k = 0; k < pairs.size(); k++) {
     mdsize i = pairs[k].row;
     mdsize j = pairs[k].column;
@@ -83,7 +138,7 @@ nro_pair(SEXP xdata_R, SEXP ydata_R) {
     ymask.push_back(j);
     delta.push_back(pairs[k].value);
   }
-  
+
   /* Convert to R indexing. */
   for(mdsize i = 0; i < xmask.size(); i++) {
     xmask[i] += 1;

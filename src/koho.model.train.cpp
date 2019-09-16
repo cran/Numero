@@ -8,14 +8,17 @@
  *
  */
 string
-Model::train(vector<Resident>& layout, vector<mdreal>& history) {
+Model::train(vector<Resident>& layout, vector<mdreal>& trace,
+	     const mdreal quota) {
   mdreal rlnan = medusa::rnan();
   ModelBuffer* p = (ModelBuffer*)buffer;
   unordered_map<string, Point>& points = p->points;
-
+  mt19937& twister = p->twister;
+  time_t stamp = time(NULL);
+  
   /* Clear output containers. */
   layout.clear();
-  history.clear();
+  trace.clear();
 
   /* Check resources. */
   Topology topocopy = p->topology;
@@ -24,13 +27,19 @@ Model::train(vector<Resident>& layout, vector<mdreal>& history) {
   if(npoints < 10) return "Too few points.";
   if(p->ntrain < 10) return "Too few training points.";
 
-  /* Initial neighborhood radius. */
-  mdreal sigma = topocopy.sigma();
-  mdreal rho = 0.5*(topocopy.radius());
-  if(rho < sigma) rho = sigma;
-  topocopy.rewire(rho);
-  
-  /* Create the training engine. */
+  /* Final neighborhood radius for trained map. */
+  mdreal sigma = (p->topology).sigma();
+
+  /* Set initial neighborhood radius. */
+  vector<mdreal>& history = p->history;
+  map<string, mdreal>& state = p->state;
+  if(state.size() < 1) {
+    state["rho"] = 0.5*(topocopy.radius());
+    if(state["rho"] < sigma) state["rho"] = sigma;
+    history.clear();
+  }
+
+  /* Create training engine. */
   Trainer trainer(p->codebook, topocopy, p->ntrain,
 		  p->equality, p->metric);
   
@@ -45,21 +54,25 @@ Model::train(vector<Resident>& layout, vector<mdreal>& history) {
   if(p->ntrain < npoints) mask.resize(p->ntrain);
   
   /* Fit codebook to training data. */
-  unsigned long rvalue = p->ntrain;
-  while(true) {
-    vector<mdreal> batch;
-    while(convergence(batch, 0.01) == false) {
+  while(state["rho"] >= 0.0) {
+    
+    /* Set neighborhood radius. */
+    topocopy.rewire(state["rho"]);
+
+    /* Run training batch. */
+    bool finished = false;
+    while(!finished) {
       
-      /* Shuffle sampling mask. */
+      /* Shuffle pointers and sampling mask. */
       if(mask.size() < npoints) {
-	rvalue += (batch.size())*8121;
 	for(mdsize i = 0; i < mask.size(); i++) {
-	  rvalue = (69069*rvalue + i)%npoints;
-	  Point* pnt = pointers[rvalue];
-	  pointers[rvalue] = pointers[i];
+	  mdsize rank = twister()%npoints;
+	  Point* pnt = pointers[rank];
+	  pointers[rank] = pointers[i];
 	  pointers[i] = pnt;
-	  mask[i] = pnt;
-	}
+	}	
+	for(mdsize i = 0; i < mask.size(); i++)
+	  mask[i] = pointers[i];
       }
  
       /* Perform a training cycle. */
@@ -67,21 +80,33 @@ Model::train(vector<Resident>& layout, vector<mdreal>& history) {
 
       /* Check if initial centroids were available. */
       if(delta == rlnan) {
-	if(batch.size() > 0) return "Training cycle failed.";
-	if(history.size() < 1) delta = trainer.cycle(mask, topocopy);
+	if(history.size() > 0) return "Training cycle failed.";
+	if(trace.size() < 1) delta = trainer.cycle(mask, topocopy);
       }
 
       /* Store training error. */
-      batch.push_back(delta);
+      trace.push_back(delta);
+      history.push_back(delta);
+      finished = convergence(history, 0.01);
+
+      /* Check time quota. */
+      if(quota == rlnan) continue;
+      if(difftime(time(NULL), stamp) >= quota) break; 
     }
 
-    /* Update history. */
-    history.insert(history.end(), batch.begin(), batch.end());
+    /* Check if batch was finished. */
+    if(!finished) break;
+    history.clear();
+ 
+    /* Check if training is finished. */
+    if(state["rho"] <= sigma) {
+      state["rho"] = -1.0;
+      break;
+    }
 
     /* Update neighborhood radius. */
-    if(rho <= sigma) break;
-    if((rho *= 0.67) < sigma) rho = sigma;
-    topocopy.rewire(rho);
+    state["rho"] *= 0.67;
+    if(state["rho"] < sigma) state["rho"] = sigma;
   }
 
   /* Update codebook. */

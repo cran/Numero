@@ -89,9 +89,11 @@ namespace koho {
 
     /* Train the map according to the inserted data points. The first input
        is filled with the final layout. The second input is filled with
-       training errors from each cycle. Returns a message if failed. */
-    std::string train(std::vector<Resident>&,
-		      std::vector<medusa::mdreal>&);
+       training errors from each cycle. The last input sets a time quota
+       for training. If training error has stabilized, no further cycles are
+       run. Returns a message if failed. */
+    std::string train(std::vector<Resident>&, std::vector<medusa::mdreal>&,
+		      const medusa::mdreal);
   };
 
   /*
@@ -125,13 +127,13 @@ namespace koho {
     std::string insert(const std::string&, const medusa::mdsize,
 		       const std::vector<medusa::mdreal>&);
  
-    /* Shuffle values randomly. If the input is true, shuffle with
+    /* Shuffle values randomly. If the second input is true, shuffle with
        replacement. Returns true if values were shuffled. */
     bool shuffle(const bool);
   };
 
   /* Version information. */
   extern std::string version();
-};
+}
 
 #endif /* koho_INCLUDED */
