@@ -31,13 +31,16 @@ nroAggregate <- function(
     data <- nroRcppMatrix(data, trim=FALSE)
     binary <- attr(data, "binary")
 
-    # Remove empty columns.
+    # Flag non-empty columns.
     mu <- colMeans(data, na.rm=TRUE)
-    data <- as.matrix(data[,which(0*mu == 0)])
-    if(ncol(data) < 1) {
+    empty <- which(!is.finite(mu))
+    if(length(empty) == ncol(data)) {
        warning("No usable data.")
        return(NULL)
     }
+
+    # Replace empty columns with zeros.
+    data[,empty] <- 0
 
     # Check compatibility.
     if(nrow(data) != length(districts))
@@ -56,18 +59,26 @@ nroAggregate <- function(
     planes <- t(res$planes)
 
     # Convert to a data frame or a vector.
-    if(ncol(planes) > 1) {
-        hgrams <- data.frame(hgrams, stringsAsFactors=FALSE)
-        planes <- data.frame(planes, stringsAsFactors=FALSE)
-        colnames(planes) <- colnames(data)
-        colnames(hgrams) <- colnames(data)
-	rownames(planes) <- 1:nrow(planes)
-	rownames(hgrams) <- 1:nrow(hgrams)
+    if(ncol(planes) < 2) {
+        hgrams <- data.frame(X=as.vector(hgrams),
+	    stringsAsFactors=FALSE)
+        planes <- data.frame(X=as.vector(planes),
+	    stringsAsFactors=FALSE)
     }
     else {
-        planes <- as.vector(planes)
-        hgrams <- as.vector(hgrams)
+        hgrams <- data.frame(hgrams, stringsAsFactors=FALSE)
+        planes <- data.frame(planes, stringsAsFactors=FALSE)
     }
+
+    # Set row and column names.
+    colnames(planes) <- colnames(data)
+    colnames(hgrams) <- colnames(data)
+    rownames(planes) <- 1:nrow(planes)
+    rownames(hgrams) <- 1:nrow(hgrams)
+
+    # Clear empty variables.
+    planes[,empty] <- NA
+    hgrams[,empty] <- 0
 
     # Finish results.
     attr(planes, "histogram") <- hgrams

@@ -19,7 +19,7 @@ Engine::histograms() const {
   /* Estimate point frequences for each data column. */
   vector<mdsize>& loci = (p->bmus).first;
   for(mdsize j = 0; j < (p->cache).size(); j++) {
-    vector<mdreal> ones = (p->cache[j]).values; /* deep copy */
+    vector<mdreal> ones = p->cache[j]; /* deep copy */
 
     /* Indicators for usable values. */
     for(mdsize k = 0; k < ones.size(); k++)

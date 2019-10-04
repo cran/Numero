@@ -14,17 +14,10 @@ Point::Point() {
 /*
  *
  */
-Point::Point(const mdsize rank, const mdsize unit) {
+Point::Point(const mdsize rank, const vector<mdreal>& array,
+	     const mdsize unit) {
   this->key = rank;
   this->home = unit;
-}
-
-/*
- *
- */
-Point::Point(const mdsize rank, const vector<mdreal>& array) {
-  this->key = rank;
-  this->home = medusa::snan();
   this->contents = array;
 }
 

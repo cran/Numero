@@ -769,7 +769,7 @@ REAL STUDIES.**
 x <- (stats.basic$planes$uALB)
 tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
 bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
-workaround <- as.data.frame(stats.basic$som$topology)
+workaround <- as.data.frame(stats.basic$map$topology)
 workaround$REGION.label <- " "
 workaround$REGION.color <- ""
 workaround$REGION <- "not_selected"
@@ -830,7 +830,7 @@ numero.plot(results = stats.basic,
                           "DIAB_RETINO",
                           "MACROVASC",
                           "DECEASED"),
-            topology = stats.basic$som$topology, subplot = c(2,3))
+            topology = stats.basic$map$topology, subplot = c(2,3))
 ```
 
 ``` {r dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of selected variables with subgroup labels."}
@@ -1013,13 +1013,16 @@ Please use the tabs at the top to navigate to the next page.
 ## Statistics
 
 We can estimate the map statistics using the whole dataset as before, except
-that the model is now age and sex adjusted. Note how we use the original
-unadjusted data as input `data = dataset` but the evaluation is done via the
-adjusted model:
+that the model is now age and sex adjusted. Furthermore, serum creatinine and
+urine albumin tend to have skewed distributions in people with kidney disease,
+thus we apply logarithm to mitigate the effect of the long tails. Note how we
+use the original unadjusted data as input `data = dataset` but the evaluation
+is done via the adjusted model:
 
 ``` {r}
 # Map statistics for the whole dataset.
-stats.adj <- numero.evaluate(model = qc.adj, data = dataset)
+stats.adj <- numero.evaluate(model = qc.adj, data = dataset,
+    logarithm = c("CREAT", "uALB"))
 ```
 
 Furthermore, it is also possible to conduct sex-specific analyses after we
@@ -1027,18 +1030,20 @@ identified men and women in the dataset:
 
 ``` {r results="hide"}
 # Map statistics for women.
-stats.adjW <- numero.evaluate(model = qc.adj, data = dataset[women,])
+stats.adjW <- numero.evaluate(model = qc.adj, data = dataset[women,],
+    logarithm = c("CREAT", "uALB"))
 ```
 
 ``` {r results="hide"}
 # Map statistics for men.
-stats.adjM <- numero.evaluate(model = qc.adj, data = dataset[men,])
+stats.adjM <- numero.evaluate(model = qc.adj, data = dataset[men,],
+    logarithm = c("CREAT", "uALB"))
 ```
 
 We could have used `data = trdata.adj` instead of `data = dataset`,
 however, using the original unadjusted data to describe the sex-adjusted
-subgroups is easier to interpret in relation to what you would see when
-meeting the actual real-world participants.
+subgroups is easier to interpret in relation to what you might see when
+meeting the participants in the real world.
 
 If the adjustments of the training data are successful, we expect
 to see non-significant P-values for MALE and AGE when using the original
@@ -1124,7 +1129,7 @@ REAL STUDIES.**
 x <- stats.adj$planes$uALB
 tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
 bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
-workaround <- as.data.frame(stats.adj$som$topology)
+workaround <- as.data.frame(stats.adj$map$topology)
 workaround$REGION.label <- " "
 workaround$REGION.color <- ""
 workaround$REGION <- "not_selected"
@@ -1335,7 +1340,7 @@ easier to compare results across examples:
 ``` {r}
 # Create a new self-organizing map based on sex-adjusted data.
 modl.discov <- numero.create(data = trdata.discov,
-                             radius = modl.basic$som$radius)
+                             radius = modl.basic$map$radius)
 summary(modl.discov)
 ```
 
@@ -1482,10 +1487,14 @@ quality control results are used for the replication datasets:
 
 ``` {r results="hide"}
 # Map statistics for discovery and replication datasets.
-stats.discov <- numero.evaluate(model = modl.discov, data = ds.discov)
-stats.replicA <- numero.evaluate(model = qc.replicA, data = ds.replic)
-stats.replicB <- numero.evaluate(model = qc.replicB, data = ds.replic)
-stats.mets <- numero.evaluate(model = qc.mets, data = ds.mets)
+stats.discov <- numero.evaluate(model = modl.discov, data = ds.discov,
+    logarithm = c("CREAT", "uALB"))
+stats.replicA <- numero.evaluate(model = qc.replicA, data = ds.replic,
+    logarithm = c("CREAT", "uALB"))
+stats.replicB <- numero.evaluate(model = qc.replicB, data = ds.replic,
+    logarithm = c("CREAT", "uALB"))
+stats.mets <- numero.evaluate(model = qc.mets, data = ds.mets,
+    logarithm = c("CREAT", "uALB"))
 ```
 
 The second task is to choose the coloring scheme. In the previous chapter,
@@ -1587,7 +1596,7 @@ REAL STUDIES.**
 x <- stats.discov$planes$DIAB_KIDNEY
 tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
 bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
-workaround <- as.data.frame(stats.discov$som$topology)
+workaround <- as.data.frame(stats.discov$map$topology)
 workaround$REGION.label <- " "
 workaround$REGION.color <- ""
 workaround$REGION <- "not_selected"

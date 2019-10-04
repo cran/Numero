@@ -1,14 +1,13 @@
 nroPermute <- function(
-    som,
+    map,
     districts,
     data,
     n=1000,
-    clip=5.0,
     message=NULL) {
 
     # Convert data to numeric matrix.
     data <- nroRcppMatrix(data, trim=FALSE)
-    topology <- nroRcppMatrix(som$topology, trim=FALSE)
+    topology <- nroRcppMatrix(map$topology, trim=FALSE)
 
     # Remove empty data columns.
     mu <- colMeans(data, na.rm=TRUE)
@@ -25,8 +24,6 @@ nroPermute <- function(
     # Ensure inputs are safe for C++.
     if(is.null(n)) n <- 1000
     else n <- as.integer(n[[1]])
-    if(is.null(clip)) clip <- 5.0
-    else clip <- as.double(clip[[1]])
     if(is.null(message)) message <- -1.0
     else message <- as.double(message[[1]])
 
@@ -34,32 +31,12 @@ nroPermute <- function(
     if(!is.finite(n)) stop("Unusable number of permutations.")
     if(n < 10) stop("Too few permutations.")
 
-    # Check clipping parameter for extreme values.
-    if(!is.finite(clip)) clip <- -1.0   
-    if(abs(clip) < 1.0) stop("Too small clip parameter.")
-    
     # Check message interval.
     if(!is.finite(message)) message <- -1.0
 
-    # Truncate extreme values.
-    if(clip > 0.0) {
-        for(j in 1:ncol(data)) {
-            dj <- data[,j]
-            if(length(table(dj)) <= 2) next
-            mu <- stats::median(dj, na.rm=TRUE)
-            sigma <- stats::quantile(dj, c(0.3085, 0.6915), na.rm=T)
-            sigma <- (sigma[2] - sigma[1])
-            if(!is.finite(sigma)) next
-            if(sigma < 1e-20) next
-            dj <- pmin((mu + clip*sigma), dj, na.rm=TRUE)
-            dj <- pmax((mu - clip*sigma), dj, na.rm=TRUE)
-            data[,j] <- dj
-        }
-    }
-
     # Collect training variables.
     trvars <- attr(districts, "variables")
-    if(length(trvars) < 1) trvars <- colnames(som$centroids)
+    if(length(trvars) < 1) trvars <- colnames(map$centroids)
     if(length(trvars) < 1)
         warning("No information on training variables.")
     if(length(colnames(data)) < 1)

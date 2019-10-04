@@ -40,7 +40,7 @@ Trainer::match(vector<Point*>& points, const Topology& topo) {
       
       /* Estimate distances to centroids. */
       vector<mdreal> delta = this->distances(*pnt);
-     
+
       /* Find the best available subset. */
       Point* replc = Subset::match(this->subsets, delta, pnt);
       if(replc == pnt) panic("Invalid program state.", __FILE__, __LINE__);

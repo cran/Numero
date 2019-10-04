@@ -45,8 +45,7 @@ namespace koho_local {
     vector<mdreal> contents;
   public:
     Point();
-    Point(const mdsize, const mdsize);
-    Point(const mdsize, const vector<mdreal>&);
+    Point(const mdsize, const vector<mdreal>&, const mdsize);
     ~Point();
     vector<mdreal> data() const;
     mdsize location() const;
@@ -60,7 +59,7 @@ namespace koho_local {
   class Buffer {
   public:
     Topology topology;
-    unordered_map<string, Point> points;
+    unordered_map<string, Point> points; /* data as rows */
     Messenger* msg;
   public:
     Buffer() {this->msg = Messenger::null();};
@@ -126,7 +125,7 @@ namespace koho_local {
   public:
     mdsize ntrain;
     mdreal equality;
-    mdreal escape;
+    mdreal proximity;
     string metric;
     mt19937 twister;
     Matrix codebook;
@@ -137,14 +136,12 @@ namespace koho_local {
     ModelBuffer() : Buffer() {
       this->ntrain = medusa::snan();
       this->equality = 0.0;
-      this->escape = medusa::rnan();
       this->metric = "euclid";
     };
     ModelBuffer(const void* ptr) : Buffer(ptr) {
       ModelBuffer* p = (ModelBuffer*)ptr;
       this->ntrain = p->ntrain;
       this->equality = p->equality;
-      this->escape = p->escape;
       this->metric = p->metric;
       this->twister = p->twister;
       this->codebook = p->codebook;
@@ -153,34 +150,6 @@ namespace koho_local {
       this->state = p->state;
     };
     ~ModelBuffer() {};
-  };
-
-  
-  /*
-   *
-   */
-  class Transformation {
-  private:
-    vector<mdreal> lookup;
-    vector<mdreal> output;
-  private:
-    void process(vector<mdreal>&, const vector<mdreal>&,
-		 const vector<mdreal>&) const;
-  public:
-    Transformation();
-    Transformation(const vector<mdreal>&);
-    ~Transformation();
-    void restore(vector<mdreal>&) const;
-    void transform(vector<mdreal>&) const;
-    mdsize size() {return lookup.size();};
-  };
-
-  /*
-   *
-   */
-  struct ColumnCache {
-    Transformation transf;
-    vector<mdreal> values;
   };
 
   /*
@@ -193,8 +162,7 @@ namespace koho_local {
     mt19937 twister;
     pair<vector<mdsize>, vector<mdsize> > bmus;
     vector<vector<mdreal> > freqs;
-    vector<ColumnCache> cache;
-    Matrix data;
+    vector<vector<mdreal> > cache; /* data as columns */
   public:
     EngineBuffer() : Buffer() {
       this->order = 0;
@@ -208,7 +176,6 @@ namespace koho_local {
       this->bmus = p->bmus;
       this->freqs = p->freqs;
       this->cache = p->cache;
-      this->data = p->data;
     };
     ~EngineBuffer() {};
     void prepare();

@@ -17,7 +17,7 @@ EngineBuffer::prepare() {
   (this->cache).clear();
 
   /* Allocate column vectors. */
-  (this->cache).resize(data.order());
+  (this->cache).resize(order);
    
   /* Collect data. */
   vector<mdsize> loci;
@@ -30,17 +30,11 @@ EngineBuffer::prepare() {
     loci.push_back(bmu);
 
     /* Copy values. */
-    mdsize rank = (pt->second).rank();
-    vector<mdreal> array = data.row(rank);
+    vector<mdreal> array = (pt->second).data();
+    if(array.size() != order)
+      medusa::panic("Unusable data point.", __FILE__, __LINE__);
     for(mdsize j = 0; j < array.size(); j++)
-      (this->cache[j]).values.push_back(array[j]);  
-  }
-  
-  /* Apply rank transform. */
-  for(mdsize j = 0; j < cache.size(); j++) {
-    ColumnCache& cc = this->cache[j];
-    cc.transf = Transformation(cc.values);
-    cc.transf.transform(cc.values);
+      (this->cache[j]).push_back(array[j]);
   }
 
   /* Prepare shuffling mask. */

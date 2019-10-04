@@ -19,14 +19,17 @@ numero.prepare <- function(
         cat("\nSetting up:\n")
         pipeline <- list(batch=batch)
 
+        # Make sure variable groups are distinct.
+        confounders <- setdiff(confounders, batch)
+        variables <- setdiff(variables, c(confounders, batch))
+
         # Select variables.
         convars <- intersect(confounders, colnames(data))
         batvars <- intersect(batch, colnames(data))
         datvars <- intersect(variables, colnames(data))
-        datvars <- setdiff(datvars, c(convars, batch))
         convars <- setdiff(convars, batch)
 
-        # Convert to numeric and trim empty rows and columns.
+        # Convert to numeric and trim unusable rows and columns.
         ds <- nroRcppMatrix(data[,c(convars, datvars)], trim=TRUE)
         convars <- intersect(convars, colnames(ds))
         datvars <- intersect(datvars, colnames(ds))
@@ -96,7 +99,7 @@ numero.prepare <- function(
     }
 
     # Second round of preprocessing with removal of empty rows.
-    if(!is.null(pipeline$mapping2)) {
+    if(!is.null(pipeline$mapping2) && (length(ds) > 0)) {
         suppressWarnings(ds <- nroPostprocess(data=ds,
             mapping=pipeline$mapping2, trim=TRUE))
         cat(ncol(ds), " column(s) re-standardized\n", sep="")
@@ -126,8 +129,10 @@ numero.prepare.regress <- function(ds, convars) {
     if(length(ds) < 1) return(NULL)
     if(length(convars) < 1) return(ds)
 
-    # Impute missing values and add constant.
+    # Impute missing values.
     suppressWarnings(confs <- nroImpute(data=ds[,convars]))
+
+    # Add intercept to confounder matrix.
     confs <- cbind(rep(1, nrow(ds)), confs)
     confs <- as.matrix(confs) # prevent stats::lm.fit() fail
     colnames(confs) <- c("_", convars)
@@ -156,10 +161,6 @@ numero.prepare.regress <- function(ds, convars) {
         coeff[vn,] <- as.double(m$coefficients)
         ds[mask,vn] <- m$residuals
     }
-    
-    # Remove failed models.
-    incl <- which(is.finite(rowMeans(coeff)))
-    coeff <- coeff[incl,]
 
     # Collect results.
     ds <- ds[,rownames(coeff)]
@@ -170,6 +171,8 @@ numero.prepare.regress <- function(ds, convars) {
 #--------------------------------------------------------------------------
 
 numero.prepare.adjust <- function(ds, coeff) {
+    if(length(ds) < 1) return(NULL)
+    if(is.null(coeff)) return(ds)
 
     # Prepare confounder matrix.
     convars <- setdiff(colnames(coeff), "_")
@@ -189,12 +192,21 @@ numero.prepare.adjust <- function(ds, coeff) {
     }
 
     # Apply confounder adjustments.
+    failed <- character()
     vars <- intersect(colnames(ds), rownames(coeff))
-    for(vn in vars)
+    for(vn in vars) {
         ds[,vn] <- (ds[,vn] - confs %*% coeff[vn,])
+        if(sum(is.finite(ds[,vn])) > 0) next
+	failed <- c(failed, vn)
+    }
+    
+
+    # Number of failed adjustments.
+    nfail <- length(failed)
+    if(nfail > 0) cat(nfail, " adjustment(s) failed\n", sep="")
+    if(nfail == length(vars)) return(NULL)
 
     # Show report.
-    ntotal <- (ncol(ds) - length(convars))
     cat(length(vars), " column(s) adjusted\n", sep="")
 
     # Return results.

@@ -50,13 +50,10 @@ or "tan". Any other word will revert to a rainbow colormap.
 }
 
 \value{
-A data frame of hexadecimal color codes as strings. If the output is a
-single column, it is converted to a vector. The output also includes the
-attribute "contrast" that indicates which colors have a good contrast with
-black as opposed to white.
-
-If \code{amplitudes = NULL}, a data frame that contains the
-value ranges that would be used for colors is returned.
+A data frame of hexadecimal color codes as strings. The output also includes
+the attribute "contrast" that indicates which colors have a good contrast with
+black as opposed to white, and the attribute "ranges" that contains a copy
+of the dynamic ranges across districts.
 }
 
 \references{
@@ -80,7 +77,7 @@ km <- nroKmeans(data = trdata)
 
 # Self-organizing map.
 sm <- nroKohonen(seeds = km)
-sm <- nroTrain(som = sm, data = trdata)
+sm <- nroTrain(map = sm, data = trdata)
 
 # Assign data points into districts.
 matches <- nroMatch(centroids = sm, data = trdata)

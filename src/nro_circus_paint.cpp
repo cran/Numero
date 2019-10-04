@@ -22,7 +22,7 @@ nro_circus_paint(SEXP offsets_R, SEXP topo_R, SEXP ccodes_R,
   if(topo.size() < 1) return CharacterVector("Unusable topology.");
 
   /* Make sure all text elements are safe. */
-  int cap = 6*(topo.radius() + 1.0);
+  mdsize cap = (mdsize)(6*(topo.radius() + 1.0));
   if(key.size() >= cap) return CharacterVector("Unusable identifier.");
   if(key.size() > 8) return CharacterVector("Unusable identifier.");
   key = string2safe(key, (cap - 1));

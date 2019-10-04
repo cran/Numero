@@ -9,25 +9,28 @@ nroSummary <- function(
     if(is.vector(data)) {
         keys <- names(data)
         data <- data.frame(X=data, stringsAsFactors=FALSE)
-	rownames(data) <- keys
+        rownames(data) <- keys
     }
 
     # Check data consistency.
     keys <- intersect(names(districts), rownames(data))
     if(length(districts) != nrow(data)) {
-	if(length(keys) < 1) stop("Incompatible inputs.")
-	districts <- districts[keys]
+        if(length(keys) < 1) stop("Incompatible inputs.")
+        districts <- districts[keys]
         data <- data[keys,]
     }
     else {
         if(length(keys) > 0) {
-	    districts <- districts[keys]
+	          districts <- districts[keys]
             data <- data[keys,]
         }
     }
 
+    # Make sure districts are integers.
+    districts <- as.integer(round(districts))
+   
     # Check regions and labels.
-    if(is.null(regions)) regions <- districts
+    if(is.null(regions)) regions <- 1:max(districts, na.rm=TRUE)
     if(is.vector(regions)) {
         labls <- as.integer(as.factor(regions))
         regions <- data.frame(REGION=regions, REGION.label=labls,
@@ -40,7 +43,6 @@ nroSummary <- function(
     capacity <- as.integer(capacity[[1]])
 
     # Exclude unusable districts.
-    districts <- as.integer(round(districts))
     districts[which(districts > nrow(regions))] <- NA
     districts[which(districts < 0)] <- NA
 

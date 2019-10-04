@@ -7,7 +7,7 @@ numero.quality <- function(
     cat("\n*** numero.quality ***\n", output$stamp, "\n", sep="")
 
     # Check that resources are available.
-    if(is.null(model$som)) stop("Self-organizing map not available.")
+    if(is.null(model$map)) stop("Self-organizing map not available.")
 
     # Determine data point layout.
     layout <- numero.quality.layout(model, data)
@@ -19,13 +19,13 @@ numero.quality <- function(
     stats <- numero.quality.statistics(model, layout)
 
     # Determine district ranges.
-    ranges <- nroColorize(comps, amplitudes=NULL)
+    colrs <- nroColorize(comps)
 
     # Collect results.
-    output$som <- model$som
+    output$map <- model$map
     output$layout <- layout
     output$planes <- comps
-    output$ranges <- ranges
+    output$ranges <- attr(colrs, "ranges")
     output$palette <- "fire"
     output$statistics <- stats
     return(output)
@@ -44,7 +44,7 @@ numero.quality.layout <- function(model, data) {
         warning("Dataset does not contain all training variables.")
 
     # Assign district locations.
-    suppressWarnings(matches <- nroMatch(centroids=model$som, data=data))
+    suppressWarnings(matches <- nroMatch(centroids=model$map, data=data))
 
     layout <- data.frame(BMC=matches, attr(matches, "quality"))
     rownames(layout) <- names(matches)
@@ -57,9 +57,9 @@ numero.quality.planes <- function(model, data, layout) {
     if(is.null(data)) data <- model$data
 
     # Component planes.
-    comps <- nroAggregate(topology=model$som$topology,
+    comps <- nroAggregate(topology=model$map$topology,
                           data=layout, districts=layout$BMC)
-    comps$HISTOGRAM <- nroAggregate(topology=model$som$topology,
+    comps$HISTOGRAM <- nroAggregate(topology=model$map$topology,
                                     districts=layout$BMC)
     comps$BMC <- NULL
 
@@ -86,7 +86,7 @@ numero.quality.statistics <- function(model, layout) {
     layout$COVERAGE <- (layout$COVERAGE + 0.01*r)
 
     # Permutation analysis.
-    stats <- nroPermute(som=model$som, districts=bmc,
+    stats <- nroPermute(map=model$map, districts=bmc,
                         data=layout, n=1000)
 
     # Observed variation in sample density.

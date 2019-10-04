@@ -45,8 +45,6 @@ the average district values after smoothing is returned. The data frame has
 the attribute "histogram" that contains data point counts over
 each data column. Column names and the attribute "binary" are copied
 from the input data.
-
-If the output is a single column, it is converted to a vector.
 }
 
 \references{
@@ -70,7 +68,7 @@ km <- nroKmeans(data = trdata)
 
 # Self-organizing map.
 sm <- nroKohonen(seeds = km)
-sm <- nroTrain(som = sm, data = trdata)
+sm <- nroTrain(map = sm, data = trdata)
 
 # Assign data points into districts.
 matches <- nroMatch(centroids = sm, data = trdata)

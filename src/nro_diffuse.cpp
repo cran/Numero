@@ -35,7 +35,7 @@ nro_diffuse(SEXP topo_R, SEXP bmus_R, SEXP data_R) {
     res.push_back(nro::reals2vector(counts), "histograms");
     return res;
   }
-  
+ 
   /* Create a simulation engine. */
   Engine eng(topo);
   for(mdsize i = 0; i < vectors.size(); i++) {

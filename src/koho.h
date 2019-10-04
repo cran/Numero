@@ -41,8 +41,8 @@ namespace koho {
        the maximum number of training samples per cycle.  The third
        input sets the balancing coefficient for spatial point histogram:
        0.0 means no balancing and 1.0 means maximum balancing. The fourth
-       input sets the distance metric: 'euclid' for vector distance
-       (default) or 'pearson' for correlation. */
+       input sets the distance metric: 'euclid' for Euclidean vector distance
+       (default) or 'pearson' for Pearson correlation. */
     Model(const punos::Topology&, const medusa::mdsize,
 	  const medusa::mdreal, const std::string&);
 
@@ -52,7 +52,7 @@ namespace koho {
 
     /* Free local resources. */
     ~Model();
-
+    
     /* Set a prototype vector. The first input sets the district, the second
        contains the data. Any updates are incremental: valid values are
        inserted, whereas any other previous elements are left untouched. */

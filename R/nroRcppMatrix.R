@@ -3,7 +3,7 @@ nroRcppMatrix <- function(
     trim) {
 
     # Check if anything to do.
-    if(is.null(data)) return(matrix(nrow=0, ncol=0))
+    if(length(data) < 1) return(matrix(nrow=0, ncol=0))
     binary <- attr(data, "binary")
 
     # Convert to matrix.

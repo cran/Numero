@@ -21,8 +21,8 @@ A vector of M elements or an M x N matrix of data values.
   }
   
   \item{districts}{ 
-A vector of M elements that indicate the best match out of K districts for
-each row in the data matrix, please see \link{nroMatch} for an example.
+An integer vector of M named elements that indicate the best match out of K districts
+for each row name in the data matrix, please see \link{nroMatch} for an example.
   }
 
   \item{regions}{
@@ -48,7 +48,7 @@ the district [i].
 The region input can also be a data frame of K rows where the column
 REGION will be used for assigning district to regions, and REGION.label
 will be used as the character label as seen on the map, see the output
-from \code{\link{nroPlot}()} as an example.
+from \code{\link{nroPlot}()} for an example.
 
 If the region vector is empty, each district is automatically assigned to
 its own region.
@@ -84,7 +84,7 @@ km <- nroKmeans(data = trdata)
 
 # Self-organizing map.
 sm <- nroKohonen(seeds = km)
-sm <- nroTrain(som = sm, data = trdata)
+sm <- nroTrain(map = sm, data = trdata)
 
 # Assign data points into districts.
 matches <- nroMatch(centroids = sm, data = trdata)
@@ -92,6 +92,7 @@ matches <- nroMatch(centroids = sm, data = trdata)
 # Calculate district averages for urinary albumin.
 plane <- nroAggregate(topology = sm, districts = matches,
                       data = dataset$uALB)
+plane <- as.vector(plane[[1]])
 
 # Assign subgroups based on urinary albumin.
 regns <- rep("HighAlb", length.out=length(plane))

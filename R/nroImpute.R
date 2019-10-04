@@ -3,11 +3,22 @@ nroImpute <- function(
     subsample=500,
     standard=TRUE,
     message=NULL) {
-    
+
     # Convert input to numeric matrix.
     dfbit <- is.data.frame(data)
-    data <- nroRcppMatrix(data, trim=FALSE)
+    data <- nroRcppMatrix(data, trim=FALSE)    
     binary <- attr(data, "binary")
+
+    # Check input size.
+    if(length(data) < 1) return(data)
+    if(ncol(data) < 2) {
+        warning("Less than two columns.")
+        return(data)
+    }
+    if(nrow(data) < 2) {
+        warning("Less than two rows.")
+        return(data)
+    }
 
     # Ensure inputs are safe for C++.
     if(is.null(subsample)) subsample <- nrow(data)

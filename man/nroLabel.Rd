@@ -66,7 +66,7 @@ km <- nroKmeans(data = trdata)
 
 # Self-organizing map.
 sm <- nroKohonen(seeds = km)
-sm <- nroTrain(som = sm, data = trdata)
+sm <- nroTrain(map = sm, data = trdata)
 
 # Assign data points into districts.
 matches <- nroMatch(centroids = sm, data = trdata)

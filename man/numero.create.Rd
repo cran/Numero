@@ -30,7 +30,7 @@ the size of the dataset, the function will finish quicker.
 \value{
 A list with named elements: \code{data} contains the training data,
 \code{kmeans} is the output from \code{\link{nroKmeans}()} during the
-initialiation of the SOM, \code{som} is the finished self-organising map
+initialiation of the SOM, \code{map} is the finished self-organising map
 from \code{\link{nroTrain}()} and \code{layout} contains the output from
 \code{\link{nroMatch}()} for the training data points.
 }

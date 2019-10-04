@@ -94,7 +94,7 @@ stats.basic$statistics[c("CHOL","MALE","AGE","T1D_DURAT"),
 x <- (stats.basic$planes$uALB)
 tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
 bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
-workaround <- as.data.frame(stats.basic$som$topology)
+workaround <- as.data.frame(stats.basic$map$topology)
 workaround$REGION.label <- " "
 workaround$REGION.color <- ""
 workaround$REGION <- "not_selected"
@@ -123,7 +123,7 @@ numero.plot(results = stats.basic,
                           "DIAB_RETINO",
                           "MACROVASC",
                           "DECEASED"),
-            topology = stats.basic$som$topology, subplot = c(2,3))
+            topology = stats.basic$map$topology, subplot = c(2,3))
 
 ## ----dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of selected variables with subgroup labels."----
 # Plot results from subgrouping procedure for non-biochemical variables.
@@ -193,15 +193,18 @@ numero.plot(results = qc.adj, subplot = c(1,4))
 
 ## ------------------------------------------------------------------------
 # Map statistics for the whole dataset.
-stats.adj <- numero.evaluate(model = qc.adj, data = dataset)
+stats.adj <- numero.evaluate(model = qc.adj, data = dataset,
+    logarithm = c("CREAT", "uALB"))
 
 ## ----results="hide"------------------------------------------------------
 # Map statistics for women.
-stats.adjW <- numero.evaluate(model = qc.adj, data = dataset[women,])
+stats.adjW <- numero.evaluate(model = qc.adj, data = dataset[women,],
+    logarithm = c("CREAT", "uALB"))
 
 ## ----results="hide"------------------------------------------------------
 # Map statistics for men.
-stats.adjM <- numero.evaluate(model = qc.adj, data = dataset[men,])
+stats.adjM <- numero.evaluate(model = qc.adj, data = dataset[men,],
+    logarithm = c("CREAT", "uALB"))
 
 ## ------------------------------------------------------------------------
 stats.adj$statistics[c("MALE","AGE","T1D_DURAT"), c("Z","P.z")]
@@ -229,7 +232,7 @@ numero.plot(results = stats.adjM, variables = trvars,
 x <- stats.adj$planes$uALB
 tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
 bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
-workaround <- as.data.frame(stats.adj$som$topology)
+workaround <- as.data.frame(stats.adj$map$topology)
 workaround$REGION.label <- " "
 workaround$REGION.color <- ""
 workaround$REGION <- "not_selected"
@@ -320,7 +323,7 @@ summary(trdata.mets$uALB)
 ## ------------------------------------------------------------------------
 # Create a new self-organizing map based on sex-adjusted data.
 modl.discov <- numero.create(data = trdata.discov,
-                             radius = modl.basic$som$radius)
+                             radius = modl.basic$map$radius)
 summary(modl.discov)
 
 ## ----results="hide"------------------------------------------------------
@@ -374,10 +377,14 @@ numero.plot(results = qc.mets, subplot = c(1,4))
 
 ## ----results="hide"------------------------------------------------------
 # Map statistics for discovery and replication datasets.
-stats.discov <- numero.evaluate(model = modl.discov, data = ds.discov)
-stats.replicA <- numero.evaluate(model = qc.replicA, data = ds.replic)
-stats.replicB <- numero.evaluate(model = qc.replicB, data = ds.replic)
-stats.mets <- numero.evaluate(model = qc.mets, data = ds.mets)
+stats.discov <- numero.evaluate(model = modl.discov, data = ds.discov,
+    logarithm = c("CREAT", "uALB"))
+stats.replicA <- numero.evaluate(model = qc.replicA, data = ds.replic,
+    logarithm = c("CREAT", "uALB"))
+stats.replicB <- numero.evaluate(model = qc.replicB, data = ds.replic,
+    logarithm = c("CREAT", "uALB"))
+stats.mets <- numero.evaluate(model = qc.mets, data = ds.mets,
+    logarithm = c("CREAT", "uALB"))
 
 ## ----dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of training variables for the discovery dataset."----
 numero.plot(results = stats.discov, variables = trvars,
@@ -409,7 +416,7 @@ clinvars <- c("uALB", "AGE", "DIAB_KIDNEY", "DIAB_RETINO",
 x <- stats.discov$planes$DIAB_KIDNEY
 tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
 bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
-workaround <- as.data.frame(stats.discov$som$topology)
+workaround <- as.data.frame(stats.discov$map$topology)
 workaround$REGION.label <- " "
 workaround$REGION.color <- ""
 workaround$REGION <- "not_selected"

@@ -19,7 +19,7 @@ rm(list=ls())
     
     # Self-organizing map.
     sm <- nroKohonen(seeds = km)
-    sm <- nroTrain(som = sm, data = trdata)
+    sm <- nroTrain(map = sm, data = trdata)
     
     # Assign data points into districts.
     matches <- nroMatch(centroids = sm, data = trdata)
@@ -50,7 +50,7 @@ rm(list=ls())
     
     # Self-organizing map.
     sm <- nroKohonen(seeds = km)
-    sm <- nroTrain(som = sm, data = trdata)
+    sm <- nroTrain(map = sm, data = trdata)
     
     # Assign data points into districts.
     matches <- nroMatch(centroids = sm, data = trdata)
@@ -180,7 +180,7 @@ rm(list=ls())
     
     # Self-organizing map.
     sm <- nroKohonen(seeds = km)
-    sm <- nroTrain(som = sm, data = trdata)
+    sm <- nroTrain(map = sm, data = trdata)
     
     # Assign data points into districts.
     matches <- nroMatch(centroids = sm, data = trdata)
@@ -261,17 +261,17 @@ rm(list=ls())
     
     # Self-organizing map.
     sm <- nroKohonen(seeds = km)
-    sm <- nroTrain(som = sm, data = trdata)
+    sm <- nroTrain(map = sm, data = trdata)
     
     # Assign data points into districts.
     matches <- nroMatch(centroids = sm, data = trdata)
     
     # Estimate statistics for cholesterol
-    chol <- nroPermute(som = sm, districts = matches, data = dataset$CHOL)
+    chol <- nroPermute(map = sm, districts = matches, data = dataset$CHOL)
     print(chol[,c("TRAINING", "Z", "P.z", "P.freq")])
     
     # Estimate statistics.
-    stats <- nroPermute(som = sm, districts = matches, data = dataset)
+    stats <- nroPermute(map = sm, districts = matches, data = dataset)
     print(stats[,c("TRAINING", "Z", "P.z", "P.freq")])
 
 
@@ -294,7 +294,7 @@ rm(list=ls())
     
     # Self-organizing map.
     sm <- nroKohonen(seeds = km)
-    sm <- nroTrain(som = sm, data = trdata)
+    sm <- nroTrain(map = sm, data = trdata)
     
     # Assign data points into districts.
     matches <- nroMatch(centroids = sm, data = trdata)
@@ -308,7 +308,7 @@ rm(list=ls())
     planes <- nroAggregate(topology = sm, districts = matches, data = selected)
     
     # Estimate statistics.
-    stats <- nroPermute(som = sm, districts = matches, data = selected)
+    stats <- nroPermute(map = sm, districts = matches, data = selected)
     
     # Set visuals.
     colrs <- nroColorize(values = planes, amplitudes = stats)
@@ -422,7 +422,7 @@ rm(list=ls())
     
     # Self-organizing map.
     sm <- nroKohonen(seeds = km)
-    sm <- nroTrain(som = sm, data = trdata)
+    sm <- nroTrain(map = sm, data = trdata)
     
     # Assign data points into districts.
     matches <- nroMatch(centroids = sm, data = trdata)
@@ -430,6 +430,7 @@ rm(list=ls())
     # Calculate district averages for urinary albumin.
     plane <- nroAggregate(topology = sm, districts = matches,
                           data = dataset$uALB)
+    plane <- as.vector(plane[[1]])
     
     # Assign subgroups based on urinary albumin.
     regns <- rep("HighAlb", length.out=length(plane))
@@ -464,12 +465,12 @@ rm(list=ls())
     
     # Train with full data.
     sm <- nroKohonen(seeds = km)
-    sm <- nroTrain(som = sm, data = trdata)
+    sm <- nroTrain(map = sm, data = trdata, subsample = nrow(trdata))
     print(sm$history)
     
     # Train with subsampling.
     sm <- nroKohonen(seeds = km)
-    sm <- nroTrain(som = sm, data = trdata, subsample = 200)
+    sm <- nroTrain(map = sm, data = trdata, subsample = 200)
     print(sm$history)
 
 
@@ -543,7 +544,13 @@ rm(list=ls())
     modl <- numero.create(data = trdata)
     
     # Evaluate map statistics for all variables.
-    stats <- numero.evaluate(model = modl, data = dataset)
+    results <- numero.evaluate(model = modl, data = dataset)
+    print(results$statistics[,c("TRAINING", "Z", "P.z", "P.freq")])
+    
+    # Evaluate map statistics with logarithms for skewed variables.
+    results <- numero.evaluate(model = modl, data = dataset,
+        logarithm=c("TG","CREAT","uALB"))
+    print(results$statistics[,c("TRAINING", "Z", "P.z", "P.freq")])
 
 
 cat("\nnumero.plot.Rd\n")
@@ -662,7 +669,7 @@ rm(list=ls())
     x <- stats$planes$uALB
     tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
     bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
-    elem <- data.frame(stats$som$topology, stringsAsFactors = FALSE)
+    elem <- data.frame(stats$map$topology, stringsAsFactors = FALSE)
     elem$REGION <- "MiddleAlb"
     elem$REGION[tops] <- "HighAlb"
     elem$REGION[bottoms] <- "LowAlb"
@@ -673,3 +680,5 @@ rm(list=ls())
     # Compare subgroups.
     cmp <- numero.summary(results = stats, topology = elem, data = dataset)
 
+
+cat("All examples completed.\n")

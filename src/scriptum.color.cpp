@@ -98,10 +98,14 @@ Color::hex() const {
   int g = (int)(255*green + 0.5);
   int b = (int)(255*blue + 0.5);
   int a = (int)(255*opacity + 0.5);
-  if(r < 0) r = 0; if(r > 255) r = 255;
-  if(g < 0) g = 0; if(g > 255) g = 255;
-  if(b < 0) b = 0; if(b > 255) b = 255;
-  if(a < 0) a = 0; if(a > 255) a = 255;
+  if(r < 0) r = 0;
+  if(g < 0) g = 0;
+  if(b < 0) b = 0;
+  if(a < 0) a = 0;
+  if(r > 255) r = 255;
+  if(g > 255) g = 255;
+  if(b > 255) b = 255;
+  if(a > 255) a = 255;
   if(a >= 255) sprintf(buf, "%02x%02x%02x", r, g, b);
   else sprintf(buf, "%02x%02x%02x%02x", r, g, b, a);
   return string(buf);

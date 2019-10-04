@@ -1,5 +1,5 @@
 nroTrain <- function(
-    som,
+    map,
     data,
     subsample=NULL,
     metric="euclid",
@@ -17,8 +17,8 @@ nroTrain <- function(
         warning("Unusable column(s) excluded.")
 
     # Convert centroids to numeric matrix.
-    centroids <- nroRcppMatrix(som$centroids, trim=FALSE)
-    topology <- nroRcppMatrix(som$topology, trim=FALSE)
+    centroids <- nroRcppMatrix(map$centroids, trim=FALSE)
+    topology <- nroRcppMatrix(map$topology, trim=FALSE)
 
     # Check that column names match.
     somnames <- colnames(centroids)
@@ -28,8 +28,14 @@ nroTrain <- function(
     if(length(vars) < length(somnames))
         warning("One or more training column(s) unavailable.")
 
+    # Automatic subsample.
+    if(is.null(subsample)) {
+        subsample <- 10*sqrt(nrow(data))*sqrt(nrow(topology))
+	subsample <- min(subsample, 0.95*nrow(data), na.rm=TRUE)
+	subsample <- round(subsample)
+    }
+
     # Ensure inputs are safe for C++.
-    if(is.null(subsample)) subsample <- nrow(data)
     else subsample <- as.integer(subsample[[1]])
     if(is.null(message)) message <- -1.0
     else message <- as.double(message[[1]])
@@ -68,9 +74,10 @@ nroTrain <- function(
     rownames(res$layout) <- rownames(data)
     
     # Return results.
-    som$layout <- res$layout
-    som$centroids[,vars] <- res$centroids
-    som$history <- res$history
-    som$metric <- metric
-    return(som)
+    map$layout <- res$layout
+    map$centroids[,vars] <- res$centroids
+    map$subsample <- subsample
+    map$history <- res$history
+    map$metric <- metric
+    return(map)
 }

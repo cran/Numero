@@ -39,20 +39,24 @@ interval in seconds.
 \details{
 The K centroids are determined by Lloyd's algorithm with Euclidean
 distances or by using 1 - Pearson correlation as the distance measure.
-If \code{subsample} is less than the number of data rows, a random subset
-of the specified size is used for each training cycle.
+
+If \code{subsample} is less than the number of data rows, a random subset of
+the specified size is used for each training cycle. By default,
+\code{subsample} is set automatically depending on the size of the dataset. 
 
 If \code{balance = 0.0}, the algorithm is applied with no balancing,
 if \code{balance = 1.0} all the clusters will be forced to be of equal size.
-Intermediate values are permitted.
+Intermediate values are permitted. Note that if subsampling is applied,
+balancing may become less accurate.
 }
 
 \value{
-A list with four named elements: \code{centroids} is a matrix of the
+A list with named elements: \code{centroids} is a matrix of the
 main results, \code{layout} contains the best-matching centroid labels
 and model residuals for each usable data point, \code{history} is the
 chronological record of training errors, and \code{metric} is the distance
-metric that was used.
+metric that was used. The subsampling parameter that was used during
+training is stored in the element \code{subsample}.
 }
 
 \references{

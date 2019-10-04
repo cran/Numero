@@ -30,11 +30,7 @@ Engine::insert(const string& key, const mdsize unit,
 			       
   /* Insert a new data point. */
   mdsize rank = (p->points).size();
-  p->points[key] = Point(rank, unit);
-
-  /* Update data matrix. */
-  for(mdsize j = 0; j < values.size(); j++)
-    (p->data).insert(rank, j, values[j]);
+  p->points[key] = Point(rank, values, unit);
   
   /* Reset engine state. */
   if(nvalid < values.size()) p->complete = false;

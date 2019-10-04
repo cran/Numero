@@ -32,9 +32,10 @@ numero.create <- function(
     if(radius[[1]] < 2) stop("Unusable radius.")
 
     # Check subsample.
-    if(is.null(subsample)) subsample <- nrow(trdata)
-    if(!is.finite(subsample[[1]])) stop("Unusable subsample.")
-    if(subsample[[1]] < 10) stop("Unusable subsample.")
+    if(!is.null(subsample)) {
+        if(!is.finite(subsample[[1]])) stop("Unusable subsample.")
+        if(subsample[[1]] < 10) stop("Unusable subsample.")
+    }
 
     # Print report.
     cat(nrow(trdata), " / ", nrow(data), " rows included\n", sep="")
@@ -43,6 +44,7 @@ numero.create <- function(
     # K-means clustering.
     cat("\nK-means clustering:\n")
     km <- nroKmeans(data=trdata, subsample=subsample, message=10)
+    cat(km$subsample, " subsamples\n", sep="")
     cat(length(km$history), " training cycles\n", sep="")
 
     # Create a SOM.
@@ -50,7 +52,8 @@ numero.create <- function(
     sm <- nroKohonen(seeds=km$centroids, radius=radius)
     
     # Fit the SOM to training data.
-    sm <- nroTrain(som=sm, data=trdata, subsample=subsample, message=10)
+    sm <- nroTrain(map=sm, data=trdata, subsample=subsample, message=10)
+    cat(sm$subsample, " subsamples\n", sep="")
     cat(length(sm$history), " training cycles\n", sep="")
 
     # Evaluate map quality.
@@ -60,7 +63,7 @@ numero.create <- function(
 
     # Collect results.
     output$kmeans <- km
-    output$som <- sm
+    output$map <- sm
     output$layout <- layout
     output$data <- data
     return(output)

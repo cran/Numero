@@ -8,10 +8,10 @@ Iterative algorithm to adapt a self-organizing map (SOM) to a set of
 multivariable data.
 }
 \usage{
-nroTrain(som, data, subsample = NULL, metric = "euclid", message = NULL)
+nroTrain(map, data, subsample = NULL, metric = "euclid", message = NULL)
 }
 \arguments{
-  \item{som}{
+  \item{map}{
 A list object as returned by \code{\link{nroKohonen}()}.
   }
   \item{data}{
@@ -30,18 +30,21 @@ interval in seconds.
 }
 
 \details{
-The model is fitted according to columns that are found both in the
+The map is fitted according to columns that are found both in the
 SOM centroids and the input data.
 
-If \code{subsample} is less than the number of data rows, a random subset
-of the specified size is used for each training cycle.
+If \code{subsample} is less than the number of data rows, a random subset of
+the specified size is used for each training cycle. By default,
+\code{subsample} is set automatically depending on the size of the dataset. 
 }
 
 \value{
-A copy of the list object \code{som}, where the element \code{centroids} is
+A copy of the list object \code{map}, where the element \code{centroids} is
 updated according to the data patterns. The quantization errors during
 training are stored in the element \code{history} and the element
-\code{metric} is set to the distance measure used.
+\code{metric} is set to the distance measure used. The subsampling
+parameter that was used during training is stored in the element
+\code{subsample}.
 }
 
 \references{
@@ -65,11 +68,11 @@ km <- nroKmeans(data = trdata)
 
 # Train with full data.
 sm <- nroKohonen(seeds = km)
-sm <- nroTrain(som = sm, data = trdata)
+sm <- nroTrain(map = sm, data = trdata, subsample = nrow(trdata))
 print(sm$history)
 
 # Train with subsampling.
 sm <- nroKohonen(seeds = km)
-sm <- nroTrain(som = sm, data = trdata, subsample = 200)
+sm <- nroTrain(map = sm, data = trdata, subsample = 200)
 print(sm$history)
 }

@@ -18,7 +18,7 @@ nroColorize <- function(
     # Default value ranges.
     if(length(ranges) < 1) {
         mu <- apply(values, 2, stats::median, na.rm=TRUE)
-        delta <- apply(values, 2, function(x){
+        delta <- apply(values, 2, function(x) {
             m <- stats::median(x, na.rm=TRUE)
 	    d <- stats::quantile(abs(x - m), 0.99, na.rm=TRUE)
             return(d)
@@ -27,9 +27,6 @@ nroColorize <- function(
                              stringsAsFactors=FALSE)
         rownames(ranges) <- colnames(values)
     }
-
-    # Return ranges only.
-    if(is.null(amplitudes)) return(ranges)
 
     # Check if amplitudes is a data frame or a matrix.
     if(is.data.frame(amplitudes) || is.matrix(amplitudes))
@@ -60,23 +57,26 @@ nroColorize <- function(
                  as.character(palette[[1]]),
                  PACKAGE="Numero")
 
-    # Convert to vector or data frame.
+    # Convert to data frame.
     if(ncol(values) < 2) {
-        res$colors <- as.vector(res$colors[[1]])
-        res$contrast <- as.vector(res$contrast[[1]])
-	names(res$colors) <- rownames(values)
-	names(res$contrast) <- rownames(values)
+        res$colors <- data.frame(X=as.vector(res$colors[[1]]),
+	    stringsAsFactors=FALSE)
+        res$contrast <- data.frame(X=as.vector(res$contrast[[1]]),
+	    stringsAsFactors=FALSE)
     }
     else {
         res$colors <- data.frame(res$colors, stringsAsFactors=FALSE)
         res$contrast <- data.frame(res$contrast, stringsAsFactors=FALSE)
-	rownames(res$colors) <- rownames(values)
-	rownames(res$contrast) <- rownames(values)
-	colnames(res$colors) <- colnames(values)
-	colnames(res$contrast) <- colnames(values)
     }
+
+    # Set row and column names.
+    rownames(res$colors) <- rownames(values)
+    rownames(res$contrast) <- rownames(values)
+    colnames(res$colors) <- colnames(values)
+    colnames(res$contrast) <- colnames(values)
 
     # Return results.
     attr(res$colors, "contrast") <- res$contrast
+    attr(res$colors, "ranges") <- ranges
     return(res$colors)
 }

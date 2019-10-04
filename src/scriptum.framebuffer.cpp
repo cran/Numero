@@ -28,7 +28,7 @@ FrameBuffer::FrameBuffer(const void* ptr) {
 /*
  *
  */
-FrameBuffer::~FrameBuffer() {};
+FrameBuffer::~FrameBuffer() {}
 
 /*
  *

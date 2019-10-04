@@ -11,11 +11,11 @@ regional patterns on a self-organizing maps using permutations.
 }
 
 \usage{
-nroPermute(som, districts, data, n = 1000, clip = 5.0, message = NULL)
+nroPermute(map, districts, data, n = 1000, message = NULL)
 }
 
 \arguments{
-  \item{som}{
+  \item{map}{
 A list object in the format from \code{\link{nroTrain}()}.
   }
   
@@ -32,10 +32,6 @@ M is the number of data points and N is the number of variables.
 Maximum number of permutations per variable.
   }
 
-  \item{clip}{
-Range parameter for outlier clipping (standard deviations from the median).
-  }
-
   \item{message}{
 If positive, progress information is printed at the specified
 interval in seconds.
@@ -43,7 +39,7 @@ interval in seconds.
 }
 
 \details{
-The input argument \code{som} must contain the map topology and the
+The input argument \code{map} must contain the map topology and the
 centroid profiles as returned by the functions \code{\link{nroKmeans}()},
 \code{\link{nroKohonen}()}, or \code{\link{nroTrain}()}.
 
@@ -51,7 +47,7 @@ The input argument \code{districts} must contain integers between 1 and K,
 where K is the number map units. Any other values will be ignored.
 
 Training variables and data points are detected by the column names of
-\code{som$centroids}, the attribute "variables" in \code{districts} and
+\code{map$centroids}, the attribute "variables" in \code{districts} and
 the names of elements in \code{districts}.
 }
 
@@ -92,16 +88,16 @@ km <- nroKmeans(data = trdata)
 
 # Self-organizing map.
 sm <- nroKohonen(seeds = km)
-sm <- nroTrain(som = sm, data = trdata)
+sm <- nroTrain(map = sm, data = trdata)
 
 # Assign data points into districts.
 matches <- nroMatch(centroids = sm, data = trdata)
 
 # Estimate statistics for cholesterol
-chol <- nroPermute(som = sm, districts = matches, data = dataset$CHOL)
+chol <- nroPermute(map = sm, districts = matches, data = dataset$CHOL)
 print(chol[,c("TRAINING", "Z", "P.z", "P.freq")])
 
 # Estimate statistics.
-stats <- nroPermute(som = sm, districts = matches, data = dataset)
+stats <- nroPermute(map = sm, districts = matches, data = dataset)
 print(stats[,c("TRAINING", "Z", "P.z", "P.freq")])
 }

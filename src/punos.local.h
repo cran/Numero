@@ -65,8 +65,8 @@ namespace punos_local {
   };
 
   /* Utility functions. */
-  extern vector<mdreal> smoothen(const vector<mdreal>&,
-				 const vector<LinkMap>&);
+  vector<mdreal> smoothen(const vector<mdreal>&,
+			  const vector<LinkMap>&);
 }
 
 using namespace punos_local;

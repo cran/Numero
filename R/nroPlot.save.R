@@ -4,7 +4,7 @@ nroPlot.save <- function(
     colors,
     labels=NULL,
     subplot=NULL) {
-
+  
     # Check if input is a list.
     if(is.list(topology) && !is.data.frame(topology))
         topology <- topology$topology
@@ -14,10 +14,41 @@ nroPlot.save <- function(
     topo <- topology[,c("X","Y","RADIUS1","RADIUS2","ANGLE1","ANGLE2")]
     topo <- nroRcppMatrix(topo, trim=FALSE)
 
+    # Copy attributes before touching variables.
+    contrast <- nroRcppMatrix(attr(colors, "contrast"), trim=FALSE)
+    visible <- nroRcppMatrix(attr(labels, "visible"), trim=FALSE)
+    
+    # Convert inputs to matrices.
+    if(is.factor(colors)) colors <- as.character(colors)
+    if(is.factor(labels)) labels <- as.character(labels)
+    if(is.vector(colors)) colors <- as.matrix(colors)
+    if(is.vector(labels)) labels <- as.matrix(labels)
+    
+    # Default labels.
+    if(is.null(labels)) {
+         labels <- matrix("", nrow=nrow(colors), ncol=ncol(colors))
+         rownames(labels) <- rownames(colors)
+         colnames(labels) <- colnames(colors)
+    }
+    
+    # Default contrast.
+    if(nrow(contrast) < 1) {
+      contrast <- matrix(0, nrow=nrow(colors), ncol=ncol(colors))
+      rownames(contrast) <- rownames(colors)
+      colnames(contrast) <- colnames(colors)
+    }
+    
+    # Default visibility.
+    if(nrow(visible) < 1) {
+      visible <- matrix(1, nrow=nrow(colors), ncol=ncol(colors))
+      rownames(visible) <- rownames(colors)
+      colnames(visible) <- colnames(colors)
+    }
+
     # Prepare highlights.
     hlights <- data.frame(REGION=rep("(empty)", nrow(topo)),
         REGION.label=rep("", nrow(topo)),
-	REGION.color=rep("#000000", nrow(topo)),
+        REGION.color=rep("#000000", nrow(topo)),
         stringsAsFactors=FALSE)
     if(is.finite(match("REGION", colnames(topology))))
         hlights$REGION <- as.character(topology[,"REGION"])
@@ -29,22 +60,12 @@ nroPlot.save <- function(
     # Check region labels and colors.
     js.regs <- nroPlotSave.colormap(hlights)
 
-    # Copy attributes before touching variables.
-    contrast <- nroRcppMatrix(attr(colors, "contrast"), trim=FALSE)
-    visible <- nroRcppMatrix(attr(labels, "visible"), trim=FALSE)
-
-    # Convert inputs to matrices.
-    if(is.factor(colors)) colors <- as.character(colors)
-    if(is.factor(labels)) labels <- as.character(labels)
-    if(is.vector(colors)) colors <- as.matrix(colors)
-    if(is.vector(labels)) labels <- as.matrix(labels)
-
     # Determine subplot geometry.
     if(length(subplot) < 2) {
         subplot <- sqrt(ncol(colors) + 1)
         subplot <- floor(c(subplot, subplot))
-	while((subplot[1])*(subplot[2]) < ncol(colors))
-	    subplot[2] <- (subplot[2] + 1)
+        while((subplot[1])*(subplot[2]) < ncol(colors))
+            subplot[2] <- (subplot[2] + 1)
     }
 
     # Number of subplot columns in figure.
@@ -55,11 +76,11 @@ nroPlot.save <- function(
     # Set file path.
     fname <- path.expand(file)
     if(nchar(fname) < 1) stop("Empty file name.")
- 
+    
     # Generate SVG code.
     svgdoc <- nroPlotSave.svg(topology=topo, colors=colors,
         labels=labels, visible=visible, contrast=contrast,
-	hlights=hlights, subplot=subplot)
+        hlights=hlights, subplot=subplot)
     codes <- svgdoc$codes
     boxes <- svgdoc$boxes
 

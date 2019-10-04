@@ -18,7 +18,7 @@ Model::insert(const string& key, const vector<mdreal>& values) {
 
   /* Insert a new data point. */
   mdsize rank = (p->points).size();
-  p->points[key] = Point(rank, values);
+  p->points[key] = Point(rank, values, medusa::snan());
 
   /* Reset training state. */
   (p->state).clear();

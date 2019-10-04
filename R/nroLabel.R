@@ -35,11 +35,21 @@ nroLabel <- function(
     if(class(res) == "character") stop(res)
 
     # Convert to data frame.
-    res$labels <- data.frame(res$labels, stringsAsFactors=FALSE)
+    if(ncol(values) < 2) {
+        res$labels <- data.frame(as.vector(res$labels[[1]]),
+	    stringsAsFactors=FALSE)
+        res$visible <- data.frame(as.vector(res$visible[[1]]),
+	    stringsAsFactors=FALSE)
+    }
+    else {
+        res$labels <- data.frame(res$labels, stringsAsFactors=FALSE)
+        res$visible <- data.frame(res$visible, stringsAsFactors=FALSE)
+    }
+
+    # Set row and columns names.
     rownames(res$labels) <- rownames(values)
-    colnames(res$labels) <- colnames(values)
-    res$visible <- data.frame(res$visible, stringsAsFactors=FALSE)
     rownames(res$visible) <- rownames(values)
+    colnames(res$labels) <- colnames(values)
     colnames(res$visible) <- colnames(values)
 
     # Return results.

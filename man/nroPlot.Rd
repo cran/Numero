@@ -106,7 +106,7 @@ km <- nroKmeans(data = trdata)
 
 # Self-organizing map.
 sm <- nroKohonen(seeds = km)
-sm <- nroTrain(som = sm, data = trdata)
+sm <- nroTrain(map = sm, data = trdata)
 
 # Assign data points into districts.
 matches <- nroMatch(centroids = sm, data = trdata)
@@ -120,7 +120,7 @@ vars <- c("AGE", "MALE", "uALB", "CHOL", "DIAB_KIDNEY", "DECEASED")
 planes <- nroAggregate(topology = sm, districts = matches, data = selected)
 
 # Estimate statistics.
-stats <- nroPermute(som = sm, districts = matches, data = selected)
+stats <- nroPermute(map = sm, districts = matches, data = selected)
 
 # Set visuals.
 colrs <- nroColorize(values = planes, amplitudes = stats)

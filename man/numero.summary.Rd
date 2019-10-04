@@ -75,7 +75,7 @@ stats <- numero.evaluate(model = modl, data = dataset)
 x <- stats$planes$uALB
 tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
 bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
-elem <- data.frame(stats$som$topology, stringsAsFactors = FALSE)
+elem <- data.frame(stats$map$topology, stringsAsFactors = FALSE)
 elem$REGION <- "MiddleAlb"
 elem$REGION[tops] <- "HighAlb"
 elem$REGION[bottoms] <- "LowAlb"

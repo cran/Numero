@@ -18,10 +18,8 @@ Engine::average() const {
   /* Estimate district averages for each column. */
   vector<mdsize>& loci = (p->bmus).first;
   vector<vector<mdreal> > planes((p->cache).size());
-  for(mdsize j = 0; j < planes.size(); j++) {
-    const vector<mdreal>& x = (p->cache[j]).values;
-    planes[j] = (p->topology).diffuse(loci, x);
-  }
+  for(mdsize j = 0; j < planes.size(); j++)
+    planes[j] = (p->topology).diffuse(loci, p->cache[j]);
 
   /* Estimate smoothed point frequencies. */
   vector<vector<mdreal> > hgrams = this->histograms();
@@ -36,10 +34,5 @@ Engine::average() const {
       if(nums[i] > 0.0) sums[i] /= (nums[i] + 1e-20);
       else sums[i] = rlnan;
   }
-  
-  /* Restore original data space. */
-  vector<ColumnCache>& cache = p->cache;
-  for(mdsize j = 0; j < planes.size(); j++)
-    cache[j].transf.restore(planes[j]);
   return planes;
 }

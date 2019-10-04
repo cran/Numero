@@ -7,7 +7,7 @@
 self-organizing map}
 
 \usage{
-numero.evaluate(model, data, n = 1000)
+numero.evaluate(model, data, logarithm = NULL, n = 1000)
 }
 
 \arguments{
@@ -19,6 +19,10 @@ A list object that contains a self-organizing map and a data layout.
 A matrix or a data frame.
   }
 
+  \item{logarithm}{
+A vector of variable names for logarithmic analysis.
+  }
+  
   \item{n}{
 Maximum number of permutations per data column.
   }
@@ -27,6 +31,9 @@ Maximum number of permutations per data column.
 \details{
 The input argument \code{model} can be the output from
 \code{\link{numero.create}()} or from \code{\link{numero.quality}()}.
+
+Any variables included in \code{model} will be analyzed internally as
+logarithms. The logarithm is reversed for the output.
 }
 
 \value{
@@ -61,5 +68,11 @@ trdata <- numero.prepare(data = dataset, variables = trvars)
 modl <- numero.create(data = trdata)
 
 # Evaluate map statistics for all variables.
-stats <- numero.evaluate(model = modl, data = dataset)
+results <- numero.evaluate(model = modl, data = dataset)
+print(results$statistics[,c("TRAINING", "Z", "P.z", "P.freq")])
+
+# Evaluate map statistics with logarithms for skewed variables.
+results <- numero.evaluate(model = modl, data = dataset,
+    logarithm=c("TG","CREAT","uALB"))
+print(results$statistics[,c("TRAINING", "Z", "P.z", "P.freq")])
 }

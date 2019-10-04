@@ -15,7 +15,7 @@ numero.plot <- function(
 
     # Default inputs.
     if(is.null(variables)) variables <- colnames(results$planes)
-    if(is.null(topology)) topology <- results$som$topology
+    if(is.null(topology)) topology <- results$map$topology
     if(is.null(reference)) reference <- results
     prefix <- as.character(prefix[[1]])
     detach <- as.character(detach[[1]])

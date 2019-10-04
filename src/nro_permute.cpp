@@ -37,8 +37,7 @@ nro_permute_sync(abacus::Matrix& stats, vector<vector<mdreal> >& points,
   /* Simulate null distributions. */    
   mdsize nfalse = 0;
   mdsize ntotal = 0;
-  vector<abacus::Empirical> fnull(nvars);
-  
+  vector<abacus::Empirical> fnull(nvars);  
   for(mdsize n = 0; n < ncycl; n++) {
     if(nfalse/nvars >= nro_NMAX_FALSE) break;
     
