@@ -46,11 +46,14 @@ namespace abacus {
        If the element does not exist, the base value is zero. */
     bool add(const medusa::mdsize, const medusa::mdsize,
 	     const medusa::mdreal);
-
-    /* Return column vector. The length is either zero if the column is
-       empty or equal to the size of the matrix if data are found.*/
+    
+    /* Return column vector. */
     std::vector<medusa::mdreal> column(const medusa::mdsize) const;
 
+    /* Collect non-zero elements from a column. The old values within the
+       input array are discarded. Returns the number of copied elements.*/
+    medusa::mdsize column(std::vector<Element>&, const medusa::mdsize) const;
+    
     /* Number of elements. */
     medusa::mdsize count() const;
 
@@ -60,28 +63,45 @@ namespace abacus {
        descending values are returned. */
     std::vector<Element> elements(const int) const;
 
+    /* Find the location of a row or a column by name (first input).
+       The second input can be either "row" or "column". Returns
+       medusa::snan() if the name is empty or unknown. */
+    medusa::mdsize location(const std::string&, const std::string&) const;
+    
     /* Insert a new element or set the value of an existing one.
        Returns true if the input was copied in the element. */
     bool insert(const medusa::mdsize, const medusa::mdsize,
 		const medusa::mdreal);
 
-    /* Determine the smallest set of elements that connect rows and
-       columns. The elements are sorted according to the input flag
-       before calling the static version of the function, see info
-       at the end of the block. This function has a high overhead if
-       called repeatedly. */
-    Matrix kruskal(const int) const;
-
+    /* Return row or column names. The input can be
+       either "row" or "column". */
+    std::vector<std::string> names(const std::string&) const;
+    
     /* Number of columns. */
     medusa::mdsize order() const;
+
+    /* Return and erase all data elements. For symmetric matrices,
+       only one triangular half is returned. If the input is positive,
+       the output is sorted according to ascending value. If negative,
+       descending values are returned. */
+    std::vector<Element> remove(const int);
 
     /* Return and erase a data element. */
     medusa::mdreal remove(const medusa::mdsize, const medusa::mdsize);
 
-    /* Return row vector. The length is either zero if the row is empty
-       or equal to the order of the matrix if data are found. */
+    /* Set the name of a column or a row. The first input is the location,
+       the second is the new name, and the third can be either "row" or
+       "column". An empty string clears the name. */
+    void rename(const medusa::mdsize, const std::string&,
+		const std::string&);
+    
+    /* Return row vector. */
     std::vector<medusa::mdreal> row(const medusa::mdsize) const;
 
+    /* Collect non-zero elements from a row. The old values within the
+       input array are discarded. Returns the number of copied elements.*/
+    medusa::mdsize row(std::vector<Element>&, const medusa::mdsize) const;
+    
     /* Number of rows. */
     medusa::mdsize size() const;
 
@@ -103,6 +123,36 @@ namespace abacus {
        columns. The elements are checked in the order of the input,
        and moved to the output if they belong to the spanning tree. */
     static std::vector<Element> kruskal(std::vector<Element>&);
+  };
+
+  /*
+   * Convert values to standard normal distribution according
+   * to a pre-calculated Gaussian approximation.
+   */
+  class Normal {
+  private:
+    void* buffer;
+  public:
+    Normal();
+
+    /* Copy contents from the input. */
+    Normal(const Normal&);
+    void operator=(const Normal&);
+    
+    /* Free resources. */
+    ~Normal();
+
+    /* Set transformation parameters. */
+    bool configure(const std::vector<medusa::mdreal>&);
+
+    /* Return transformation parameters. */
+    std::vector<medusa::mdreal> parameters() const;
+
+    /* Adjusted Gaussian approximation of the distance to distribution
+       center. The resulting values indicate the distance in standard
+       deviations in optimized data space. */
+    medusa::mdreal z(const medusa::mdreal) const;    
+    void z(std::vector<medusa::mdreal>&) const;    
   };
   
   /*
@@ -126,6 +176,9 @@ namespace abacus {
        second contains the weight. */
     bool add(const medusa::mdreal, const medusa::mdreal);
 
+    /* Return a standard normal transform of the distribution. */
+    Normal normal() const;
+    
     /* Estimate area under the lower tail (2nd input negative) or under
        the higher tail (2nd input positive) or both (2nd input zero). */
     medusa::mdreal p(const medusa::mdreal, const int) const;
@@ -142,6 +195,11 @@ namespace abacus {
 
     /* Number of distinct values. */
     medusa::mdsize spread() const;
+
+    /* Sort and copy distinct values and their cumulative weights. 
+       Returns the number of copied values. */
+    medusa::mdsize spread(std::vector<medusa::mdreal>&,
+			  std::vector<medusa::mdreal>&) const;
 
     /* Adjusted Gaussian approximation of the distance to distribution
        center. The returned value indicates the distance in standard
@@ -194,7 +252,7 @@ namespace abacus {
 
   /* Pearson's correlation coefficient. */
   extern std::pair<medusa::mdreal, medusa::mdsize>
-    correlation(const std::vector<medusa::mdreal>&,
+  correlation(const std::vector<medusa::mdreal>&,
 		const std::vector<medusa::mdreal>&);
 
   /* Eliminate differences in distribution curves between groups of
@@ -243,6 +301,11 @@ namespace abacus {
   extern std::pair<medusa::mdreal, medusa::mdreal>
   polarize(const medusa::mdreal, const medusa::mdreal,
 	   const medusa::mdreal, const medusa::mdreal);
+
+  /* Return N integers between 0 to N-1 in random order. The first input
+     sets the parameter N. If the second input is true, the integers
+     are picked with replacement. */
+  std::vector<medusa::mdsize> shuffle(const medusa::mdsize, const bool);
 
   /* Calculate desriptive statistics: 'center', 'mean', 'median', 'mode',
      'min', 'max', 'range', 'sd', 'var' and 'number'. The first input

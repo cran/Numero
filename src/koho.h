@@ -8,7 +8,6 @@
 #include <string>
 #include <vector>
 #include "medusa.h"
-#include "akkad.h"
 #include "punos.h"
 
 namespace koho {
@@ -59,9 +58,6 @@ namespace koho {
     std::string configure(const medusa::mdsize,
 			  const std::vector<medusa::mdreal>&);
  
-    /* Set message output medium. */
-    void connect(akkad::Messenger*);
-
     /* Estimate distances to the district profiles in data space. */
     std::vector<medusa::mdreal> distances(const std::string&) const;
 
@@ -121,6 +117,12 @@ namespace koho {
     /* Data point histograms of the current contents. */
     std::vector<std::vector<medusa::mdreal> > histograms() const;
     
+    /* Insert a new one-dimensional data point. The first input is the
+       point identity, the second indicates the map district, and the third
+       contains the data value. Returns an error if failed. */
+    std::string insert(const std::string&, const medusa::mdsize,
+		       const medusa::mdreal);
+ 
     /* Insert a new multi-dimensional data point. The first input is the
        point identity, the second indicates the map district, and the third
        contains the data values. Returns an error if failed. */

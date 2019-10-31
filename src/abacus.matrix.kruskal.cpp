@@ -7,22 +7,6 @@
 /*
  *
  */
-Matrix
-Matrix::kruskal(const int flag) const {
-  MatrixBuffer* p = (MatrixBuffer*)buffer;
-  Matrix mtx; mtx.symmetric(p->symmflag);
-  vector<Element> tree = this->elements(flag);
-  tree = Matrix::kruskal(tree);
-  for(mdsize i = 0; i < tree.size(); i++) {
-    Element& e = tree[i];
-    mtx.insert(e.row, e.column, e.value);
-  }
-  return mtx;
-}
-
-/*
- *
- */
 vector<Element>
 Matrix::kruskal(vector<Element>& edges) {
   mdsize sznan = medusa::snan();

@@ -36,8 +36,14 @@ namespace medusa {
     void operator=(const File&); /* disabled */
     ~File();
 
+    /* Return file name if an active stream. */
+    std::string active() const;
+    
+    /* Close the file stream. */
+    void close();
+    
     /* Non-empty if the last call to a member function
-       resulted in an error */
+       resulted in an error. */
     std::string error() const;
 
     /* Return a message on the current file name and how many bytes
@@ -47,7 +53,7 @@ namespace medusa {
     /* Move the access position. A negative value moves the cursor
        towards the beginning, and a positive value towards the end. */
     bool jump(const long);
-
+    
     /* Open a new file stream. The second argument sets the mode
        of activity, please see fopen() in <cstdio> for details. */
     bool open(const std::string&, const std::string&);
@@ -84,6 +90,9 @@ namespace medusa {
   /* Buffered file functions. */
   extern FILE* openfile(const std::string&, const std::string&);
   extern bool closefile(FILE*);
+
+  /* Utility function to split lines into strings. */
+  extern std::vector<std::string> splitstr(const std::string&, const char);
   
   /*
    * Data structure to hold sparse spreadsheets of strings.

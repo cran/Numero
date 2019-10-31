@@ -19,14 +19,12 @@
 #include <unordered_map>
 #include <unordered_set>
 #include "medusa.h"
-#include "akkad.h"
 #include "abacus.h"
 #include "punos.h"
 #include "koho.h"
 
 using namespace std;
 using namespace medusa;
-using namespace akkad;
 using namespace abacus;
 using namespace punos;
 using namespace koho;
@@ -60,14 +58,12 @@ namespace koho_local {
   public:
     Topology topology;
     unordered_map<string, Point> points; /* data as rows */
-    Messenger* msg;
   public:
-    Buffer() {this->msg = Messenger::null();};
+    Buffer() {};
     Buffer(const void* ptr) {
       Buffer* p = (Buffer*)ptr;
       this->topology = p->topology;
       this->points = p->points;
-      this->msg = p->msg;
     };
     ~Buffer() {};
   }; 

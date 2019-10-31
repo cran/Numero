@@ -11,6 +11,7 @@ nro_colorize(SEXP zvals_R, SEXP name_R) {
   scriptum::Color black = scriptum::colormap(0.0, "grey");
   scriptum::Color white = scriptum::colormap(1.0, "grey");
   string name = as<string>(name_R);
+  mdreal rlnan = medusa::rnan();
 
   /* Import color scores. */
   vector<vector<mdreal> > zvals = nro::matrix2reals(zvals_R, 0.0);
@@ -23,7 +24,9 @@ nro_colorize(SEXP zvals_R, SEXP name_R) {
     vector<bool> bits;
     vector<string> array;
     for(mdsize i = 0; i < zvals.size(); i++) {
-      Color c = scriptum::colormap(zvals[i][j], name);
+      mdreal z = zvals[i][j];
+      if(z == rlnan) z = 0.5;
+      Color c = scriptum::colormap(z, name);
       mdreal cB = black.contrast(c);
       mdreal cW = white.contrast(c);
       bits.push_back(fabs(cB) > fabs(cW));

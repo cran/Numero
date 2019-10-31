@@ -78,7 +78,7 @@ Topology::Topology(const vector<mdreal>& zpos,
       districts.push_back(district);
     }
     rad = rB;
-    if(districts.size() > USHRT_MAX)
+    if(districts.size() >= USHRT_MAX)
       panic("Too many map districts.", __FILE__, __LINE__);
   }
 
@@ -137,7 +137,6 @@ Topology::Topology(const vector<mdreal>& zpos,
   p->levels = zpos;
   p->coord = districts;
   this->buffer = p;
-  this->rewire(1.0);
 }
 
 /*

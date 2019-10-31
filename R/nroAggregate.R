@@ -6,6 +6,7 @@ nroAggregate <- function(
     # Check if input is a list.
     if(!is.data.frame(topology) && is.list(topology))
         topology <- topology$topology
+    smoothness <- attr(topology, "smoothness")
 
     # Ensure topology is a numeric matrix.
     topology <- nroRcppMatrix(topology, trim=FALSE)
@@ -16,10 +17,17 @@ nroAggregate <- function(
 	return(NULL)
     }
 
+    # Check smoothness.
+    if(is.null(smoothness)) stop("Map smoothness undefined.")
+    smoothness <- as.double(smoothness[[1]])
+    if(!is.finite(smoothness)) stop("Unusable map smoothness.")
+    if(smoothness < 1) stop("Map mmoothness less than one.")
+
     # Estimate sample histogram.
     if(is.null(data)) {
         res <- .Call("nro_diffuse",
                      as.matrix(topology),
+                     as.double(smoothness),
 	             as.integer(districts),
 		     matrix(nrow=0, ncol=0),
                      PACKAGE="Numero")
@@ -49,6 +57,7 @@ nroAggregate <- function(
     # Estimate component planes.
     res <- .Call("nro_diffuse",
                  as.matrix(topology),  
+                 as.double(smoothness),
                  as.integer(districts),
                  as.matrix(data),
                  PACKAGE="Numero");

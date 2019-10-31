@@ -59,6 +59,7 @@ nroKmeans <- function(
     # Estimate centroids.
     res <- .Call("nro_train",
                  as.matrix(k),
+                 as.double(0.0),
                  as.matrix(NA),
                  as.matrix(data),
 		 as.character(metric),

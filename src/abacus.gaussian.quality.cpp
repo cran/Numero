@@ -9,7 +9,7 @@
  */
 mdreal
 Gaussian::quality() const {
-
+  
   /* Check if enough variation. */
   mdsize nuniq = 0;
   mdsize nelem = values.size();

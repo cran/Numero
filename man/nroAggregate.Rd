@@ -30,7 +30,7 @@ A vector of M elements or an M x N matrix of data values.
 \details{
 Topology can be either the output from \code{\link{nroKohonen}()} or a
 data frame in the same format as the element \code{topology} within the
-aforementioned output list.
+the output from \code{\link{nroKohonen}()}.
 
 The input argument \code{districts} is expected to be the output from
 \code{\link{nroMatch}()}.

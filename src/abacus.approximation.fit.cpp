@@ -11,6 +11,9 @@ void
 Approximation::fit(const vector<mdreal>& x, const vector<mdreal>& w) {
   mdreal rlnan = medusa::rnan();
 
+  /* Check if anything to do. */
+  if(mode != rlnan) return;
+  
   /* Find the center of the distribution. */
   this->mode = statistic(x, w, "mode");
 

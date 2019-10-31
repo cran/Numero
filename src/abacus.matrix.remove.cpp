@@ -7,6 +7,15 @@
 /*
  *
  */
+vector<Element>
+Matrix::remove(const int flag) {
+  MatrixBuffer* p = (MatrixBuffer*)buffer;
+  return p->elements(flag, true);
+}
+  
+/*
+ *
+ */
 mdreal
 Matrix::remove(const mdsize r0, const mdsize c0) {
   MatrixBuffer* p = (MatrixBuffer*)buffer;

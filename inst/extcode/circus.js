@@ -414,8 +414,14 @@ function initMenu() {
         
     // Add menu-specific event listeners.
     var middle = document.getElementById("middle");
-    middle.addEventListener("pointerover", pointerOverSymbol, false); 
-    middle.addEventListener("pointerdown", pointerDownSymbol, false);
+    if(window.PointerEvent) {
+	middle.addEventListener("pointerover", pointerOverSymbol, false); 
+	middle.addEventListener("pointerdown", pointerDownSymbol, false);
+    }
+    else {
+	middle.addEventListener("mouseover", pointerOverSymbol, false); 
+	middle.addEventListener("mousedown", pointerDownSymbol, false);
+    }
     
     // Launch background refresh for updates.
     if(!MenuTimer) {
@@ -498,8 +504,14 @@ function initPage(plot, guiFlag) {
     
     // Add content-specific event listeners.
     var bottom = document.getElementById("bottom");
-    bottom.addEventListener("pointerover", pointerOverDistrict, false);
-    bottom.addEventListener("pointerdown", pointerDownDistrict, false);
+    if(window.PointerEvent) {
+	bottom.addEventListener("pointerover", pointerOverDistrict, false);
+	bottom.addEventListener("pointerdown", pointerDownDistrict, false);
+    }
+    else {
+	bottom.addEventListener("mouseover", pointerOverDistrict, false);
+	bottom.addEventListener("mousedown", pointerDownDistrict, false);
+    }
 }
 
 // Set up region elements.
@@ -508,7 +520,6 @@ function initRegions(topology) {
     // Clear any existing highlights.
     for(var j = 0; SUBPLOTS.length > j; j++) {
 	var sGroup = document.getElementById(SUBPLOTS[j] + "_region");
-	console.log(sGroup);
         if(sGroup) sGroup.parentNode.removeChild(sGroup);
     }
     

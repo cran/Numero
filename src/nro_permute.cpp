@@ -6,38 +6,36 @@
 #define nro_NMAX_FALSE 20
 
 /*
- * Synchronous permutations of multiple dimensions in parallel.
- * Only data points with no unusable values are included.
+ *
  */
 static string
-nro_permute_sync(abacus::Matrix& stats, vector<vector<mdreal> >& points,
+nro_permute_exec(vector<mdreal>& output, const vector<mdreal>& values,
 		 const vector<mdsize>& bmus, const Topology& topo,
 		 const mdsize ncycl) {
-  stats = abacus::Matrix();
+  output.clear();
+  if(values.size() != bmus.size())
+    medusa::panic("Incompatible inputs.", __FILE__, __LINE__);
   
   /* Create a simulation engine. R-style indexing switched to C++. */
   Engine eng(topo);
   mdsize ndata = 0;
-  for(mdsize i = 0; i < points.size(); i++) {
-    string e = eng.insert(long2string(i), (bmus[i] - 1), points[i]);
+  for(mdsize i = 0; i < values.size(); i++) {
+    string e = eng.insert(long2string(i), (bmus[i] - 1), values[i]);
     ndata += (e.size() < 1); /* excluded if any missing value */
-    points[i].clear(); /* reduce memory footprint */
   }
   
-  /* Observed component planes. */
+  /* Observed component plane. */
   vector<vector<mdreal> > observed = eng.average();
   mdsize nvars = observed.size();
-  if(nvars < 1) return "Permutation failed.";
+  if(nvars != 1) return "Observation failed.";
 
-  /* Observed statistics. */
-  vector<mdreal> scores(nvars, 0.0);
-  for(mdsize j = 0; j < nvars; j++)
-    scores[j] = abacus::statistic(observed[j], "sd");
-  
+  /* Observed statistic. */
+  mdreal score = abacus::statistic(observed[0], "sd");
+
   /* Simulate null distributions. */    
   mdsize nfalse = 0;
   mdsize ntotal = 0;
-  vector<abacus::Empirical> fnull(nvars);  
+  abacus::Empirical fnull;  
   for(mdsize n = 0; n < ncycl; n++) {
     if(nfalse/nvars >= nro_NMAX_FALSE) break;
     
@@ -46,31 +44,26 @@ nro_permute_sync(abacus::Matrix& stats, vector<vector<mdreal> >& points,
     
     /* Permuted component planes. */
     vector<vector<mdreal> > permuted = eng.average();
-    if(permuted.size() < 1) return "Permutation failed.";
+    if(permuted.size() != observed.size())
+      return "Permutation failed.";
     
-    /* Permuted statistics. */
-    vector<mdreal> nulls(nvars, 0.0);
-    for(mdsize j = 0; j < nvars; j++)
-      nulls[j] = abacus::statistic(permuted[j], "sd");
+    /* Permuted statistic. */
+    mdreal x = abacus::statistic(permuted[0], "sd");
     
     /* Check if any false positives. */
-    for(mdsize j = 0; j < nvars; j++)
-      nfalse += (nulls[j] >= scores[j]);
+    nfalse += (x >= score);
     
     /* Update null distributions. */
-    for(mdsize j = 0; j < nvars; j++)
-      fnull[j].add(nulls[j], 1.0);
+    fnull.add(x, 1.0);
     ntotal++;
   }
 
   /* Estimate statistics. */
-  for(mdsize j = 0; j < nvars; j++) {
-    stats.insert(0, j, scores[j]);
-    stats.insert(1, j, fnull[j].z(scores[j]));
-    stats.insert(2, j, fnull[j].p(scores[j], 1));
-    stats.insert(3, j, ndata);
-    stats.insert(4, j, fnull[j].size());
-  }
+  output.push_back(score);
+  output.push_back(fnull.z(score));
+  output.push_back(fnull.p(score, 1));
+  output.push_back(ndata);
+  output.push_back(fnull.size());
   return "";
 }
 
@@ -78,9 +71,10 @@ nro_permute_sync(abacus::Matrix& stats, vector<vector<mdreal> >& points,
  *
  */
 RcppExport SEXP
-nro_permute(SEXP topo_R, SEXP bmus_R, SEXP data_R,
+nro_permute(SEXP topo_R, SEXP sigma_R, SEXP bmus_R, SEXP data_R,
 	    SEXP numcycl_R, SEXP lag_R) {
   vector<mdsize> numcycl = nro::vector2sizes(numcycl_R);
+  mdreal sigma = as<mdreal>(sigma_R);
   mdreal lag = as<mdreal>(lag_R);
   time_t stamp = time(NULL);
   
@@ -95,29 +89,30 @@ nro_permute(SEXP topo_R, SEXP bmus_R, SEXP data_R,
   
   /* Get map topology. */
   vector<vector<mdreal> > topodata = nro::matrix2reals(topo_R, 0.0);
-  punos::Topology topo = reals2topology(topodata, SIGMA_nro);
+  punos::Topology topo = reals2topology(topodata, sigma);
   if(topo.size() < 1) return CharacterVector("Unusable topology.");
 
   /* Asynchronous permutations. That is, separate synchronous
      permutations for each single dimension. */
-  abacus::Matrix stats;
   time_t reset = stamp;
   mdsize nvars = vectors[0].size();
+  vector<vector<mdreal> > stats;
   for(mdsize j = 0; j < nvars; j++) {
     
     /* Extract data values. */
-    vector<vector<mdreal> > column(vectors.size());
+    vector<mdreal> column;
     for(mdsize i = 0; i < vectors.size(); i++)
-      column[i].push_back(vectors[i][j]);
+      column.push_back(vectors[i][j]);
     
     /* Estimate statistics. */
-    abacus::Matrix batch;
-    string err = nro_permute_sync(batch, column, bmus, topo, numcycl[j]);
+    vector<mdreal> batch;
+    string err = nro_permute_exec(batch, column, bmus, topo, numcycl[j]);
     if(err.size() > 0) return CharacterVector(err);
     
     /* Update results. */
+    stats.resize(batch.size());
     for(mdsize i = 0; i < batch.size(); i++)
-      stats.insert(i, j, batch.value(i, 0));
+      stats[i].push_back(batch[i]);
     
     /* Progress message. */
     if(lag < 0.0) continue;
@@ -129,10 +124,10 @@ nro_permute(SEXP topo_R, SEXP bmus_R, SEXP data_R,
 
   /* Return results. */
   List res;
-  res.push_back(nro::reals2vector(stats.row(0)), "SCORE");
-  res.push_back(nro::reals2vector(stats.row(1)), "Z");
-  res.push_back(nro::reals2vector(stats.row(2)), "P.freq");
-  res.push_back(nro::reals2vector(stats.row(3)), "N.data");
-  res.push_back(nro::reals2vector(stats.row(4)), "N.cycles");
+  res.push_back(nro::reals2vector(stats[0]), "SCORE");
+  res.push_back(nro::reals2vector(stats[1]), "Z");
+  res.push_back(nro::reals2vector(stats[2]), "P.freq");
+  res.push_back(nro::reals2vector(stats[3]), "N.data");
+  res.push_back(nro::reals2vector(stats[4]), "N.cycles");
   return res;
 }

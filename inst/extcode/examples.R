@@ -681,4 +681,4 @@ rm(list=ls())
     cmp <- numero.summary(results = stats, topology = elem, data = dataset)
 
 
-cat("All examples completed.\n")
+cat("\nAll examples completed.\n\n")

@@ -37,6 +37,6 @@ nro::reals2topology(const vector<vector<mdreal> >& vectors,
   /* Create map topology.*/
   vector<mdreal> epochs(1, 0.0);
   punos::Topology topo(epochs, districts);
-  topo.rewire(sigma);
+  if(topo.rewire(sigma) == false) return Topology();
   return topo;
 }

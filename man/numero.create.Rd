@@ -6,7 +6,7 @@
 \description{Set up a self-organizing map and train it with data}
 
 \usage{
-numero.create(data, radius = NULL, subsample = NULL)
+numero.create(data, radius = NULL, smoothness = NULL, subsample = NULL)
 }
 
 \arguments{
@@ -15,6 +15,9 @@ A matrix or a data frame.
   }
   \item{radius}{
 Map radius.
+  }
+\item{smoothness}{
+Rigidity of the map to adapt to regional differences.
   }
   \item{subsample}{
 Number of data points used during a single training cycle.

@@ -40,6 +40,7 @@ Minimizer::optimize(Minimizer& func) {
       }
       if(x == xnadir) continue;
       mdreal y = func.value(x);
+      if(y == rlnan) continue;
       if(y >= ynadir) continue;
       ynadir = y;
       xnadir = x;

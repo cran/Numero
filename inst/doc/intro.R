@@ -322,8 +322,8 @@ summary(trdata.mets$uALB)
 
 ## ------------------------------------------------------------------------
 # Create a new self-organizing map based on sex-adjusted data.
-modl.discov <- numero.create(data = trdata.discov,
-                             radius = modl.basic$map$radius)
+radius.basic <- attr(modl.basic$map$topology, "radius")
+modl.discov <- numero.create(data = trdata.discov, radius = radius.basic)
 summary(modl.discov)
 
 ## ----results="hide"------------------------------------------------------

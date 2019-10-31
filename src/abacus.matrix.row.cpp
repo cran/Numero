@@ -17,3 +17,17 @@ Matrix::row(const mdsize r) const {
   output.resize(p->ncols, p->rlnan);
   return output;
 }
+
+/*
+ *
+ */
+mdsize
+Matrix::row(vector<Element>& output, const mdsize r) const {
+  MatrixBuffer* p = (MatrixBuffer*)buffer;
+  output.clear();
+  if(p->symmflag) panic("Symmetric matrix.", __FILE__, __LINE__);
+  if(r >= p->nrows) return 0;
+  if((p->rowdata).count(r) < 1) return 0;
+  (p->rowdata[r]).elements(output, r);
+  return output.size();
+}

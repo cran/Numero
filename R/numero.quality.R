@@ -57,9 +57,9 @@ numero.quality.planes <- function(model, data, layout) {
     if(is.null(data)) data <- model$data
 
     # Component planes.
-    comps <- nroAggregate(topology=model$map$topology,
+    comps <- nroAggregate(topology=model$map,
                           data=layout, districts=layout$BMC)
-    comps$HISTOGRAM <- nroAggregate(topology=model$map$topology,
+    comps$HISTOGRAM <- nroAggregate(topology=model$map,
                                     districts=layout$BMC)
     comps$BMC <- NULL
 
@@ -82,7 +82,7 @@ numero.quality.statistics <- function(model, layout) {
     layout$BMC <- NULL
 
     # Add jitter to coverage to prevent numerical artefacts.
-    r <- stats::rnorm(nrow(layout))
+    r <- stats::runif(nrow(layout))
     layout$COVERAGE <- (layout$COVERAGE + 0.01*r)
 
     # Permutation analysis.

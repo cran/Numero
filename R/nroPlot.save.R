@@ -23,7 +23,7 @@ nroPlot.save <- function(
     if(is.factor(labels)) labels <- as.character(labels)
     if(is.vector(colors)) colors <- as.matrix(colors)
     if(is.vector(labels)) labels <- as.matrix(labels)
-    
+
     # Default labels.
     if(is.null(labels)) {
          labels <- matrix("", nrow=nrow(colors), ncol=ncol(colors))
@@ -116,10 +116,14 @@ nroPlot.save <- function(
 nroPlotSave.svg <- function(topology, colors, labels,
     visible, contrast, hlights, subplot) {
 
+    # Default titles.
+    titles <- colnames(colors)
+    if(length(titles) != ncol(colors))
+        titles <- paste("Column", 1:ncol(colors))
+
     # Set plot identifiers.
     slots <- 0
     keys <- character()
-    titles <- colnames(colors)
     for(k in 1:length(titles)) {
 	keys[k] <- intToUtf8((65 + slots), multiple=FALSE)
 
@@ -200,7 +204,7 @@ nroPlotSave.svg <- function(topology, colors, labels,
         # Determine the size of the map in device coordinates.
 	wplot <- (res.p$bbox[3] - res.p$bbox[1])
         hplot <- (res.p$bbox[4] - res.p$bbox[2])
-	
+
         # Set the center point of the next plot.
         offset[1] <- (offset[1] + wplot)
 	if(j%%nsubcol == 0)

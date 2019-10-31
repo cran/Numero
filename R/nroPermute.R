@@ -9,6 +9,13 @@ nroPermute <- function(
     data <- nroRcppMatrix(data, trim=FALSE)
     topology <- nroRcppMatrix(map$topology, trim=FALSE)
 
+    # Check map smoothness.
+    smoothness <- attr(map$topology, "smoothness")
+    if(length(smoothness) < 1) stop("Map smoothness undefined.")
+    smoothness <- as.double(smoothness[[1]])
+    if(!is.finite(smoothness)) stop("Unusable map smoothness.")
+    if(smoothness < 1) stop("Map smoothness less than one.")
+
     # Remove empty data columns.
     mu <- colMeans(data, na.rm=TRUE)
     cols <- which(0*mu == 0)
@@ -67,6 +74,7 @@ nroPermute <- function(
     # Estimate statistics.
     res <- .Call("nro_permute",
                  as.matrix(topology),
+                 as.double(smoothness),
                  as.integer(districts),
                  as.matrix(data),
                  as.integer(numcycl),
@@ -83,14 +91,19 @@ nroPermute <- function(
     output$P.z <- stats::pnorm(output$Z, lower.tail=FALSE)
     output$P.z[trmask] <- NA
     output$P.freq[trmask] <- NA
+    output$AMPLITUDE <- NA
 
     # Calculate base scores.
     z.tr <- output$Z[trmask]
     z.ev <- output$Z[evmask]
     trbase <- stats::quantile(z.tr, probs=0.95, na.rm=TRUE)
     evbase <- stats::quantile(z.ev, probs=0.95, na.rm=TRUE)
-    if(is.na(trbase)) trbase <- evbase
-    if(is.na(evbase)) evbase <- trbase
+    if(!is.finite(trbase)) trbase <- evbase
+    if(!is.finite(evbase)) evbase <- trbase
+    if(!is.finite(trbase)) {
+        warning("Permutations failed.")
+        return(output)
+    }
 
     # Attenuate high-scoring training variables.
     if((trbase > evbase) && (evbase > 1)) {
@@ -98,13 +111,11 @@ nroPermute <- function(
 	delta <- 0.2*sqrt(z.tr[mask] - evbase)
         z.tr[mask] <- (evbase + delta)
     }
-
     # Estimate color amplitudes.
     z <- c(z.tr, z.ev)
-    rows <- c(trmask,evmask)
+    rows <- c(trmask, evmask)
     zbase <- stats::quantile(z, probs=0.95, na.rm=TRUE)
     zbase <- max(1.1*zbase, 3)
-    output$AMPLITUDE <- NA
     output$AMPLITUDE[rows] <- pmax(z/zbase, 0.04)
     attr(output, "zbase") <- zbase
     return(output)

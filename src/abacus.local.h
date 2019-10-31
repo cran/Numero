@@ -11,6 +11,7 @@
 #include <climits>
 #include <cmath>
 #include <algorithm>
+#include <random>
 #include <string>
 #include <vector>
 #include <map>
@@ -31,8 +32,8 @@ namespace abacus_local {
   /*
    *
    */
-  class Gaussian {
-  private:
+  class BaseGaussian {
+  protected:
     string method;
     mdreal center;
     mdreal offset;
@@ -40,13 +41,8 @@ namespace abacus_local {
     mdreal factor;
     mdreal mu;
     mdreal sigma;
-    vector<mdsize> qloci;
-    vector<mdreal> values;
-    vector<mdreal> weights;
-    vector<mdreal> zscores;
-  private:
   public:
-    Gaussian() {
+    BaseGaussian() {
       this->center = medusa::rnan();
       this->offset = center;
       this->scale = center;
@@ -54,16 +50,35 @@ namespace abacus_local {
       this->mu = center;
       this->sigma = center;
     };
-    ~Gaussian() {};
+    ~BaseGaussian() {};
+    vector<mdreal> parameters() const;
+    void parameters(const vector<mdreal>&);
+    mdsize transform(vector<mdreal>&) const;
     void apply(vector<mdreal>&, const mdreal) const;
+  };
+
+  /*
+   *
+   */
+  class Gaussian : public BaseGaussian {
+  private:
+    vector<mdsize> qloci;
+    vector<mdreal> values;
+    vector<mdreal> weights;
+    vector<mdreal> zscores;
+  public:
+    Gaussian() : BaseGaussian() {};
+    Gaussian(const vector<mdreal>& prm) : BaseGaussian() {
+      this->parameters(prm);
+    };
+    ~Gaussian() {};
     bool configure(const vector<mdreal>&, const vector<mdreal>&);
     string model() const {return method;};
     mdreal optimize(const string&);
-    mdsize transform(vector<mdreal>&) const;
     mdreal quality() const;
     mdreal distance(const mdreal, const mdreal, const mdreal) const;
   };
- 
+  
   /*
    *
    */
@@ -74,11 +89,19 @@ namespace abacus_local {
     Gaussian negative;
   public:
     Approximation() {this->mode = medusa::rnan();};
+    Approximation(void* ptr) {
+      Approximation* p = (Approximation*)ptr;
+      this->mode = p->mode;
+      this->positive = p->positive;
+      this->negative = p->negative;
+    };
     ~Approximation() {};
     void fit(const vector<mdreal>&, const vector<mdreal>&);
+    vector<mdreal> parameters() const;
+    bool parameters(const vector<mdreal>&);
     mdreal transform(const mdreal) const;
   };
-
+    
   /*
    *
    */
@@ -86,6 +109,8 @@ namespace abacus_local {
   public:
     unsigned long ndata;
     Approximation approx;
+    vector<mdreal> valsorted;
+    vector<mdreal> wsorted;    
     unordered_map<mdreal, mdreal> data;
   public:
     EmpiricalBuffer() {this->ndata = 0;};
@@ -93,18 +118,14 @@ namespace abacus_local {
       EmpiricalBuffer* p = (EmpiricalBuffer*)ptr;
       this->ndata = p->ndata;
       this->approx = p->approx;
+      this->valsorted = p->valsorted;
+      this->wsorted = p->wsorted;
       this->data = p->data;
     };
     ~EmpiricalBuffer() {};
-    void contents(vector<mdreal>& x, vector<mdreal>& w) const {
-      unordered_map<mdreal, mdreal>::const_iterator pos;
-      for(pos = data.begin(); pos != data.end(); pos++) {
-	x.push_back(pos->first);
-	w.push_back(pos->second);
-      }
-    };
+    void contents(vector<mdreal>&, vector<mdreal>&);
   };
-
+  
   /*
    *
    */
@@ -132,12 +153,29 @@ namespace abacus_local {
   /*
    *
    */
+  class TwowayMap {
+  private:
+    unordered_map<mdsize, string> rank2name;
+    unordered_map<string, mdsize> name2rank;
+  public:
+    void erase(const mdsize);
+    void erase(const string&);
+    void insert(const mdsize, const string&);
+    string name(const mdsize);
+    mdsize rank(const string&);
+  };
+
+  /*
+   *
+   */
   class MatrixBuffer  {
   public:
     bool symmflag;
     mdsize nrows;
     mdsize ncols;
     mdreal rlnan;
+    TwowayMap rownames;
+    TwowayMap colnames;
     unordered_map<mdsize, Array> rowdata;
   public:
     MatrixBuffer() {
@@ -152,9 +190,12 @@ namespace abacus_local {
       this->nrows = p->nrows;
       this->ncols = p->ncols;
       this->rlnan = p->rlnan;
+      this->rownames = p->rownames;
+      this->colnames = p->colnames;
       this->rowdata = p->rowdata;
     };
     ~MatrixBuffer() {};
+    vector<Element> elements(const int, const bool);
   };
 
   /*

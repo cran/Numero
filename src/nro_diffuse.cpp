@@ -7,7 +7,8 @@
  *
  */
 RcppExport SEXP
-nro_diffuse(SEXP topo_R, SEXP bmus_R, SEXP data_R) {
+nro_diffuse(SEXP topo_R, SEXP sigma_R, SEXP bmus_R, SEXP data_R) {
+  mdreal sigma = as<mdreal>(sigma_R);
 
   /* Check inputs. */
   vector<mdsize> bmus = nro::vector2sizes(bmus_R);
@@ -17,7 +18,7 @@ nro_diffuse(SEXP topo_R, SEXP bmus_R, SEXP data_R) {
 
   /* Get map topology. */
   vector<vector<mdreal> > topodata = nro::matrix2reals(topo_R, 0.0);
-  punos::Topology topo = nro::reals2topology(topodata, SIGMA_nro);
+  punos::Topology topo = nro::reals2topology(topodata, sigma);
   if(topo.size() < 1) return CharacterVector("Unusable topology.");
   
   /* Switch to C++ indexing. */

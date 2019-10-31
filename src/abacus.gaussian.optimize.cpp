@@ -4,8 +4,6 @@
 
 #include "abacus.local.h"
 
-#define OLD_CODE
-
 /*
  *
  */
@@ -34,6 +32,9 @@ public:
     /* Weighted statistics. */
     mdreal xmu = statistic(x, *weights, "mean");
     mdreal xsigma = statistic(x, *weights, "sd");
+
+    /* Safeguard against zero variance. */
+    if(xsigma < 1e-9) xsigma = 1e-9;
     
     /* Distance from Gaussian form. */
     mdreal d = gauss.distance(f, xmu, xsigma);
@@ -66,7 +67,7 @@ Gaussian::optimize(const string& mcode) {
     this->sigma = statistic(x, w, "sd");
     return this->quality();
   }
- 
+
   /* Non-linear transformation. */
   if((mcode == "exp") || (mcode == "log")) {
     this->method = mcode;
@@ -80,7 +81,7 @@ Gaussian::optimize(const string& mcode) {
     engine.values = &values;
     engine.weights = &weights;
     engine.source = this;
-    
+
     /* Find optimal parameter setting. */
     this->factor = Minimizer::optimize(engine);
     this->mu = engine.mu;

@@ -51,7 +51,7 @@ nroImpute <- function(
         return(data)
     }
     if(length(numerics) < ncol(data))
-        warning("Non-numeric column(s) skipped.")
+        warning("Non-numeric column(s) excluded.")
 
     # Standardize data.
     sigma <- rep(NA, ncol(data))

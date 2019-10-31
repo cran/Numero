@@ -1339,8 +1339,8 @@ easier to compare results across examples:
 
 ``` {r}
 # Create a new self-organizing map based on sex-adjusted data.
-modl.discov <- numero.create(data = trdata.discov,
-                             radius = modl.basic$map$radius)
+radius.basic <- attr(modl.basic$map$topology, "radius")
+modl.discov <- numero.create(data = trdata.discov, radius = radius.basic)
 summary(modl.discov)
 ```
 
@@ -1714,11 +1714,8 @@ the colorings on screen due to the inefficient way the default R graphics
 are implemented. In particular, it may not be feasible to do the
 interactive part using the standard R plotting.
 
-It is possible to use web browsers for a better user experience. At the
-time of writing, up-to-date versions of Opera and Google Chrome worked well,
-whereas Safari and Firefox did not support all the graphical features.
-
-To view the map colorings, the plots need to be saved in a file first. Here,
+It is possible to use web browsers for a better user experience but, to view
+the map colorings, the plots need to be saved in an HTML file first. Here,
 we are using the results from the basic example that was introduced in the
 beginning of the document:
 
@@ -1799,7 +1796,7 @@ other hand, if a patient dataset included multiple examination visits, and the
 visits were organized on separate rows, a patient could be linked to multiple
 data points.
 
-**District**: A district refers to a pre-defined division of the map into uniformly sized areas. The districts are created mainly for technical reasons: using *districts* speeds up calculations and enables the estimation of map-related statistics. This is analogous to a real city being divided into districts to estimate regional demographics, for instance.
+**District**: A district refers to a pre-defined division of the map into uniformly sized areas. The districts are created mainly for technical reasons: using districts speeds up calculations and enables the estimation of map-related statistics. This is analogous to a real city being divided into districts to estimate regional demographics, for instance.
 
 **District centroid**: The SOM algorithm works through the districts during the optimization of the data point layout on the map. The computational process eventually converges to a stable configuration that is stored as a set of district centroids. From a practical point of view, a district centroid represents the typical averaged profile that captures the characteristics of the data points within the district. In technical terms, the district centroid (also known as the prototype) contains the mean weighted data values across all the data points, where the weights are determined by the neighborhood function used in the SOM algorithm.
 
@@ -1807,7 +1804,7 @@ data points.
 
 **Map**: A map is a general term to describe the two-dimensional canvas onto which the multivariable data points are projected. The concept is analogous to a geographic map that indicates where people live, except that the location is not based on geography (i.e. physical distances), but comes from the data (i.e. distances = data-based similarities).
 
-**Subgroup**: We expect that most uses of Numero will result in the subgrouping of a complex dataset. Visually, we define a subgroup via a contiguous set of adjacent districts on the map. Consequently, all the data points that are located within the set of districts are the subgroup members. Of note, our concept of a subgroup is different from _subgroup discovery_ in data mining; we use the term as a replacement to the word 'cluster' to emphasize the lack of intrinsic structure in the original data space.
+**Subgroup**: We expect that most uses of Numero will result in the subgrouping of a complex dataset. Visually, we define a subgroup via a contiguous set of adjacent districts on the map. Consequently, all the data points that are located within the set of districts are the subgroup members. Of note, our concept of a subgroup is different from subgroup discovery in data mining; we use the term as a replacement to the word 'cluster' to emphasize the lack of intrinsic structure in the original data space.
 
 # Build information
 

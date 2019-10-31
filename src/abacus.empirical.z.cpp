@@ -12,7 +12,7 @@ Empirical::z(const mdreal x) const {
   EmpiricalBuffer* p = (EmpiricalBuffer*)buffer;
   mdreal rlnan = medusa::rnan();
   if(x == rlnan) return rlnan;
-
+  
   /* Check if Gaussian model already available. */
   mdreal z = (p->approx).transform(x);
   if(z != rlnan) return z;

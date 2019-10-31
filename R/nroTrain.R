@@ -20,6 +20,13 @@ nroTrain <- function(
     centroids <- nroRcppMatrix(map$centroids, trim=FALSE)
     topology <- nroRcppMatrix(map$topology, trim=FALSE)
 
+    # Check map smoothness.
+    smoothness <- attr(map$topology, "smoothness")
+    if(length(smoothness) < 1) stop("Map smoothness undefined.")
+    smoothness <- as.double(smoothness[[1]])
+    if(!is.finite(smoothness)) stop("Unusable map smoothness.")
+    if(smoothness < 1) stop("Map smoothness less than one.")
+
     # Check that column names match.
     somnames <- colnames(centroids)
     vars <- intersect(colnames(data), somnames)
@@ -34,9 +41,11 @@ nroTrain <- function(
 	subsample <- min(subsample, 0.95*nrow(data), na.rm=TRUE)
 	subsample <- round(subsample)
     }
+    else {
+        subsample <- as.integer(subsample[[1]])
+    }
 
     # Ensure inputs are safe for C++.
-    else subsample <- as.integer(subsample[[1]])
     if(is.null(message)) message <- -1.0
     else message <- as.double(message[[1]])
     if(is.null(metric)) metric <- "euclid"
@@ -58,6 +67,7 @@ nroTrain <- function(
     # Train the SOM.
     res <- .Call("nro_train",
                  as.matrix(topology),
+                 as.double(smoothness),
                  as.matrix(centroids[,vars]),
                  as.matrix(data[,vars]),
          	 as.character(metric),

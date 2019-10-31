@@ -6,9 +6,8 @@ Estimate subgroup statistics
 }
 
 \description{
-Combine subgrouping information for districts with the data points that
-reside in the districts, and estimate statistics for each subgroup and
-variable.
+Combine data points that reside in districts that belong to a larger region
+into a subgroup; compare descriptive statistics between subgroups.
 }
 
 \usage{
@@ -17,12 +16,13 @@ nroSummary(data, districts, regions = NULL, categlim = 8, capacity = 10)
 
 \arguments{
   \item{data}{
-A vector of M elements or an M x N matrix of data values. 
+A vector of named M elements or an M x N matrix of data values with row names. 
   }
   
   \item{districts}{ 
-An integer vector of M named elements that indicate the best match out of K districts
-for each row name in the data matrix, please see \link{nroMatch} for an example.
+An integer vector of M named elements that indicate the best match out of
+K districts for each row name in the data matrix, please see \link{nroMatch}
+for an example.
   }
 
   \item{regions}{
@@ -42,13 +42,18 @@ Maximum number of subgroups to compare.
 
 \details{
 If defined, the region vector should have K elements where K is the total
-number of map districts. The value at element [i] indicates the region for
-the district [i].
+number of map districts.
 
 The region input can also be a data frame of K rows where the column
 REGION will be used for assigning district to regions, and REGION.label
 will be used as the character label as seen on the map, see the output
 from \code{\link{nroPlot}()} for an example.
+
+Districts and data points are connected by comparing element names in
+\code{districts} and names or row names of \code{data}.
+
+Districts and regions are connected by comparing element values in
+\code{districts} and names or row names of \code{regions}.
 
 If the region vector is empty, each district is automatically assigned to
 its own region.

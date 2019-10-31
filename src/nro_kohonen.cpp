@@ -7,9 +7,10 @@
  *
  */
 RcppExport SEXP
-nro_kohonen(SEXP seeds_R, SEXP rho_R) {
+nro_kohonen(SEXP seeds_R, SEXP rho_R, SEXP sigma_R) {
   vector<vector<mdreal> > seeds = nro::matrix2reals(seeds_R, 0.0);
-  mdreal rho = as<mdreal>(rho_R);
+  mdreal rho = as<mdreal>(rho_R); 
+  mdreal sigma = as<mdreal>(sigma_R);
   
   /* Check inputs. */
   if(seeds.size() < 3)
@@ -28,6 +29,10 @@ nro_kohonen(SEXP seeds_R, SEXP rho_R) {
   mdsize ndistricts = topo.size();
   if(ndistricts < 1) return CharacterVector("Cannot create topology.");
 
+  /* Set neighborhood network. */
+  if(topo.rewire(sigma) == false)
+      return CharacterVector("Topology failed.");
+  
   /* Interpolate component planes. */
   vector<vector<mdreal> > protos = topo.interpolate(seeds);
   if(protos.size() != ndistricts)

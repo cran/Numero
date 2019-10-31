@@ -61,8 +61,7 @@ numero.evaluate <- function(
     cat(nsuccess, " / ", length(alpha), " logarithm(s) applied\n", sep="")
 
     # Calculate component planes.
-    comps <- nroAggregate(topology=model$map$topology,
-                          districts=bmc, data=data)
+    comps <- nroAggregate(topology=model$map, districts=bmc, data=data)
 
     # Estimate statistics in chunks.
     cat("\nStatistics:\n")

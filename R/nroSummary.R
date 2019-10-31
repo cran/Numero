@@ -9,58 +9,46 @@ nroSummary <- function(
     if(is.vector(data)) {
         keys <- names(data)
         data <- data.frame(X=data, stringsAsFactors=FALSE)
-        rownames(data) <- keys
+        if(!is.null(keys)) rownames(data) <- keys
     }
+
+    # Check input sizes.
+    if(length(districts) != nrow(data))
+        stop("Incompatible inputs.")
+
+    # Check if districts data are named.
+    if(is.null(names(districts)))
+        names(districts) <- rownames(data)
 
     # Check data consistency.
     keys <- intersect(names(districts), rownames(data))
-    if(length(districts) != nrow(data)) {
-        if(length(keys) < 1) stop("Incompatible inputs.")
-        districts <- districts[keys]
-        data <- data[keys,]
-    }
-    else {
-        if(length(keys) > 0) {
-	          districts <- districts[keys]
-            data <- data[keys,]
-        }
-    }
+    if(length(keys) < 1) stop("Incompatible inputs.")
+    districts <- districts[keys]
+    data <- data[keys,]
 
-    # Make sure districts are integers.
-    districts <- as.integer(round(districts))
-   
-    # Check regions and labels.
-    if(is.null(regions)) regions <- 1:max(districts, na.rm=TRUE)
+    # Check if regions are available.
+    if(is.null(regions)) regions <- sort(unique(districts))
     if(is.vector(regions)) {
         labls <- as.integer(as.factor(regions))
         regions <- data.frame(REGION=regions, REGION.label=labls,
             stringsAsFactors=FALSE)
-        warning("Region labels set to defaults.")
+	rownames(regions) <- regions$REGION
     }
 
-    # Check inputs.
+    # Check other inputs.
     categlim <- as.integer(categlim[[1]])
     capacity <- as.integer(capacity[[1]])
 
-    # Exclude unusable districts.
-    districts[which(districts > nrow(regions))] <- NA
-    districts[which(districts < 0)] <- NA
-
-    # Merge districts into regions.
-    mask <- which(districts > 0)
-    g <- NA*districts
-    g.labels <- rep("", length(g))
-    g[mask] <- regions[districts[mask],"REGION"]
-    g.labels[mask] <- regions[districts[mask],"REGION.label"]
-
-    # Set row identities.
-    names(g) <- rownames(data)
-    names(g.labels) <- rownames(data)
+    # Replace districts with regions.
+    g <- match(districts, rownames(regions))
+    mask <- which(g > 0)
+    if(length(mask) < length(g))
+        warning("Unusable district(s) or region(s) excluded.")
+    g <- regions[g[mask],"REGION"]
+    data <- data[mask,]
 
     # Check subgroups.
     t <- table(g)
-    if(sum(is.na(g)) > 0)
-        warning("Unusable district(s) or region(s) detected.")
     if(length(t) < 2) {
         warning("Less than two subgroups.")
         return(NULL)
@@ -89,7 +77,8 @@ nroSummary <- function(
 	        warning(paste(vn, ": ", stats, sep=""))
             }
 	    else {
-	        stats <- data.frame(VARIABLE=vn, stats, stringsAsFactors=F)
+	        stats <- data.frame(VARIABLE=vn, stats,
+		    stringsAsFactors=FALSE)
 	        output <- rbind(output, stats)
 	    }
 	    next
@@ -101,7 +90,8 @@ nroSummary <- function(
 	    warning(paste(vn, ": ", stats, sep=""))
         }
 	else {
-	    stats <- data.frame(VARIABLE=vn, stats, stringsAsFactors=F)
+	    stats <- data.frame(VARIABLE=vn, stats,
+	        stringsAsFactors=FALSE)
 	    output <- rbind(output, stats)
 	}
     }
@@ -112,7 +102,7 @@ nroSummary <- function(
     output$LABEL[rows] <- regions[pos[rows],"REGION.label"]
 
     # Finish results.
-    attr(output, "labels") <- g.labels
+    attr(output, "labels") <- regions[g,"REGION.label"]
     attr(output, "subgroups") <- split(1:nrow(data), g)
     rownames(output) <- NULL
     return(output)

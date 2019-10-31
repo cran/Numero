@@ -23,11 +23,7 @@ Gaussian::configure(const vector<mdreal>& x, const vector<mdreal>& w) {
   /* Determine location and scale. */
   this->offset = values[0];
   this->center = statistic(values, weights, "center");
-  this->scale = (center - offset);
-  if(scale < 1e-20) {
-    this->scale = 1.0;
-    worry("Bad data.", __FILE__);
-  }
+  this->scale = (center - offset + 1e-16);
 
   /* Standardize data. */
   for(mdsize i = 0; i < nelem; i++)

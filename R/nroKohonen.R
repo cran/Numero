@@ -1,6 +1,7 @@
 nroKohonen <- function(
   seeds,
-  radius=3) {
+  radius=3,
+  smoothness=1.0) {
 
   # Check if input is a list.
   if(!is.data.frame(seeds) && is.list(seeds))
@@ -22,10 +23,17 @@ nroKohonen <- function(
   if(!is.finite(radius)) stop("Unusable radius.")
   if(radius < 2) stop("Radius is less than two.")
 
+  # Check smoothness.
+  smoothness <- as.double(smoothness[[1]])
+  if(!is.finite(smoothness)) stop("Unusable smoothness.")
+  if(smoothness < 1) stop("Smoothness less than one.")
+  if(smoothness > 0.49*radius) stop("Smoothness too high.")
+
   # Set up a self-organizing map.
   res <- .Call("nro_kohonen",
                as.matrix(seeds),
                as.integer(radius),
+               as.double(smoothness),
                PACKAGE="Numero");
   if(class(res) == "character") stop(res)
 
@@ -41,8 +49,9 @@ nroKohonen <- function(
   rownames(res$centroids) <- (1:nrow(res$centroids))
   rownames(res$topology) <- (1:nrow(res$topology))
 
-  # Determine radius in logical units.
+  # Save topology parameters.
   t <- table(res$topology$RADIUS1)
-  res$radius <- (length(t) - 1)
+  attr(res$topology, "radius") <- radius <- (length(t) - 1)
+  attr(res$topology, "smoothness") <- smoothness
   return(res)
 }

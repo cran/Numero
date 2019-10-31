@@ -22,8 +22,6 @@
 #include "punos.h"
 #include "koho.h"
 
-#define SIGMA_nro 1.0
-
 using namespace std;
 using namespace Rcpp;
 using namespace medusa;

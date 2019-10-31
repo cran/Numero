@@ -46,25 +46,15 @@ numero.plot <- function(
 	stats <- stats[1:capacity,]
     }
 
-    # Check if folder is accessible.
-    if(length(folder) > 0) {
-        if(!dir.exists(folder)) dir.create(folder)
-	if(!dir.exists(folder)) {
-	    cat("destination '", folder, "' not available\n", sep="")
-	    folder <- NULL
-	}
-	if(!is.null(folder))
-	    cat("destination folder '", folder, "'\n", sep="")
-    }
-    else {
-        cat("destination folder not defined\n", sep="")
-    }
-
     # Check if reference is usable.
+    variables <- colnames(comps)
     rvars <- rownames(reference$statistics)
     if(sum(is.na(match(variables, rvars))) > 0) {
-	cat("incompatible reference\n")
-        return(0)
+	warning("Incompatible reference.")
+        variables <- intersect(rvars, variables)
+        if(length(variables) < 1) return(0)
+        comps <- comps[,variables]
+        stats <- stats[variables,]
     }
 
     # Check if gain is usable.
@@ -85,9 +75,23 @@ numero.plot <- function(
     }
     subplot <- as.integer(subplot[1:2])
     if((subplot[1] < 1) || (subplot[2] < 1)) {
-        cat("unusable subplot, reverted to automatic\n", sep="")
-        if(is.null(folder)) subplot <- c(3,3)
+        cat("unusable subplot, reverting to automatic\n", sep="")
+        if(length(folder) < 1) subplot <- c(3,3)
 	else subplot <- c(10,4)
+    }
+
+    # Check if folder is accessible.
+    if(length(folder) > 0) {
+        if(!dir.exists(folder)) dir.create(folder)
+	if(!dir.exists(folder)) {
+	    cat("destination '", folder, "' not available\n", sep="")
+	    folder <- NULL
+	}
+	if(!is.null(folder))
+	    cat("destination folder '", folder, "'\n", sep="")
+    }
+    else {
+        cat("destination folder not defined\n", sep="")
     }
 
     # Get coloring parameters.

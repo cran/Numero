@@ -7,9 +7,10 @@
  *
  */
 RcppExport SEXP
-nro_train(SEXP topo_R, SEXP codebook_R, SEXP data_R,
+nro_train(SEXP topo_R, SEXP sigma_R, SEXP codebook_R, SEXP data_R,
 	  SEXP metric_R, SEXP nsub_R, SEXP eq_R, SEXP lag_R) {
   mdreal rlnan = medusa::rnan();
+  mdreal sigma = as<mdreal>(sigma_R);
   time_t stamp = time(NULL);
   string err;
   
@@ -21,7 +22,7 @@ nro_train(SEXP topo_R, SEXP codebook_R, SEXP data_R,
   
   /* Determine map topology. */
   vector<vector<mdreal> > topodata = nro::matrix2reals(topo_R, 0.0);
-  punos::Topology topo = nro::reals2topology(topodata, SIGMA_nro);
+  punos::Topology topo = nro::reals2topology(topodata, sigma);
   if(topo.size() < 1) return CharacterVector("Unusable topology.");
   
   /* Check prototypes. */

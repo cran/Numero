@@ -9,5 +9,5 @@
  */
 string
 medusa::version() {
-  return ("523r.181120");
+  return ("527.191030");
 }

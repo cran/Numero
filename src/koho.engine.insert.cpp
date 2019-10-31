@@ -9,6 +9,16 @@
  */
 string
 Engine::insert(const string& key, const mdsize unit,
+	       const mdreal value) {
+  vector<mdreal> array(1, value);
+  return this->insert(key, unit, array);
+}
+
+/*
+ *
+ */
+string
+Engine::insert(const string& key, const mdsize unit,
 	       const vector<mdreal>& values) {
   EngineBuffer* p = (EngineBuffer*)buffer;
   mdreal rlnan = medusa::rnan();

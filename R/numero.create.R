@@ -1,6 +1,7 @@
 numero.create <- function(
     data,
     radius=NULL,
+    smoothness=NULL,
     subsample=NULL) {
 
     # Start processing.
@@ -26,10 +27,22 @@ numero.create <- function(
         if(radius < 2) radius <- 2
         cat("automatic radius set to ", radius, "\n", sep="")
     }
+    
+    # Set map smoothness.
+    if(is.null(smoothness)) {
+        cat("automatic smoothness set to 1.0\n", sep="")
+        smoothness <- 1.0
+    }
 
     # Check radius.
     if(!is.finite(radius[[1]])) stop("Unusable radius.")
     if(radius[[1]] < 2) stop("Unusable radius.")
+
+    # Check smoothness.
+    smoothness <- as.double(smoothness[[1]])
+    if(!is.finite(smoothness)) stop("Unusable smoothness.")
+    if(smoothness < 1) stop("Unusable smoothness.")
+    if(smoothness > 0.49*radius) stop("Unusable smoothness.")
 
     # Check subsample.
     if(!is.null(subsample)) {
@@ -49,7 +62,8 @@ numero.create <- function(
 
     # Create a SOM.
     cat("\nSelf-organizing map:\n")
-    sm <- nroKohonen(seeds=km$centroids, radius=radius)
+    sm <- nroKohonen(seeds=km$centroids,
+        radius=radius, smoothness=smoothness)
     
     # Fit the SOM to training data.
     sm <- nroTrain(map=sm, data=trdata, subsample=subsample, message=10)

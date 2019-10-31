@@ -41,9 +41,9 @@ void
 Array::elements(vector<Element>& elem, const mdsize rowrank) const {
   Element e;
   for(mdsize j = 0; j < full.size(); j++) {
+    if((e.value = full[j]) == rlnan) continue;
     e.row = rowrank;
     e.column = j;
-    e.value = full[j];
     elem.push_back(e);
   }
   for(map<mdsize, mdreal>::const_iterator it = sparse.begin();
@@ -98,7 +98,7 @@ Array::remove(const mdsize rank) {
  */
 mdsize
 Array::size() const {
-  return nelem;
+  return ndata;
 }
 
 /*

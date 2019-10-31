@@ -38,6 +38,25 @@ File::~File() {
  *
  */
 string
+File::active() const {
+  FileBuffer* p = (FileBuffer*)buffer;
+  if(p->fid != NULL) return p->name;
+  return "";
+}
+
+/*
+ *
+ */
+void
+File::close() {
+  FileBuffer* p = (FileBuffer*)buffer; delete p;
+  this->buffer = new FileBuffer();
+}
+
+/*
+ *
+ */
+string
 File::error() const {
   FileBuffer* p = (FileBuffer*)buffer;
   return p->errtext;
@@ -127,7 +146,15 @@ File::read() {
   if(ndone >= IOBUFCAP_medusa) {
     p->abort("Line data exceeded buffer capacity.");
     return "";
-  }  
+  }
+  
+  /* Remove trailing line breaks. */
+  while(ndone > 0) {
+    if((data[ndone] != '\r') &&
+       (data[ndone] != '\n')) break;
+    data[ndone] = '\0';
+    ndone--;
+  }
   return string(data);
 }
 
