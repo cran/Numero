@@ -44,6 +44,10 @@ namespace abacus {
 
     /* Insert a new element or add the value to an existing one.
        If the element does not exist, the base value is zero. */
+    bool add(const Element&);
+    
+    /* Insert a new element or add the value to an existing one.
+       If the element does not exist, the base value is zero. */
     bool add(const medusa::mdsize, const medusa::mdsize,
 	     const medusa::mdreal);
     
@@ -69,7 +73,11 @@ namespace abacus {
     medusa::mdsize location(const std::string&, const std::string&) const;
     
     /* Insert a new element or set the value of an existing one.
-       Returns true if the input was copied in the element. */
+       Returns true if the input was copied. */
+    bool insert(const Element&);
+
+    /* Insert a new element or set the value of an existing one.
+       Returns true if the input was copied. */
     bool insert(const medusa::mdsize, const medusa::mdsize,
 		const medusa::mdreal);
 

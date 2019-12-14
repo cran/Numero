@@ -28,13 +28,13 @@ nro_diffuse(SEXP topo_R, SEXP sigma_R, SEXP bmus_R, SEXP data_R) {
   }
   
   /* Estimate histogram only. */
-  List res;
+  List output;
   if(vectors.size() < 1) {
     vector<mdreal> ones(bmus.size(), 1.0);
     vector<mdreal> counts = topo.diffuse(bmus, ones);
-    res.push_back(NumericMatrix(), "planes");
-    res.push_back(nro::reals2vector(counts), "histograms");
-    return res;
+    output.push_back(NumericMatrix(), "planes");
+    output.push_back(nro::reals2vector(counts), "histograms");
+    return output;
   }
  
   /* Create a simulation engine. */
@@ -49,7 +49,7 @@ nro_diffuse(SEXP topo_R, SEXP sigma_R, SEXP bmus_R, SEXP data_R) {
   vector<vector<mdreal> > hgrams = eng.histograms();
   
   /* Return results. */
-  res.push_back(nro::reals2matrix(planes), "planes");
-  res.push_back(nro::reals2matrix(hgrams), "histograms");
-  return res;
+  output.push_back(nro::reals2matrix(planes), "planes");
+  output.push_back(nro::reals2matrix(hgrams), "histograms");
+  return output;
 }

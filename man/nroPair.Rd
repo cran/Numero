@@ -6,7 +6,7 @@
 \description{Pair up closest matching rows from two datasets}
 
 \usage{
-nroPair(data.x, data.y, subsample = 500)
+nroPair(data.x, data.y, subsample = 500, standard = TRUE)
 }
 
 \arguments{
@@ -14,12 +14,16 @@ nroPair(data.x, data.y, subsample = 500)
 A matrix or a data frame with column names.
   }
 
+  \item{data.y}{
+A matrix or a data frame with column names.
+  }
+
   \item{subsample}{
 Maximum number of pairings to test per row.
   }
 
-  \item{data.y}{
-A matrix or a data frame with column names.
+  \item{standard}{
+If \code{TRUE}, the scales of variables are standardized for processing.
   }
 }
 
@@ -31,8 +35,9 @@ distance to determine the best matches.
 
 \value{
 A data frame that has up to five columns: ROW.x and ROW.y contain the pairings
-using row indices and DISTANCE contains the distances in data space. If row
-names are available, the columns ROWNAME.x and ROWNAME.y are added.
+using row indices and DISTANCE contains the distances in (standardized) data
+space. If row names are available, the columns ROWNAME.x and ROWNAME.y are
+added.
 
 The output is sorted according to the matching distance.
 }

@@ -15,6 +15,7 @@ SEXP nro_label(SEXP topo_R, SEXP data_R, SEXP binflags_R, SEXP sigma_R);
 SEXP nro_match(SEXP codebook_R, SEXP data_R, SEXP metric_R);
 SEXP nro_pair(SEXP xdata_R, SEXP ydata_R, SEXP subsample_R);
 SEXP nro_permute(SEXP topo_R, SEXP sigma_R, SEXP bmus_R, SEXP data_R, SEXP numcycl_R, SEXP lag_R);
+SEXP nro_statistic(SEXP data_R, SEXP weights_R, SEXP method);
 SEXP nro_train(SEXP topo_R, SEXP sigma_R, SEXP codebook_R, SEXP data_R, SEXP metric_R, SEXP nsub_R, SEXP eq_R, SEXP lag_R);
 SEXP nro_webpage(SEXP fname_R, SEXP bytes_R);
 
@@ -32,6 +33,7 @@ R_CallMethodDef callMethods[]  = {
   {"nro_match", (DL_FUNC) &nro_match, 3},
   {"nro_pair", (DL_FUNC) &nro_pair, 3},
   {"nro_permute", (DL_FUNC) &nro_permute, 6},
+  {"nro_statistic", (DL_FUNC) &nro_statistic, 3},
   {"nro_train", (DL_FUNC) &nro_train, 8},
   {"nro_webpage", (DL_FUNC) &nro_webpage, 2},
   {NULL, NULL, 0}

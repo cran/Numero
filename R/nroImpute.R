@@ -10,7 +10,6 @@ nroImpute <- function(
     binary <- attr(data, "binary")
 
     # Check input size.
-    if(length(data) < 1) return(data)
     if(ncol(data) < 2) {
         warning("Less than two columns.")
         return(data)
@@ -65,12 +64,13 @@ nroImpute <- function(
     }
 
     # Impute missing values.
-    data[,numerics] <- .Call("nro_impute",
+    res <- .Call("nro_impute",
         as.matrix(data[,numerics]),
         as.integer(subsample),
         as.double(message),
         PACKAGE="Numero")
-    if(class(data) == "character" ) stop(data)
+    if(is.character(res)) stop(res)
+    data[,numerics] <- res
 
     # Restore original scale.
     for(j in numerics)

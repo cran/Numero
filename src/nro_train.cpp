@@ -102,9 +102,9 @@ nro_train(SEXP topo_R, SEXP sigma_R, SEXP codebook_R, SEXP data_R,
   /* Return results. */
   List res;
   res.push_back(labels, "layout");
-  res.push_back(residuals, "residuals");
+  res.push_back(nro::reals2vector(residuals), "residuals");
   res.push_back(nro::reals2matrix(protos), "centroids");
-  res.push_back(history, "history");
+  res.push_back(nro::reals2vector(history), "history");
   res.push_back(metric, "metric");
   return res;
 }

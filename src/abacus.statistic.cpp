@@ -4,9 +4,9 @@
 
 #include "abacus.local.h"
 
-using namespace std;
-using namespace abacus;
-
+/*
+ *
+ */
 static mdreal stat_center(const vector<mdreal>&, const vector<mdreal>&);
 static mdreal stat_extreme(const vector<mdreal>&, const int);
 static mdreal stat_mean(const vector<mdreal>&, const vector<mdreal>&);
@@ -88,20 +88,65 @@ abacus::statistic(const vector<mdreal>& data0, const string& name0) {
  *
  */
 mdreal
-stat_center(const vector<mdreal>& x, const vector<mdreal>& w) {
-  mdsize nelem = x.size();
+stat_center(const vector<mdreal>& x0, const vector<mdreal>& w0) {
+  mdsize nelem = x0.size();
   if(nelem < 1) panic("No data.", __FILE__, __LINE__);
 
-  /* Count distinct values. */
-  unordered_set<mdreal> valset;
-  for(mdsize i = 0; i < nelem; i++)
-    valset.insert(x[i]);
-  mdreal nvals = valset.size();
+  /* Estimate mean. */
+  mdreal mu = stat_mean(x0, w0);
+  
+  /* Sort data. */
+  vector<mdreal> x = x0;
+  vector<mdreal> w = w0;
+  vector<mdsize> sorted = medusa::sortreal(x, 1);
+  for(mdsize k = 0; k < nelem; k++)
+    w[k] = w0[sorted[k]];
+
+  /* Interpolate duplicated entries. */
+  mdsize nuniq = 0;
+  vector<mdreal> z = x;
+  for(mdsize i = 0; i < nelem; nuniq += 1) {
+    mdsize a = i;
+    mdsize b = i;
+    mdsize ndupl = 0;
+    double wsum = 0.0;
+    for(; i < nelem; i++) {
+      if(x[i] != x[a]) break;
+      wsum += w[b = i];
+      ndupl += 1;
+    }
+
+    /* Set weights. */
+    if(ndupl < 2) continue;
+    for(mdsize k = a; k <= b; k++)
+      w[k] = wsum/ndupl;   
+
+    /* Set pivot elements. */
+    mdreal pivotA = x[a];
+    mdreal pivotB = x[b];
+    if(a > 0) pivotA = 0.5*(x[a-1] + x[a]);
+    if((b + 1) < nelem) pivotB = 0.5*(x[b] + x[b+1]);
+    
+    /* Tune pivots if on edges. */
+    mdreal delta = (pivotB - pivotA);
+    if(delta <= 0.0) continue;
+    if(pivotA == x[a]) pivotA -= delta/ndupl;
+    if(pivotB == x[b]) pivotB += delta/ndupl;
+
+    /* Update values. */
+    mdreal dA = (x[a] - pivotA)/(ndupl/2.0 + 0.5);
+    mdreal dB = (pivotB - x[b])/(ndupl/2.0 + 0.5);
+    for(mdsize k = 0; k < ndupl/2; k++)
+      z[a+k] = (pivotA + (k + 1)*dA);
+    for(mdsize k = 0; k < ndupl/2; k++)
+      z[b-k] = (pivotB - (k + 1)*dB);
+  }
+
+  /* Estimate median. */
+  mdreal med = quantile(z, w, 0.5);
 
   /* Combine mean and median. */
-  mdreal mu = stat_mean(x, w);
-  mdreal med = abacus::quantile(x, w, 0.5);
-  mdreal rho = 2.0/nvals/log(nvals + 1.0);
+  mdreal rho = 2.2/nuniq/log(nuniq + 1.0);
   if(rho > 1.0) rho = 1.0;
   return (rho*mu + (1.0 - rho)*med);
 }

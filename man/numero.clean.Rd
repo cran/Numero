@@ -38,9 +38,11 @@ are constructed by concatenating elements from each column with
 The frequency of missing values (against 'na.freq') is tested first
 by column then by row.
 
-Selection can take three values: "" for no selection, "shared" for only
-those data points present in all usable datasets or "distinct" for
-excluding any points that can be found in more than one dataset.
+Selection can take three values: "" for no selection, "union" for all
+identities expanded to every dataset, "shared" for only those data points
+present in all usable datasets or "distinct" for excluding any points that
+can be found in more than one dataset. Note that the union may result in
+rows with no usable values.
 }
 
 \value{
@@ -57,21 +59,41 @@ Ville-Petteri Makinen
 fname <- system.file("extdata", "finndiane.txt", package = "Numero")
 dataset <- read.delim(file = fname)
 
-# One dataset.
-results <- numero.clean(dataset, identity = "INDEX")
-
 # Create new versions for testing.
 dsA <- dataset[1:250, c("INDEX","AGE","MALE","uALB")]
 dsB <- dataset[151:300, c("INDEX","AGE","MALE","uALB","CHOL")]
 dsC <- dataset[201:500, c("INDEX","AGE","MALE","DIAB_RETINO")]
 
-# Select only rows with a unique INDEX ('dsB' has none).
+# Select all rows.
+results <- numero.clean(a = dsA, b = dsB, c = dsC, identity = "INDEX")
+cat("\n\nNo selection:\n")
+print(nrow(results$a))
+print(nrow(results$b))
+print(nrow(results$c))
+
+# Select all rows and expanded for all identities.
 results <- numero.clean(a = dsA, b = dsB, c = dsC, identity = "INDEX",
-                        select = "distinct")
+                        select = "union")
+cat("\n\nUnion:\n")
+print(nrow(results$a))
+print(nrow(results$b))
+print(nrow(results$c))
 
 # Select only rows that are shared between all datasets.
 results <- numero.clean(a = dsA, b = dsB, c = dsC, identity = "INDEX",
-                        select = "shared")
+                        select = "intersection")
+cat("\n\nIntersection:\n")
+print(nrow(results$a))
+print(nrow(results$b))
+print(nrow(results$c))
+
+# Select only rows with a unique INDEX ('dsB' has none).
+results <- numero.clean(a = dsA, b = dsB, c = dsC, identity = "INDEX",
+                        select = "exclusion")
+cat("\n\nExclusion:\n")
+print(nrow(results$a))
+print(nrow(results$b))
+print(nrow(results$c))
 
 # Add extra identification information.
 dsA$GROUP <- "A"
@@ -81,5 +103,9 @@ dsC$GROUP <- "C"
 # Select rows with a unique identifier.
 results <- numero.clean(a = dsA, b = dsB, c = dsC,
                         identity = c("GROUP","INDEX"),
-                        select = "distinct")
+                        select = "exclusion")
+cat("\n\nMulti-identities:\n")
+print(nrow(results$a))
+print(nrow(results$b))
+print(nrow(results$c))
 }

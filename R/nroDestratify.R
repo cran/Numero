@@ -6,18 +6,9 @@ nroDestratify <- function(
     dfbit <- is.data.frame(data)
     data <- nroRcppMatrix(data, trim=FALSE)
 
-    # Detect numeric non-binary variables.
-    numerics <- c()
-    for(vn in colnames(data)) {
-        x <- data[,vn]
-	n <- sum(is.finite(x), na.rm=TRUE)
-        n0 <- sum((x == 0), na.rm=TRUE)
-        n1 <- sum((x == 1), na.rm=TRUE)
-	if(n == (n0 + n1)) next
-	numerics <- c(numerics, vn)
-    }
-
     # Check if anything to do.
+    binary <- attr(data, "binary")
+    numerics <- setdiff(colnames(data), binary)
     if(length(numerics) < 1) {
         warning("No usable columns.")
         return(NULL)
@@ -41,7 +32,7 @@ nroDestratify <- function(
                  as.matrix(data),
                  as.integer(grp),
                  PACKAGE="Numero")  
-    if(class(res) == "character") stop(res)
+    if(is.character(res)) stop(res)
 
     # Convert from list to data frame or matrix.
     res <- data.frame(res, stringsAsFactors=FALSE)

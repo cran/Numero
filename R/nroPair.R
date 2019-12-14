@@ -1,7 +1,8 @@
 nroPair <- function(
     data.x,
     data.y,
-    subsample = 500) {
+    subsample=500,
+    standard=TRUE) {
 
     # Check variable names.
     vars <- colnames(data.x)
@@ -14,17 +15,29 @@ nroPair <- function(
         warning("Incomplete coverage of variables.")  
 
     # Make sure inputs are numeric.
-    data.x <- nroRcppMatrix(data.x, trim=FALSE)
-    data.y <- nroRcppMatrix(data.y, trim=FALSE)
+    data.x <- nroRcppMatrix(data.x[,vars], trim=FALSE)
+    data.y <- nroRcppMatrix(data.y[,vars], trim=FALSE)
     subsample <- as.integer(subsample[[1]])
+    standard <- as.logical(standard[[1]])
 
-    # Find best-matching units.
+    # Standardize data.
+    if(standard) {
+        for(vn in vars) {
+	    vals <- c(data.x[,vn], data.y[,vn])
+            sigma <- stats::sd(vals, na.rm=TRUE)
+            if(!is.finite(sigma)) sigma <- 1
+            data.x[,vn] <- data.x[,vn]/(sigma + 1e-20)
+            data.y[,vn] <- data.y[,vn]/(sigma + 1e-20)
+	}
+    }
+
+    # Find best-matching pairs.
     res <- .Call("nro_pair",
                  as.matrix(data.x),
                  as.matrix(data.y),
 		 as.integer(subsample),
                  PACKAGE="Numero")
-    if(class(res) == "character" ) stop(res)
+    if(is.character(res)) stop(res)
 
     # Convert to data frame.
     res <- data.frame(res, stringsAsFactors=FALSE)

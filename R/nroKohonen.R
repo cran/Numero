@@ -35,7 +35,7 @@ nroKohonen <- function(
                as.integer(radius),
                as.double(smoothness),
                PACKAGE="Numero");
-  if(class(res) == "character") stop(res)
+  if(is.character(res)) stop(res)
 
   # Convert to data frame to make it easier to add columns later.
   res$topology <- data.frame(res$topology, stringsAsFactors=FALSE)

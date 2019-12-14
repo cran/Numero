@@ -41,7 +41,7 @@ nroMatch <- function(
                  as.matrix(data),
 		 as.character(metric),
                  PACKAGE="Numero")
-    if(class(res) == "character" ) stop(res)
+    if(is.character(res)) stop(res)
     
     # Convert to data frame.
     res <- data.frame(res, stringsAsFactors=FALSE)

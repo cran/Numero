@@ -44,7 +44,8 @@ numero.clean <- function(
 
     # Check selection mode.
     select <- as.character(select[[1]])
-    if(anyDuplicated(c(select, "", "shared", "distinct")) < 1)
+    if(anyDuplicated(c(select, "", "union",
+        "intersection", "exclusion")) < 1)
         stop("Unknown selection mode.")
 
     # Set row names.
@@ -60,12 +61,12 @@ numero.clean <- function(
     if(length(rnames) > 0) {
         h <- table(rnames)
         rnames <- names(h)
-        if(select == "distinct") rnames <- rnames[which(h == 1)]
-        if(select == "shared") rnames <- rnames[which(h == max(h))]
+        if(select == "exclusion") rnames <- rnames[which(h == min(h))]
+        if(select == "intersection") rnames <- rnames[which(h == max(h))]
     }
 
     # Process data.
-    processed <- datasets
+    processed <- list()
     for(k in 1:100) {
         shared <- rnames
         for(dn in names(datasets)) {
@@ -75,7 +76,7 @@ numero.clean <- function(
 	        cat("\nValues, scan ", k, ":\n", sep="")
 
             # Clean unusable entries.
-	    ds <- processed[[dn]]
+	    ds <- datasets[[dn]]
             ds <- numero.clean.filter(ds, rnames, na.freq, num.only)
             if(!is.null(ds)) shared <- intersect(shared, rownames(ds))
 
@@ -84,10 +85,10 @@ numero.clean <- function(
         }
 
         # One scan is enough if identities not shared. 
-	if(select != "shared") break
+	if(select != "intersection") break
 
         # Enforce shared identities.
-        for(dn in names(datasets)) {
+        for(dn in names(processed)) {
 	    ds <- processed[[dn]]
 	    if(is.null(ds)) next
 	    processed[[dn]] <- ds[shared,]
@@ -116,9 +117,35 @@ numero.clean <- function(
     rnames <- unique(rnames)
     cnames <- unique(cnames)
 
+    # Expand all datasets to the same rows.
+    if(select == "union") {
+	nkeys <- length(rnames)
+        for(dn in names(processed)) {
+            ds <- processed[[dn]]
+	    if(is.null(ds)) next
+
+            # Copy data.
+            dsnew <- list()
+	    pos <- match(rownames(ds), rnames)
+            for(vn in colnames(ds)) {
+	        x <- rep(NA, nkeys)
+                x[pos] <- ds[,vn]
+		dsnew[[vn]] <- x
+            }
+
+            # Convert to data frame or matrix.
+            dsnew <- as.data.frame(dsnew, stringsAsFactors=FALSE)
+            if(is.matrix(ds)) dsnew <- as.matrix(dsnew)
+
+            # Set row names.
+            rownames(dsnew) <- rnames
+            output[[dn]] <- dsnew
+	}
+    }
+
     # Final report.
     cat("\nSummary:\n", sep="")
-    if(length(datasets) > 1) {
+    if(length(processed) > 1) {
         cat(length(output), " usable dataset(s)\n", sep="")
         cat(length(rnames), " unique row name(s)\n", sep="")
         cat(length(cnames), " unique column name(s)\n", sep="")
@@ -127,7 +154,7 @@ numero.clean <- function(
     cat(ncols, " usable column(s)\n", sep="")
 
     # Return results.
-    if(length(datasets) > 1) return(output)
+    if(length(processed) > 1) return(output)
     if(length(output) == 1) return(output[[1]])
     return(NULL)
 }
@@ -238,6 +265,7 @@ numero.clean.filter <- function(ds, rnames, na.freq, num.only) {
     # Select data points.
     rnames <- intersect(rnames, rownames(ds))
     cat(length(rnames), " / ", nrow(ds), " row(s) selected\n", sep="")
+    ds <- ds[rnames,]
     if(nrow(ds) < 2) {
         cat("less than two usable rows")
         return(NULL)

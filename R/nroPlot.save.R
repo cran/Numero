@@ -168,7 +168,7 @@ nroPlotSave.svg <- function(topology, colors, labels,
 	     as.character(keys[j]),
              as.character(titles[j]),
              PACKAGE="Numero")
-        if(class(res.p) == "character") stop(res.p)
+        if(is.character(res.p)) stop(res.p)
 
         # Make sure key is the same across components.
         key <- res.p$key
@@ -182,7 +182,7 @@ nroPlotSave.svg <- function(topology, colors, labels,
              as.logical(contrast[,j]),
              as.character(key),
              PACKAGE="Numero")
-        if(class(res.w) == "character") stop(res.w)
+        if(is.character(res.w)) stop(res.w)
 
         # Add highlights.
         res.s <- .Call("nro_circus_show",
@@ -192,7 +192,7 @@ nroPlotSave.svg <- function(topology, colors, labels,
  	     as.character(hlights$REGION.label),
              as.character(key),
              PACKAGE="Numero")
-        if(class(res.s) == "character") stop(res.s)
+        if(is.character(res.s)) stop(res.s)
 
         # Combine code segments.
 	subcode <- c(res.w$code.shadow, res.p$code,
@@ -255,7 +255,7 @@ nroPlotSave.write <- function(fname, codes, boxes, jscode) {
                      as.character(fname),
                      as.character(codes),
                      PACKAGE="Numero")
-        if(class(res) == "character") stop(res)
+        if(is.character(res)) stop(res)
     }
     else {
 
@@ -273,7 +273,7 @@ nroPlotSave.write <- function(fname, codes, boxes, jscode) {
                      as.numeric(bbox),
                      as.character(jscode),
                      PACKAGE="Numero")
-       if(class(res) == "character") stop(res)
+       if(is.character(res)) stop(res)
     }
 
     # Return results.

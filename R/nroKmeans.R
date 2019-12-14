@@ -67,10 +67,10 @@ nroKmeans <- function(
                  as.double(balance),
 		 as.double(message),
                  PACKAGE="Numero")
-    if(class(res) == "character") stop(res)
+    if(is.character(res)) stop(res)
     
     # Recode missing unit labels.
-    res$layout[which(res$layout == 0)] <- NA
+    res$layout[which(res$layout <= 0)] <- NA
     res$layout <- data.frame(BMC=res$layout, RESIDUAL=res$residuals)
     rownames(res$layout) <- rownames(data)
     res$residuals <- NULL

@@ -31,7 +31,7 @@ nroAggregate <- function(
 	             as.integer(districts),
 		     matrix(nrow=0, ncol=0),
                      PACKAGE="Numero")
-        if(class(res) == "character") stop(res)
+        if(is.character(res)) stop(res)
 	return(as.numeric(res$histograms))
     }
 
@@ -61,7 +61,7 @@ nroAggregate <- function(
                  as.integer(districts),
                  as.matrix(data),
                  PACKAGE="Numero");
-    if(class(res) == "character") stop(res)
+    if(is.character(res)) stop(res)
 
     # Transpose to column-major format.
     hgrams <- t(res$histograms)

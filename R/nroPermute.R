@@ -80,7 +80,7 @@ nroPermute <- function(
                  as.integer(numcycl),
 		 as.double(message),
                  PACKAGE="Numero")  
-    if(class(res) == "character") stop(res)
+    if(is.character(res)) stop(res)
 
     # Convert results to data frame.
     output <- data.frame(res, stringsAsFactors=FALSE)

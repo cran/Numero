@@ -32,7 +32,7 @@ nroLabel <- function(
 		 as.integer(binflags),
                  as.numeric(gap),
                  PACKAGE = "Numero" )
-    if(class(res) == "character") stop(res)
+    if(is.character(res)) stop(res)
 
     # Convert to data frame.
     if(ncol(values) < 2) {
