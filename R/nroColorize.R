@@ -31,6 +31,7 @@ nroColorize <- function(
     # Check if amplitudes is a data frame or a matrix.
     if(is.data.frame(amplitudes) || is.matrix(amplitudes))
          amplitudes <- amplitudes[,"AMPLITUDE"]
+    amplitudes <- nroRcppVector(amplitudes, default=1)
 
     # Expand scalar amplitudes.
     if(length(amplitudes) < ncol(values)) {	

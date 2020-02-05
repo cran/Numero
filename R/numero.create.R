@@ -24,14 +24,13 @@ numero.create <- function(
     cat("\nSelf-organizing map:\n")
     if(is.null(radius)) {
         radius <- round(log10(nrow(trdata) + 1))
-        if(radius < 2) radius <- 2
         cat("automatic radius set to ", radius, "\n", sep="")
     }
     
     # Set map smoothness.
     if(is.null(smoothness)) {
-        cat("automatic smoothness set to 1.0\n", sep="")
-        smoothness <- 1.0
+        smoothness <- (0.5*log10(radius - 1) + 1)
+        cat("automatic smoothness set to ", smoothness, "\n", sep="")
     }
 
     # Check radius.
@@ -41,8 +40,8 @@ numero.create <- function(
     # Check smoothness.
     smoothness <- as.double(smoothness[[1]])
     if(!is.finite(smoothness)) stop("Unusable smoothness.")
-    if(smoothness < 1) stop("Unusable smoothness.")
-    if(smoothness > 0.49*radius) stop("Unusable smoothness.")
+    if(smoothness < 1) stop("Smoothness too low.")
+    if(smoothness > 0.49*radius) stop("Smoothness too high.")
 
     # Check subsample.
     if(!is.null(subsample)) {

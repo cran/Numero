@@ -4,7 +4,7 @@ nroKmeans <- function(
     subsample=NULL,
     balance=0,
     metric="euclid",
-    message=NULL){
+    message=NULL) {
 
     # Convert data to numeric matrix.
     data <- nroRcppMatrix(data, trim=TRUE)
@@ -17,27 +17,21 @@ nroKmeans <- function(
     if(length(attr(data, "excl.columns")) > 0)
         warning("Unusable column(s) excluded.")
 
-    # Automatic parameters.
-    if(is.null(k)) k <- 3
-    if(is.null(balance)) balance <- 0.0
-    if(is.null(metric)) metric <- "euclid"
-    if(is.null(message)) message <- -1.0
+    # Check parameters.
+    k <- as.integer(nroRcppVector(k[[1]]), default=3)
+    balance <- nroRcppVector(balance[[1]], default=0)
+    metric <- nroRcppVector(metric[[1]], default="", numeric=FALSE)
+    message <- nroRcppVector(message[[1]], default=-1)
+    subsample <- as.integer(nroRcppVector(subsample[[1]], default=NA))
 
     # Automatic subsample.
-    if(is.null(subsample)) {
+    if(!is.finite(subsample)) {
         subsample <- 10*sqrt(nrow(data))*sqrt(k)
 	subsample <- min(subsample, 0.95*nrow(data), na.rm=TRUE)
         if(subsample/nrow(data) < balance)
             subsample <- balance*nrow(data)
 	subsample <- round(subsample)
     }
-
-    # Ensure inputs are safe for C++.
-    k <- as.integer(k[[1]])
-    subsample <- as.integer(subsample[[1]])
-    balance <- as.double(balance[[1]])
-    metric <- as.character(metric[[1]])
-    message <- as.double(message[[1]])
 
     # Check balance parameter.
     if(!is.finite(balance)) stop("Unusable balance parameter.")

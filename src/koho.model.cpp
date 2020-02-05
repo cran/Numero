@@ -35,9 +35,10 @@ Model::Model(const Model& a) {
  *
  */
 void
-Model::operator=(const Model& a) {
+Model::operator=(const Model& t) {
+  if(this == &t) return;
   ModelBuffer* p = (ModelBuffer*)buffer; delete p;
-  this->buffer = new ModelBuffer(a.buffer);
+  this->buffer = new ModelBuffer(t.buffer);
 }
 
 /*

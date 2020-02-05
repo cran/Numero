@@ -142,17 +142,18 @@ Topology::Topology(const vector<mdreal>& zpos,
 /*
  *
  */
-Topology::Topology(const Topology& a) {
-  this->buffer = new TopologyBuffer(a.buffer);
+Topology::Topology(const Topology& t) {
+  this->buffer = new TopologyBuffer(t.buffer);
 }
 
 /*
  *
  */
 void
-Topology::operator=(const Topology& a) {
+Topology::operator=(const Topology& t) {
+  if(this == &t) return;
   TopologyBuffer* p = (TopologyBuffer*)buffer; delete p;
-  this->buffer = new TopologyBuffer(a.buffer);
+  this->buffer = new TopologyBuffer(t.buffer);
 }
 
 /*

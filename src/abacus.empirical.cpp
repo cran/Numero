@@ -24,6 +24,7 @@ Empirical::Empirical(const Empirical& t) {
  */
 void
 Empirical::operator=(const Empirical& t) {
+  if(this == &t) return;
   EmpiricalBuffer* p = (EmpiricalBuffer*)buffer; delete p;
   this->buffer = new EmpiricalBuffer(t.buffer);
 }

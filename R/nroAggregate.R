@@ -6,7 +6,12 @@ nroAggregate <- function(
     # Check if input is a list.
     if(!is.data.frame(topology) && is.list(topology))
         topology <- topology$topology
+
+    # Check smoothness.
     smoothness <- attr(topology, "smoothness")
+    smoothness <- nroRcppVector(smoothness[[1]], default=NA)
+    if(!is.finite(smoothness)) stop("Unusable map smoothness.")
+    if(smoothness < 1) stop("Map smoothness less than one.")
 
     # Ensure topology is a numeric matrix.
     topology <- nroRcppMatrix(topology, trim=FALSE)
@@ -16,12 +21,6 @@ nroAggregate <- function(
         warning("Empty inputs.")
 	return(NULL)
     }
-
-    # Check smoothness.
-    if(is.null(smoothness)) stop("Map smoothness undefined.")
-    smoothness <- as.double(smoothness[[1]])
-    if(!is.finite(smoothness)) stop("Unusable map smoothness.")
-    if(smoothness < 1) stop("Map mmoothness less than one.")
 
     # Estimate sample histogram.
     if(is.null(data)) {

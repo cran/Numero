@@ -14,17 +14,18 @@ Minimizer::Minimizer() {
 /*
  *
  */
-Minimizer::Minimizer(const Minimizer& m) {
-  this->buffer = new MinimizerBuffer(m.buffer);
+Minimizer::Minimizer(const Minimizer& t) {
+  this->buffer = new MinimizerBuffer(t.buffer);
 }
 
 /*
  *
  */
 void
-Minimizer::operator=(const Minimizer& m) {
+Minimizer::operator=(const Minimizer& t) {
+  if(this == &t) return;
   MinimizerBuffer* p = (MinimizerBuffer*)buffer; delete p;
-  this->buffer = new MinimizerBuffer(m.buffer);
+  this->buffer = new MinimizerBuffer(t.buffer);
 }
 
 /*

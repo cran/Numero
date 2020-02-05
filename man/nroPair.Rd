@@ -6,7 +6,7 @@
 \description{Pair up closest matching rows from two datasets}
 
 \usage{
-nroPair(data.x, data.y, subsample = 500, standard = TRUE)
+nroPair(data.x, data.y, subsample = 500, standard = TRUE, priority = 1.0)
 }
 
 \arguments{
@@ -25,6 +25,10 @@ Maximum number of pairings to test per row.
   \item{standard}{
 If \code{TRUE}, the scales of variables are standardized for processing.
   }
+  
+  \item{priority}{
+The proportion of the best matching pairs that are included in the results.
+  }
 }
 
 \details{
@@ -39,7 +43,8 @@ using row indices and DISTANCE contains the distances in (standardized) data
 space. If row names are available, the columns ROWNAME.x and ROWNAME.y are
 added.
 
-The output is sorted according to the matching distance.
+The output is sorted according to the matching distance and truncated
+according to the priority parameter.
 }
 
 \author{
@@ -62,7 +67,7 @@ trdata <- scale.default(dataset[,trvars])
 women <- which(dataset$MALE == 0)
 men <- which(dataset$MALE == 1)
 
-# Find best matches.
+# Find the best matches.
 pairs <- nroPair(data.x = trdata[women,], data.y = trdata[men,])
 print(head(pairs))
 }

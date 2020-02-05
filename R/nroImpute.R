@@ -6,8 +6,10 @@ nroImpute <- function(
 
     # Convert input to numeric matrix.
     dfbit <- is.data.frame(data)
-    data <- nroRcppMatrix(data, trim=FALSE)    
+    data <- nroRcppMatrix(data, trim=FALSE)
     binary <- attr(data, "binary")
+    binary <- nroRcppVector(binary, default=NULL,
+        numeric=is.numeric(binary))
 
     # Check input size.
     if(ncol(data) < 2) {
@@ -20,12 +22,9 @@ nroImpute <- function(
     }
 
     # Ensure inputs are safe for C++.
-    if(is.null(subsample)) subsample <- nrow(data)
-    else subsample <- as.integer(subsample[[1]])
-    if(is.null(standard)) standard <- TRUE
-    else standard <- as.logical(standard[[1]])
-    if(is.null(message)) message <- -1.0
-    else message <- as.double(message[[1]])
+    subsample <- nroRcppVector(subsample[[1]], default=nrow(data))
+    standard <- (nroRcppVector(standard[[1]], default=1) == 1)
+    message <- nroRcppVector(message[[1]], default=-1)
 
     # Check subsample size.
     if(!is.finite(subsample)) stop("Unusable subsample size.")
@@ -33,7 +32,7 @@ nroImpute <- function(
     if(subsample < 10) stop("Too small subsample.")
 
     # Check message interval.
-    if(!is.finite(message)) message <- -1.0
+    if(!is.finite(message)) stop("Unusable message interval.")
 
     # Copy names.
     rnames <- rownames(data)
@@ -53,13 +52,15 @@ nroImpute <- function(
         warning("Non-numeric column(s) excluded.")
 
     # Standardize data.
-    sigma <- rep(NA, ncol(data))
+    sigma <- rep(1, ncol(data))
     if(standard) {
         for(j in numerics) {
 	    x <- data[,j]
-            sigma[j] <- stats::sd(x, na.rm=TRUE)
-            if(!is.finite(sigma[j])) sigma[j] <- 1
-            data[,j] <- x/(sigma[j])
+            s <- stats::sd(x, na.rm=TRUE)
+            if(!is.finite(s)) next
+            if(s <= 0.0) next
+	    sigma[j] <- s
+            data[,j] <- x/s
 	}
     }
 

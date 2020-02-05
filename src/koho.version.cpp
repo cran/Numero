@@ -11,5 +11,5 @@ using namespace std;
  */
 string
 koho::version() {
-  return ("1143.191028");
+  return ("1144.200106");
 }

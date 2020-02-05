@@ -2,7 +2,8 @@ nroPair <- function(
     data.x,
     data.y,
     subsample=500,
-    standard=TRUE) {
+    standard=TRUE,
+    priority=1.0) {
 
     # Check variable names.
     vars <- colnames(data.x)
@@ -14,11 +15,12 @@ nroPair <- function(
     if(length(vars) < ncol(data.y))
         warning("Incomplete coverage of variables.")  
 
-    # Make sure inputs are numeric.
+    # Make sure inputs are safe.
     data.x <- nroRcppMatrix(data.x[,vars], trim=FALSE)
     data.y <- nroRcppMatrix(data.y[,vars], trim=FALSE)
-    subsample <- as.integer(subsample[[1]])
-    standard <- as.logical(standard[[1]])
+    subsample <- nroRcppVector(subsample[[1]], default=500)
+    standard <- (nroRcppVector(standard[[1]], default=1) == 1)
+    priority <- nroRcppVector(priority[[1]], default=1)
 
     # Standardize data.
     if(standard) {
@@ -46,6 +48,15 @@ nroPair <- function(
     sorted <- order(res$DISTANCE)
     res <- res[sorted,]
 
+    # Prioritize best matches.
+    if((priority <= 1.0) && (priority >= 0.0)) {
+        alpha <- stats::quantile(res$DISTANCE, priority, na.rm=TRUE)
+        res <- res[which(res$DISTANCE <= alpha),]
+    }
+    else {
+        stop("Unusable priority.")
+    }
+    
     # Convert row indices to row names.
     rnames.x <- rownames(data.x)
     rnames.y <- rownames(data.y)
@@ -56,5 +67,11 @@ nroPair <- function(
     d <- res$DISTANCE
     res$DISTANCE <- NULL
     res$DISTANCE <- d
+
+    # Count the number of values used for matching.
+    flags <- is.finite((data.x[res$ROW.x,]) + (data.y[res$ROW.y,]))
+    covers <- apply(flags, 1, sum, na.rm=TRUE)
+    res$COVERAGE <- as.double(covers)/ncol(data.x)
+    res$COVERAGE.n <- as.integer(covers)
     return(res)
 }

@@ -11,5 +11,5 @@ using namespace std;
  */
 string
 punos::version() {
-  return ("425.191020");
+  return ("426.200106");
 }

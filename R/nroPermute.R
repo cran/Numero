@@ -9,12 +9,28 @@ nroPermute <- function(
     data <- nroRcppMatrix(data, trim=FALSE)
     topology <- nroRcppMatrix(map$topology, trim=FALSE)
 
-    # Check map smoothness.
+    # Check training variables.
+    trvars <- attr(districts, "variables")
+    if(length(trvars) < 1) trvars <- colnames(map$centroids)
+    if(length(trvars) < 1)
+        warning("No information on training variables.")
+    if(length(colnames(data)) < 1)
+        warning("No column names in input data.")
+    trvars <- intersect(colnames(data), trvars)
+
+    # Check districts.
+    districts <- nroRcppVector(districts,
+        default=NULL, numeric=is.numeric(districts))
+
+    # Check smoothness.
     smoothness <- attr(map$topology, "smoothness")
-    if(length(smoothness) < 1) stop("Map smoothness undefined.")
-    smoothness <- as.double(smoothness[[1]])
+    smoothness <- nroRcppVector(smoothness[[1]], default=1)
     if(!is.finite(smoothness)) stop("Unusable map smoothness.")
     if(smoothness < 1) stop("Map smoothness less than one.")
+
+    # Check parameters.
+    n <- as.integer(nroRcppVector(n[[1]], default=1000))
+    message <- nroRcppVector(message[[1]], default=-1)
 
     # Remove empty data columns.
     mu <- colMeans(data, na.rm=TRUE)
@@ -28,27 +44,12 @@ nroPermute <- function(
     if(nrow(data) != length(districts))
         stop("Incompatible inputs.")
 
-    # Ensure inputs are safe for C++.
-    if(is.null(n)) n <- 1000
-    else n <- as.integer(n[[1]])
-    if(is.null(message)) message <- -1.0
-    else message <- as.double(message[[1]])
-
     # Check maximum number of cycles.
     if(!is.finite(n)) stop("Unusable number of permutations.")
     if(n < 10) stop("Too few permutations.")
 
     # Check message interval.
     if(!is.finite(message)) message <- -1.0
-
-    # Collect training variables.
-    trvars <- attr(districts, "variables")
-    if(length(trvars) < 1) trvars <- colnames(map$centroids)
-    if(length(trvars) < 1)
-        warning("No information on training variables.")
-    if(length(colnames(data)) < 1)
-        warning("No column names in input data.")
-    trvars <- intersect(colnames(data), trvars)
 
     # Collect training samples.
     trkeys <- intersect(rownames(data), names(districts))

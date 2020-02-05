@@ -14,7 +14,7 @@ File::File() {
 /*
  *
  */
-File::File(const File& a) {
+File::File(const File& t) {
   panic("Copy constructor not available.", __FILE__, __LINE__);
 }
 
@@ -22,7 +22,7 @@ File::File(const File& a) {
  *
  */
 void
-File::operator=(const File& a) {
+File::operator=(const File& t) {
   panic("Copy operator not available.", __FILE__, __LINE__);
 }
 

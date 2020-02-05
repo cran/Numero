@@ -80,8 +80,8 @@ numero.clean <- function(
             ds <- numero.clean.filter(ds, rnames, na.freq, num.only)
             if(!is.null(ds)) shared <- intersect(shared, rownames(ds))
 
-            # Add dataset to processed.
-	    processed[[dn]] <- ds
+            # Add data frame to processed.
+	    processed[[dn]] <- data.frame(ds, stringsAsFactors=FALSE)
         }
 
         # One scan is enough if identities not shared. 

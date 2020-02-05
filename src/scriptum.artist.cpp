@@ -33,17 +33,18 @@ Artist::Artist(const string& fname) {
 /*
  *
  */
-Artist::Artist(const Artist& a) {
-  this->buffer = new ArtistBuffer(a.buffer);
+Artist::Artist(const Artist& t) {
+  this->buffer = new ArtistBuffer(t.buffer);
 }
 
 /*
  *
  */
 void
-Artist::operator=(const Artist& a) {
+Artist::operator=(const Artist& t) {
+  if(this == &t) return;
   ArtistBuffer* p = (ArtistBuffer*)buffer; delete p;
-  this->buffer = new ArtistBuffer(a.buffer);
+  this->buffer = new ArtistBuffer(t.buffer);
 }
 
 /*

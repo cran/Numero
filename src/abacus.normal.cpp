@@ -24,6 +24,7 @@ Normal::Normal(const Normal& t) {
  */
 void
 Normal::operator=(const Normal& t) {
+  if(this == &t) return;
   Approximation* p = (Approximation*)buffer; delete p;
   this->buffer = new Approximation(t.buffer);
 }

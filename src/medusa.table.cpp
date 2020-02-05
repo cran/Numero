@@ -23,6 +23,7 @@ Table::Table(const Table& t) {
  */
 void
 Table::operator=(const Table& t) {
+  if(this == &t) return;
   TableBuffer* p = (TableBuffer*)buffer; delete p;
   this->buffer = new TableBuffer(t.buffer);
 }

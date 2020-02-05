@@ -91,7 +91,7 @@ stats.basic$statistics[c("CHOL","MALE","AGE","T1D_DURAT"),
 
 ## ----echo=FALSE, results=FALSE-------------------------------------------
 # Workaround for the vignette document, DO NOT USE IN REAL STUDIES!
-x <- (stats.basic$planes$uALB)
+x <- (stats.basic$planes$DIAB_KIDNEY)*(stats.basic$planes$uALB)
 tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
 bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
 workaround <- as.data.frame(stats.basic$map$topology)
@@ -229,7 +229,7 @@ numero.plot(results = stats.adjM, variables = trvars,
 
 ## ----echo=FALSE, results=FALSE-------------------------------------------
 # Workaround for the vignette document, DO NOT USE IN REAL STUDIES!
-x <- stats.adj$planes$uALB
+x <- (stats.adj$planes$DIAB_KIDNEY)*(stats.adj$planes$uALB)
 tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
 bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
 workaround <- as.data.frame(stats.adj$map$topology)
@@ -413,7 +413,7 @@ clinvars <- c("uALB", "AGE", "DIAB_KIDNEY", "DIAB_RETINO",
 
 ## ----echo=FALSE, results=FALSE-------------------------------------------
 # Workaround for the vignette document, DO NOT USE IN REAL STUDIES!
-x <- stats.discov$planes$DIAB_KIDNEY
+x <- (stats.discov$planes$DIAB_KIDNEY)*(stats.discov$planes$uALB)
 tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
 bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
 workaround <- as.data.frame(stats.discov$map$topology)

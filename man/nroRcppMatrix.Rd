@@ -3,7 +3,7 @@
 
 \title{Safety check for Rcpp calls}
 
-\description{Forces all values to numeric to be safely passed to C++ functions.}
+\description{Forces all values to numeric to be passed to C++ functions.}
 
 \usage{
 nroRcppMatrix(data, trim)

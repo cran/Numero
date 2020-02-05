@@ -130,7 +130,7 @@ namespace abacus {
     /* Determine the smallest set of elements that connect rows and
        columns. The elements are checked in the order of the input,
        and moved to the output if they belong to the spanning tree. */
-    static std::vector<Element> kruskal(std::vector<Element>&);
+    static std::vector<Element> trunk(std::vector<Element>&);
   };
 
   /*
@@ -183,7 +183,7 @@ namespace abacus {
     /* Add a sample. The first input containts the value and the
        second contains the weight. */
     bool add(const medusa::mdreal, const medusa::mdreal);
-
+   
     /* Return a standard normal transform of the distribution. */
     Normal normal() const;
     

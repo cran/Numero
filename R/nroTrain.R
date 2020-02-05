@@ -22,8 +22,7 @@ nroTrain <- function(
 
     # Check map smoothness.
     smoothness <- attr(map$topology, "smoothness")
-    if(length(smoothness) < 1) stop("Map smoothness undefined.")
-    smoothness <- as.double(smoothness[[1]])
+    smoothness <- nroRcppVector(smoothness[[1]], default=NA)
     if(!is.finite(smoothness)) stop("Unusable map smoothness.")
     if(smoothness < 1) stop("Map smoothness less than one.")
 
@@ -35,24 +34,19 @@ nroTrain <- function(
     if(length(vars) < length(somnames))
         warning("One or more training column(s) unavailable.")
 
+    # Check parameters.
+    metric <- nroRcppVector(metric[[1]], default="", numeric=FALSE)
+    message <- nroRcppVector(message[[1]], default=-1)
+    subsample <- as.integer(nroRcppVector(subsample[[1]], default=NA))
+
     # Automatic subsample.
-    if(is.null(subsample)) {
+    if(!is.finite(subsample)) {
         subsample <- 10*sqrt(nrow(data))*sqrt(nrow(topology))
 	subsample <- min(subsample, 0.95*nrow(data), na.rm=TRUE)
 	subsample <- round(subsample)
     }
-    else {
-        subsample <- as.integer(subsample[[1]])
-    }
-
-    # Ensure inputs are safe for C++.
-    if(is.null(message)) message <- -1.0
-    else message <- as.double(message[[1]])
-    if(is.null(metric)) metric <- "euclid"
-    else metric <- as.character(metric[[1]])
 
     # Check subsample size.
-    if(!is.finite(subsample)) subsample <- nrow(data)
     if(subsample > nrow(data)) subsample <- nrow(data)
     if(subsample < (nrow(centroids) + 10))
         stop("Too small subsample.")

@@ -19,12 +19,12 @@ nroKohonen <- function(
       warning("Unusable column(s) excluded.")
 
   # Check radius.
-  radius <- as.integer(radius[[1]])
+  radius <- nroRcppVector(radius[[1]], default=3)
   if(!is.finite(radius)) stop("Unusable radius.")
   if(radius < 2) stop("Radius is less than two.")
 
   # Check smoothness.
-  smoothness <- as.double(smoothness[[1]])
+  smoothness <- nroRcppVector(smoothness[[1]], default=NA)
   if(!is.finite(smoothness)) stop("Unusable smoothness.")
   if(smoothness < 1) stop("Smoothness less than one.")
   if(smoothness > 0.49*radius) stop("Smoothness too high.")

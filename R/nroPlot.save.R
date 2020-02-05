@@ -85,7 +85,8 @@ nroPlot.save <- function(
     boxes <- svgdoc$boxes
 
     # Import base javascript that enables interactive features.
-    jsfile <- system.file("extcode", "circus.js", package="Numero")
+    jsfile <- system.file("extcode", "circus.js",
+        package="Numero", mustWork=TRUE)
     jscode <- readChar(con=jsfile, nchars=1e5)
 
     # Add visualization data.
@@ -238,9 +239,9 @@ nroPlotSave.write <- function(fname, codes, boxes, jscode) {
 
         # Import HTML wrapper.
         headfile <- system.file("extcode", "circus.head.html",
-	                        package="Numero")
+	                        package="Numero", mustWork=TRUE)
         tailfile <- system.file("extcode", "circus.tail.html",
-	                        package="Numero")
+	                        package="Numero", mustWork=TRUE)
         htmlhead <- readChar(con=headfile, nchars=1e5)
         htmltail <- readChar(con=tailfile, nchars=1e5)
 

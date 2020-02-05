@@ -23,7 +23,7 @@ nroStatistic <- function(
     if(ncol(data) > 1) weights <- weights[,colnames(data)]
 
     # Check method.
-    method <- as.character(method[[1]])
+    method <- nroRcppVector(method[[1]], default="", numeric=FALSE)
     if(anyDuplicated(c(method, "center", "mean", "median", "mode", "min",
         "max", "range", "sd","iqr", "var", "number")) < 1)
         stop("Unknown method.")

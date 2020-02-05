@@ -7,9 +7,15 @@ nroRcppMatrix <- function(
     binary <- attr(data, "binary")
 
     # Convert to matrix.
-    if(is.vector(data)) {
+    if(is.data.frame(data))
+        data <- as.matrix(data)
+   if(is.atomic(data) && !is.matrix(data)) {
         data <- as.matrix(data)
  	colnames(data) <- "data"
+    }
+    if(is.list(data)) {
+        warning("Unusable input.")
+	return(NULL)
     }
 
     # Check if already fully numeric.
@@ -43,9 +49,9 @@ nroRcppMatrix <- function(
         })), silent=TRUE)
         if(!is.numeric(data)) {
             warning("Unusable input.")
-	    return(matrix(nrow=0, ncol=0))
+	    return(NULL)
         }
-	
+
         # Restore names.
         rownames(data) <- rnames
         colnames(data) <- cnames

@@ -14,17 +14,18 @@ Matrix::Matrix() {
 /*
  *
  */
-Matrix::Matrix(const Matrix& m) {
-  this->buffer = new MatrixBuffer(m.buffer);
+Matrix::Matrix(const Matrix& t) {
+  this->buffer = new MatrixBuffer(t.buffer);
 }
 
 /*
  *
  */
 void
-Matrix::operator=(const Matrix& m) {
+Matrix::operator=(const Matrix& t) {
+  if(this == &t) return;
   MatrixBuffer* p = (MatrixBuffer*)buffer; delete p;
-  this->buffer = new MatrixBuffer(m.buffer);
+  this->buffer = new MatrixBuffer(t.buffer);
 }
 
 /*

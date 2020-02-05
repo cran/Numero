@@ -20,7 +20,8 @@ nroDestratify <- function(
     data <- as.matrix(data[,numerics])
 
     # Check that inputs are compatible.
-    grp <- as.factor(as.vector(labels))  
+    labels <- nroRcppVector(labels, default=NULL, numeric=FALSE)
+    grp <- as.integer(as.factor(labels))  
     if(nrow(data) != length(grp)) stop("Incompatible inputs.")
 
     # Check batch size.

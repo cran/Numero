@@ -13,17 +13,18 @@ Frame::Frame() {
 /*
  *
  */
-Frame::Frame(const Frame& a) {
-  this->buffer = new FrameBuffer(a.buffer);
+Frame::Frame(const Frame& t) {
+  this->buffer = new FrameBuffer(t.buffer);
 }
 
 /*
  *
  */
 void
-Frame::operator=(const Frame& a) {
+Frame::operator=(const Frame& t) {
+  if(this == &t) return;
   FrameBuffer* p = (FrameBuffer*)buffer; delete p;
-  this->buffer = new FrameBuffer(a.buffer);
+  this->buffer = new FrameBuffer(t.buffer);
 }
 
 /*

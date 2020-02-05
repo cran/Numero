@@ -23,17 +23,18 @@ Engine::Engine(const Topology& tp) {
 /*
  *
  */
-Engine::Engine(const Engine& a) {
-  this->buffer = new EngineBuffer(a.buffer);
+Engine::Engine(const Engine& t) {
+  this->buffer = new EngineBuffer(t.buffer);
 }
 
 /*
  *
  */
 void
-Engine::operator=(const Engine& a) {
+Engine::operator=(const Engine& t) {
+  if(this == &t) return;
   EngineBuffer* p = (EngineBuffer*)buffer; delete p;
-  this->buffer = new EngineBuffer(a.buffer);
+  this->buffer = new EngineBuffer(t.buffer);
 }
 
 /*

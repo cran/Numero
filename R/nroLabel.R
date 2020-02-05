@@ -12,12 +12,11 @@ nroLabel <- function(
     values <- nroRcppMatrix(values, trim=FALSE)
 
     # Check topology and values.
-    if(is.vector(topology)) stop("Unusable topology.")
     if(nrow(topology) < 2) stop("Unusable topology.")
     if(nrow(topology) != nrow(values)) stop("Incompatible inputs.")
 	
     # Check gap.
-    gap <- as.double(gap[[1]])
+    gap <- nroRcppVector(gap[[1]], default=2.3)
     if(!is.finite(gap)) stop("Unusable gap.")
     if(gap < 1.0) stop("Gap is less than one.")
 

@@ -19,9 +19,10 @@ nroMatch <- function(
         warning("Metric set according to centroids.")
         metric <- som$metric
     }
-    if(is.null(metric)) metric <- som$metric
-    if(is.null(metric)) metric <- "euclid"
-    metric <- as.character(metric[[1]])
+    if(length(metric) < 1) metric <- som$metric
+    metric <- nroRcppVector(metric[[1]], default="", numeric=F)
+    if((metric != "euclid") && (metric != "pearson"))
+        stop("Unknown distance metric.")
 
     # Check variable names.
     vars <- colnames(centroids)
