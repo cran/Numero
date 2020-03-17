@@ -60,6 +60,13 @@ numero.summary <- function(
         return(output)
     }
 
+    # Add region information to layout.
+    layout$REGION <- attr(output, "regions")
+    layout$REGION.label <- attr(output, "labels")
+    attr(output, "layout") <- layout[,c("BMC","REGION","REGION.label")]
+    attr(output, "regions") <- NULL
+    attr(output, "labels") <- NULL
+
     # Find variables that had usable data.
     pvals <- output[, c("P.chisq", "P.t", "P.anova")]
     success <- which(rowMeans(pvals, na.rm=TRUE) >= 0)

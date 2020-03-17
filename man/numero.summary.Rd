@@ -47,6 +47,10 @@ district assignments in \code{results} and the region labels in
 A data frame of summary statistics, see \code{\link{nroSummary}()}
 for details. The data frame also contains additional information on which
 variables were used for the training of the SOM.
+
+The attribute "layout" is added to the output. It indicates the location
+on the map and the subgroup name and label for each data row that were
+included in the analysis.
 }
 
 \author{

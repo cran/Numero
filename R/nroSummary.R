@@ -40,11 +40,12 @@ nroSummary <- function(
     capacity <- as.integer(capacity[[1]])
 
     # Replace districts with regions.
-    g <- match(districts, rownames(regions))
-    mask <- which(g > 0)
-    if(length(mask) < length(g))
+    pos <- match(districts, rownames(regions))
+    mask <- which(pos > 0)
+    if(length(mask) < length(pos))
         warning("Unusable district(s) or region(s) excluded.")
-    g <- regions[g[mask],"REGION"]
+    g <- regions[pos[mask],"REGION"]
+    g.label <- regions[pos[mask],"REGION.label"]
     data <- data[mask,]
 
     # Check subgroups.
@@ -102,7 +103,8 @@ nroSummary <- function(
     output$LABEL[rows] <- regions[pos[rows],"REGION.label"]
 
     # Finish results.
-    attr(output, "labels") <- regions[g,"REGION.label"]
+    attr(output, "regions") <- g
+    attr(output, "labels") <- g.label
     attr(output, "subgroups") <- split(1:nrow(data), g)
     rownames(output) <- NULL
     return(output)

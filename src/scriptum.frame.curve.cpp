@@ -46,3 +46,43 @@ Frame::curve(const vector<mdreal>& vx, const vector<mdreal>& vy) {
   (p->limits).second.update(vy, p->style);
   return true;
 }
+
+/*
+ *
+ */
+bool
+Frame::curve(const medusa::mdreal& xA, const medusa::mdreal& yA,
+	     const medusa::mdreal& x0, const medusa::mdreal& y0,
+	     const medusa::mdreal& xB, const medusa::mdreal& yB) {
+  mdreal rlnan = medusa::rnan();
+  FrameBuffer* p = (FrameBuffer*)buffer;
+  
+  /* Check inputs. */
+  if(xA == rlnan) return false;
+  if(yA == rlnan) return false;
+  if(x0 == rlnan) return false;
+  if(y0 == rlnan) return false;
+  if(xB == rlnan) return false;
+  if(yB == rlnan) return false;
+
+  /* Create polyline. */
+  sprintf(p->f(), "\n<path d=\"\n");
+  sprintf(p->f(), "M\t%.2f\t%.2f", xA, yA);
+  sprintf(p->f(), "\nQ\t%.2f\t%.2f", x0, y0);
+  sprintf(p->f(), "\n\t%.2f\t%.2f\"\n", xB, yB);
+  
+  /* Apply style. */
+  p->append(p->linestycode);
+  p->append("/>\n");
+
+  /* Update limits and filesize. */
+  pair<Limes, Limes>& lims = p->limits;
+  lims.first.update(xA, p->style);
+  lims.first.update(x0, p->style);
+  lims.first.update(xB, p->style);
+  lims.second.update(yA, p->style);
+  lims.second.update(y0, p->style);
+  lims.second.update(yB, p->style);
+  return true;
+}
+

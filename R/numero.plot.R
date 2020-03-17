@@ -41,7 +41,7 @@ numero.plot <- function(
     comps <- comps[,variables]
     stats <- stats[variables,]
     if(nrow(stats) > capacity) {
-        cat("capacity exceeded, showing", capacity, "plots.\n", sep="")
+        cat("capacity exceeded, showing ", capacity, " plots.\n", sep="")
         comps <- comps[,1:capacity]
 	stats <- stats[1:capacity,]
     }

@@ -107,11 +107,23 @@ namespace scriptum {
     /* Free resources. */
     ~Frame();
 
+    /* Expand the bounding box to include a point. Style attributes
+       are not considered. Returns false if point was unusable. */
+    bool box(const medusa::mdreal, const medusa::mdreal);
+    
     /* Draw curve or shape. The 1st argument sets the horizontal
        and the 2nd the vertical coordinates. If the first and last
        points are equal, the curve is drawn closed. */
     bool curve(const std::vector<medusa::mdreal>&,
 	       const std::vector<medusa::mdreal>&);
+
+    /* Draw a quadratic Bezier curve. The first two inputs set the
+       starting point. The third and fourth inputs set the horizontal
+       and vertical positions for the control point. The last two
+       inputs set the end point. */
+    bool curve(const medusa::mdreal&, const medusa::mdreal&,
+	       const medusa::mdreal&, const medusa::mdreal&,
+	       const medusa::mdreal&, const medusa::mdreal&);
 
     /* Return current graphics code and remove it from the object. */
     virtual std::string flush();

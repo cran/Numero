@@ -23,10 +23,38 @@ bool
 Limes::update(const mdreal x) {
   mdreal rlnan = medusa::rnan();
   if(x == rlnan) return false;
+  if(x < MINCOORD_scriptum) return false;
+  if(x > MAXCOORD_scriptum) return false;
   if(alpha == rlnan) alpha = x;
   if(omega == rlnan) omega = x;
   if(x < alpha) this->alpha = x;
   if(x > omega) this->omega = x;
+  return true;
+}
+
+/*
+ *
+ */
+bool
+Limes::update(const mdreal x, const Style& sty) {
+  mdreal rlnan = medusa::rnan();
+  if(x == rlnan) return false;
+
+  /* Check padding. */
+  mdreal pad = sty.padding;
+  if(pad < 0.0) pad = 0.0;
+
+  /* Apply padding. */
+  mdreal xmin = (x - pad);
+  mdreal xmax = (x + pad);
+
+  /* Update limits. */
+  if(xmin < MINCOORD_scriptum) return false;
+  if(xmax > MAXCOORD_scriptum) return false;
+  if(alpha == rlnan) this->alpha = xmin;
+  if(omega == rlnan) this->omega = xmax;
+  if(xmin < alpha) this->alpha = xmin;
+  if(xmax > omega) this->omega = xmax;
   return true;
 }
 

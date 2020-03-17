@@ -196,8 +196,8 @@ nroPlotSave.svg <- function(topology, colors, labels,
         if(is.character(res.s)) stop(res.s)
 
         # Combine code segments.
-	subcode <- c(res.w$code.shadow, res.p$code,
-	             res.w$code.label, res.s$code)
+	subcode <- c("<g>", res.w$code.shadow, res.p$code,
+	    res.w$code.label, res.s$code, "</g>")
 	subcode <- paste(subcode, collapse="\n")
 	boxes <- rbind(boxes, res.p$bbox)
         codes <- c(codes, subcode)

@@ -42,6 +42,7 @@ namespace scriptum_local {
     Limes();
     ~Limes();
     bool update(const mdreal);
+    bool update(const mdreal, const Style&);
     bool update(const vector<mdreal>&, const Style&);
   };
 

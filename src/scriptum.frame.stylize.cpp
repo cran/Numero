@@ -22,10 +22,14 @@ Frame::stylize(const Style& st) {
   if(st.anchor == "middle") base.anchor = st.anchor;
   if(st.anchor == "end") base.anchor = st.anchor;
 
-  /* Rotation angle about the element origin in degrees[0, 360]. */
-  if(st.angle != rlnan) base.angle = st.angle;
-  if(base.angle < 0.0) base.angle = 0.0;
-  if(base.angle > 360.0) base.angle = 360.0;
+  /* Rotation angle in degrees [-180, 180]. */
+  if(st.angle != rlnan) {
+    long nrot = (long)(fabs(st.angle)/360.0);
+    if(st.angle < 0.0) base.angle = (st.angle + nrot*360.0);
+    if(st.angle > 0.0) base.angle = (st.angle - nrot*360.0);
+    if(base.angle < -180.0) base.angle += 360.0;
+    if(base.angle > 180.0) base.angle -= 360.0;
+  }
 
   /* Fill color. */
   update_color(base.fillcolor, st.fillcolor);

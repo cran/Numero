@@ -20,15 +20,15 @@ scriptum_local::style2code(string& linecode, string& textcode,
   if(sty.angle != 0.0) {
     vector<mdreal> origin = sty.origin;
     if(origin.size() < 2) origin = vector<mdreal>(2, 0.0);
-    p += sprintf(p, "rotate(%.2f, ", sty.angle);
+    p += sprintf(p, "\nrotate(%.2f, ", sty.angle);
     p += sprintf(p, "%.2f, %.2f)", origin[0], origin[1]);
   }
 
   /* Collect transforms. */
   string tform(buf); p = buf; buf[0] = '\0';
   if(tform.size() > 0) {
-    linecode.append("\ntransform=\"" + tform + "\"");
-    textcode.append("\ntransform=\"" + tform + "\"");
+    linecode.append("transform=\"" + tform + "\"");
+    textcode.append("transform=\"" + tform + "\"");
   }
 
   /* Font. */
@@ -78,9 +78,15 @@ scriptum_local::style2code(string& linecode, string& textcode,
   string lineprop(buf); p = buf; buf[0] = '\0';
 
   /* Finish style results. */
-  linecode.append("style=\"" + lineprop + "\"");
-  textcode.append("style=\"" + textprop + lineprop + "\"");
-
+  if(tform.size() > 0) {
+    linecode.append("\nstyle=\"" + lineprop + "\"");
+    textcode.append("\nstyle=\"" + textprop + lineprop + "\"");
+  }
+  else {
+    linecode.append("style=\"" + lineprop + "\"");
+    textcode.append("style=\"" + textprop + lineprop + "\"");
+  }
+  
   /* Add values. */
   for(mdsize i = 0; i < sty.values.size(); i++) {
     string vname = ("\nv" + long2string(i) + "=");

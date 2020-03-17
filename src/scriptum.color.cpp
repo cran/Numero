@@ -73,7 +73,7 @@ Color::contrast(const Color& c) const {
   
   /* Brightness. */
   double brightA = (0.3*red + 0.5*green + 0.1*blue);
-  double brightB = (0.3*c.red + 0.5*c.green + 0.1*c.blue);
+  double brightB = (0.3*(c.red) + 0.5*(c.green) + 0.1*(c.blue));
   
   /* Extremes. */
   double rmin = red; if(rmin > c.red) rmin = c.red;
