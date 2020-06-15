@@ -8,7 +8,7 @@
 \usage{
 numero.plot(results, variables = NULL, topology = NULL, folder = NULL,
             prefix = "figure", reference = NULL, subplot = NULL,
-	    gain = 1, detach = FALSE, capacity = 90)
+	    gain = 1, detach = FALSE, capacity = 90, font = NULL)
 }
 
 \arguments{
@@ -44,6 +44,9 @@ Use detached windows for figures.
 \item{capacity}{
 Maximum number of subplots to show on screen.
 }
+  \item{font}{
+Multiplier to adjust font size for SVG and HTML output.
+  }
 }
 
 \details{

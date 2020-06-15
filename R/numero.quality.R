@@ -43,8 +43,15 @@ numero.quality.layout <- function(model, data) {
     if(length(vars) < ncol(model$data))
         warning("Dataset does not contain all training variables.")
 
+    # Check for missing data points.
+    mu <- rowMeans(data[,vars], na.rm=TRUE)
+    valid <- which(is.finite(mu))
+    if(length(valid) < 1) stop("No usable values for training variables.")
+    if(length(valid) < nrow(data)) warning("Unusable rows excluded.")
+
     # Assign district locations.
-    suppressWarnings(matches <- nroMatch(centroids=model$map, data=data))
+    suppressWarnings(matches <- nroMatch(centroids=model$map,
+        data=data[valid,]))
 
     layout <- data.frame(BMC=matches, attr(matches, "quality"))
     rownames(layout) <- names(matches)

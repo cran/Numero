@@ -16,7 +16,7 @@ numero.create <- function(
         stop("Duplicated row names.")
 
     # Check training data.
-    trdata <- nroPreprocess(data=data, method="", clip=NA)
+    trdata <- nroPreprocess(data=data, method="", clip=NA, trim=TRUE)
     if(nrow(trdata) < 10) stop("Not enough usable rows.")
     if(ncol(trdata) < 3) stop("Not enough usable columns.")
 

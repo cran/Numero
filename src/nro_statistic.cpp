@@ -21,7 +21,7 @@ nro_statistic(SEXP data_R, SEXP weights_R, SEXP method_R) {
     return CharacterVector("Incompatible inputs.");
   
   /* Process columns. */
-  for(mdsize j = 0; j < data.ncol(); j++) {
+  for(int j = 0; j < data.ncol(); j++) {
     
     /* Check for non-finite values. */
     NumericVector dataj = data(_, j);

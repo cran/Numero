@@ -47,7 +47,8 @@ numero.prepare <- function(
         }
 
         # First round of preprocessing.
-        suppressWarnings(ds <- nroPreprocess(data=ds, method=method))
+        suppressWarnings(ds <- nroPreprocess(data=ds,
+	    method=method, trim=TRUE))
         pipeline$mapping1 <- attr(ds, "mapping")
 
         # Regression model of confounding.
@@ -64,7 +65,8 @@ numero.prepare <- function(
 
         # Second round of preprocessing.
         if((length(convars) + length(batvars)) > 0) {
-            suppressWarnings(ds <- nroPreprocess(data=ds, method=method))
+            suppressWarnings(ds <- nroPreprocess(data=ds,
+	        method=method, trim=TRUE))
             pipeline$mapping2 <- attr(ds, "mapping")
         }
 

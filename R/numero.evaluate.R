@@ -1,7 +1,7 @@
 numero.evaluate <- function(
     model,
     data,
-    logarithm=NULL,
+    ranked=TRUE,
     n=1000) {
 
     # Continue analyses.
@@ -40,25 +40,8 @@ numero.evaluate <- function(
     bmc <- layout[,"BMC"]
     names(bmc) <- rownames(layout)
 
-    # Check if any logarithms needed.    
-    logarithm <- intersect(logarithm, colnames(data))
-    alpha <- rep(NA, length(logarithm))
-    names(alpha) <- logarithm
-
-    # Apply logarithm to selected variables.
-    data.orig <- data
-    for(vn in names(alpha)) {
-        x <- data[,vn]
-	mask <- which(x > 0)
-	if(length(mask) < 1) next
-	if(min(x, na.rm=TRUE) < 0) next
-	alpha[vn] <- min(x[mask])
-	data[,vn] <- log(x + alpha[vn])
-    }
-
-    # Check how many logarithms succeeded.
-    nsuccess <- sum(is.finite(alpha))
-    cat(nsuccess, " / ", length(alpha), " logarithm(s) applied\n", sep="")
+    # Apply rank transform to protect from extreme values.
+    if(ranked) data <- nroPreprocess(data=data, method="uniform")
 
     # Calculate component planes.
     comps <- nroAggregate(topology=model$map, districts=bmc, data=data)
@@ -71,9 +54,9 @@ numero.evaluate <- function(
     cat(nrow(stats), " variable(s)\n", sep="")
     cat(sum(stats$N.cycles), " permutation(s)\n", sep="")
 
-    # Revert logarithms.
-    for(vn in names(alpha))
-        comps[,vn] <- (exp(comps[,vn]) - alpha[vn])
+    # Revert transform.
+    if(ranked) comps <- nroPostprocess(data=comps,
+        mapping=attr(data,"mapping"), reverse=TRUE)
 
     # Determine district ranges.
     colrs <- nroColorize(comps)
@@ -85,7 +68,45 @@ numero.evaluate <- function(
     output$ranges <- attr(colrs, "ranges")
     output$palette <- "rhodo"
     output$statistics <- stats
-    output$logarithm <- logarithm
-    output$data <- data.orig
+    output$data <- data
+    return(output)
+}
+
+#----------------------------------------------------------------------------
+
+numero.evaluate.transf <- function(x, method) {
+    output <- NULL
+    mu <- mean(x, trim=0.1, na.rm=TRUE)
+    sigma <- mean(abs(x - mu), trim=0.1, na.rm=TRUE)
+    if(!is.finite(sigma)) return(NULL)
+    if(method[[1]] == "probit") {
+        output <- (x - mu)/sigma
+	posit <- which(output > 0)
+	negat <- which(output < 0)
+	output[posit] <- log(1 + output[posit])
+	output[negat] <- -log(1 - output[negat])
+    }
+    if(method[[1]] == "logarithm")
+        output <- log(1 + x/mu)
+    attr(output, "method") <- method
+    attr(output, "param") <- c(mu, sigma)
+    return(output)
+}
+
+#----------------------------------------------------------------------------
+
+numero.evaluate.itransf <- function(x, method, param) {
+    mu <- param[1]
+    sigma <- param[2]
+    alpha <- param[3]
+    if(method[[1]] == "probit") {
+        posit <- which(x > 0)
+	negat <- which(x < 0)
+	x[posit] <- (exp(x[posit]) - 1)
+	x[negat] <- (1 - exp(-x[negat]))
+	output <- (x*sigma + mu)
+    }
+    if(method[[1]] == "logarithm")
+        output <- (exp(x) - 1)*mu
     return(output)
 }

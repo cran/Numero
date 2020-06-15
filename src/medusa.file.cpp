@@ -180,10 +180,17 @@ File::read(const char delim, const mdsize nmin) {
   /* Replace carriage returns and delimiters. */
   mdsize ndone = 0;
   mdsize nbytes = 0;
+  bool spaceprev = false;
+  bool spaceflag = (delim == '\0');
   for(mdsize i = 0; data[i] != '\0'; i++, ndone++) {
     char c = data[i];
     if(c == '\r') continue;
-    if(c == delim) c = '\0';
+    if(spaceflag && isspace(c)) {
+      if(spaceprev) continue;
+      c = '\0';
+    }
+    spaceprev = (c == delim);
+    if(spaceprev) c = '\0';
     data[nbytes] = c;
     nbytes++;
   }

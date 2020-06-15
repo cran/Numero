@@ -3,7 +3,8 @@ nroPlot.save <- function(
     topology,
     colors,
     labels=NULL,
-    subplot=NULL) {
+    subplot=NULL,
+    font=1.0) {
   
     # Check if input is a list.
     if(is.list(topology) && !is.data.frame(topology))
@@ -73,6 +74,13 @@ nroPlot.save <- function(
     if(subplot[1] < 1) stop("Unusable number of plot rows.")
     if(subplot[2] < 1) stop("Unusable number of plot columns.")
 
+    # Check font size.
+    if(is.null(font)) font <- 1.0
+    font <- as.double(font[[1]])
+    if(!is.finite(font)) font <- 1.0
+    if((font < 0.1) | (font > 100.0)) 
+        stop("Unusable font size.")
+
     # Set file path.
     fname <- path.expand(file)
     if(nchar(fname) < 1) stop("Empty file name.")
@@ -80,7 +88,7 @@ nroPlot.save <- function(
     # Generate SVG code.
     svgdoc <- nroPlotSave.svg(topology=topo, colors=colors,
         labels=labels, visible=visible, contrast=contrast,
-        hlights=hlights, subplot=subplot)
+        hlights=hlights, subplot=subplot, font=font)
     codes <- svgdoc$codes
     boxes <- svgdoc$boxes
 
@@ -115,7 +123,7 @@ nroPlot.save <- function(
 #---------------------------------------------------------------------------
 
 nroPlotSave.svg <- function(topology, colors, labels,
-    visible, contrast, hlights, subplot) {
+    visible, contrast, hlights, subplot, font) {
 
     # Default titles.
     titles <- colnames(colors)
@@ -182,6 +190,7 @@ nroPlotSave.svg <- function(topology, colors, labels,
              as.logical(visible[,j]),
              as.logical(contrast[,j]),
              as.character(key),
+	     as.double(font),
              PACKAGE="Numero")
         if(is.character(res.w)) stop(res.w)
 

@@ -8,7 +8,8 @@ numero.plot <- function(
     subplot=NULL,
     gain=1.0,
     detach=FALSE,
-    capacity=90) {
+    capacity=90,
+    font=NULL) {
 
     # Start processing.
     cat("\n*** numero.plot ***\n", date(), "\n", sep="")
@@ -178,10 +179,10 @@ numero.plot <- function(
 	}
 
         # Save colorings.
-        nbyt <- nroPlot.save(file=fn.svg, topology=topology,
+        nbyt <- nroPlot.save(file=fn.svg, topology=topology, font=font,
 	    colors=colrs.masked, labels=labls.masked, subplot=subplot)
         cat(nbyt, " bytes saved in '", fn.svg, "'\n", sep="")
-        nbyt <- nroPlot.save(file=fn.html, topology=topology,
+        nbyt <- nroPlot.save(file=fn.html, topology=topology, font=font,
 	    colors=colrs.masked, labels=labls.masked, subplot=subplot)
         cat(nbyt, " bytes saved in '", fn.html, "'\n", sep="")
     }

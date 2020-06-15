@@ -49,7 +49,7 @@ nroImpute <- function(
         return(data)
     }
     if(length(numerics) < ncol(data))
-        warning("Non-numeric column(s) excluded.")
+        warning("Non-numeric column(s) ignored.")
 
     # Standardize data.
     sigma <- rep(1, ncol(data))
@@ -78,7 +78,7 @@ nroImpute <- function(
         data[,j] <- (sigma[j])*(data[,j])
 
     # Convert to data frame.
-    if(dfbit) data <- as.data.frame(data, stringsAsFactors=FALSE)
+    if(dfbit) data <- data.frame(data, stringsAsFactors=FALSE)
 
     # Restore names and attributes.
     rownames(data) <- rnames

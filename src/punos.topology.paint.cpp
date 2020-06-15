@@ -109,7 +109,7 @@ Topology::paint(const mdreal xorig, const mdreal yorig,
   /* Set line style. */
   sty.pointable = false;
   sty.strokewidth = 0.5;
-  sty.strokecolor = scriptum::colormap(0.7, "grey");
+  sty.strokecolor = scriptum::colormap(0.6, "grey");
   sty.fillcolor.opacity = 0.0;
   if(base.identity.size() > 0)
     sty.identity = (base.identity + "_perimeter");

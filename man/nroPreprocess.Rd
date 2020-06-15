@@ -11,7 +11,8 @@ standardize scale of each variable.
 }
 
 \usage{
-nroPreprocess(data, method = "standard", clip = 3.0, resolution = 100)
+nroPreprocess(data, method = "standard", clip = 3.0,
+    resolution = 100, trim = FALSE)
 }
 
 \arguments{
@@ -29,6 +30,10 @@ Range for clipping extreme values in multiples of standard deviations.
   
   \item{resolution}{
 Maximum number of sampling points to capture distribution shape.
+  }
+  
+  \item{trim}{
+if TRUE, empty rows and columns are removed.
   }
 }
 

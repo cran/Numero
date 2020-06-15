@@ -193,18 +193,15 @@ numero.plot(results = qc.adj, subplot = c(1,4))
 
 ## ------------------------------------------------------------------------
 # Map statistics for the whole dataset.
-stats.adj <- numero.evaluate(model = qc.adj, data = dataset,
-    logarithm = c("CREAT", "uALB"))
+stats.adj <- numero.evaluate(model = qc.adj, data = dataset)
 
 ## ----results="hide"------------------------------------------------------
 # Map statistics for women.
-stats.adjW <- numero.evaluate(model = qc.adj, data = dataset[women,],
-    logarithm = c("CREAT", "uALB"))
+stats.adjW <- numero.evaluate(model = qc.adj, data = dataset[women,])
 
 ## ----results="hide"------------------------------------------------------
 # Map statistics for men.
-stats.adjM <- numero.evaluate(model = qc.adj, data = dataset[men,],
-    logarithm = c("CREAT", "uALB"))
+stats.adjM <- numero.evaluate(model = qc.adj, data = dataset[men,])
 
 ## ------------------------------------------------------------------------
 stats.adj$statistics[c("MALE","AGE","T1D_DURAT"), c("Z","P.z")]
@@ -377,14 +374,10 @@ numero.plot(results = qc.mets, subplot = c(1,4))
 
 ## ----results="hide"------------------------------------------------------
 # Map statistics for discovery and replication datasets.
-stats.discov <- numero.evaluate(model = modl.discov, data = ds.discov,
-    logarithm = c("CREAT", "uALB"))
-stats.replicA <- numero.evaluate(model = qc.replicA, data = ds.replic,
-    logarithm = c("CREAT", "uALB"))
-stats.replicB <- numero.evaluate(model = qc.replicB, data = ds.replic,
-    logarithm = c("CREAT", "uALB"))
-stats.mets <- numero.evaluate(model = qc.mets, data = ds.mets,
-    logarithm = c("CREAT", "uALB"))
+stats.discov <- numero.evaluate(model = modl.discov, data = ds.discov)
+stats.replicA <- numero.evaluate(model = qc.replicA, data = ds.replic)
+stats.replicB <- numero.evaluate(model = qc.replicB, data = ds.replic)
+stats.mets <- numero.evaluate(model = qc.mets, data = ds.mets)
 
 ## ----dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of training variables for the discovery dataset."----
 numero.plot(results = stats.discov, variables = trvars,

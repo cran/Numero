@@ -26,7 +26,7 @@ numero.summary <- function(
     cat(ncol(data), " data column(s)\n", sep="")
 
     # Convert topology to data frame.
-    topology <- as.data.frame(topology, stringsAsFactors=FALSE)
+    topology <- data.frame(topology, stringsAsFactors=FALSE)
     if(is.null(topology$REGION)) {
         cat("no regions defined\n")
         return(NULL)

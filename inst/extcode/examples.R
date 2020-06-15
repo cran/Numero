@@ -601,13 +601,8 @@ rm(list=ls())
     # Create a self-organizing map.
     modl <- numero.create(data = trdata)
     
-    # Evaluate map statistics for all variables.
+    # Evaluate map statistics.
     results <- numero.evaluate(model = modl, data = dataset)
-    print(results$statistics[,c("TRAINING", "Z", "P.z", "P.freq")])
-    
-    # Evaluate map statistics with logarithms for skewed variables.
-    results <- numero.evaluate(model = modl, data = dataset,
-        logarithm=c("TG","CREAT","uALB"))
     print(results$statistics[,c("TRAINING", "Z", "P.z", "P.freq")])
 
 

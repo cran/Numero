@@ -7,16 +7,21 @@
  *
  */
 RcppExport SEXP
-nro_circus_write(SEXP offsets_R, SEXP topo_R, SEXP labels_R,
-		 SEXP visible_R, SEXP contrast_R, SEXP key_R) {
+nro_circus_write(SEXP offsets_R, SEXP topo_R, SEXP labels_R, SEXP visible_R,
+		 SEXP contrast_R, SEXP key_R, SEXP font_R) {
   scriptum::Color black = scriptum::colormap(0.0, "grey");
-  scriptum::Color grey = scriptum::colormap(0.7, "grey");
+  scriptum::Color grey = scriptum::colormap(0.6, "grey");
   scriptum::Color white = scriptum::colormap(1.0, "grey");
 
   /* Check subplot key. */
   string key = as<string>(key_R);
   key = string2safe(key, key.size());
- 
+
+  /* Check font size. */
+  mdreal fntsize = as<mdreal>(font_R);
+  if(fntsize < 0.1) return CharacterVector("Unusable font.");
+  if(fntsize > 100) return CharacterVector("Unusable font.");
+  
   /* Position offsets. */
   vector<mdreal> xy = nro::vector2reals(offsets_R);
   xy.resize(2, 0.0);
@@ -58,12 +63,14 @@ nro_circus_write(SEXP offsets_R, SEXP topo_R, SEXP labels_R,
   /* Write label shadows. */
   scriptum::Style sty;
   sty.identity = (key + "_shadow");
-  sty.strokewidth = 0.1*(sty.fontsize);
+  sty.fontsize *= fntsize;
+  sty.strokewidth = 0.16*(sty.fontsize);
   scriptum::Frame frameB = topo.write(xy[0], xy[1], labels, shadows, sty);
  
   /* Write labels. */
   sty = Style();
   sty.identity = (key + "_label");
+  sty.fontsize *= fntsize;
   sty.strokewidth = 0.0;
   scriptum::Frame frameT = topo.write(xy[0], xy[1], labels, colors, sty);
 

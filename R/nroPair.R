@@ -1,7 +1,7 @@
 nroPair <- function(
     data.x,
     data.y,
-    subsample=500,
+    subsample=2000,
     standard=TRUE,
     priority=1.0) {
 

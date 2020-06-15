@@ -4,7 +4,7 @@
 
 SEXP nro_circus_paint(SEXP offsets_R, SEXP topo_R, SEXP ccodes_R, SEXP key_R, SEXP title_R);
 SEXP nro_circus_show(SEXP offsets_R, SEXP topo_R, SEXP ccodes_R, SEXP labels_R, SEXP key_R);
-SEXP nro_circus_write(SEXP offsets_R, SEXP topo_R, SEXP labels_R, SEXP visible_R, SEXP contrast_R, SEXP key_R);
+SEXP nro_circus_write(SEXP offsets_R, SEXP topo_R, SEXP labels_R, SEXP visible_R, SEXP contrast_R, SEXP key_R, SEXP font_R);
 SEXP nro_colorize(SEXP zvals_R, SEXP name_R);
 SEXP nro_destratify(SEXP data_R, SEXP strata_R);
 SEXP nro_diffuse(SEXP topo_R, SEXP sigma_R, SEXP bmus_R, SEXP data_R);
@@ -22,7 +22,7 @@ SEXP nro_webpage(SEXP fname_R, SEXP bytes_R);
 R_CallMethodDef callMethods[]  = {
   {"nro_circus_paint", (DL_FUNC) &nro_circus_paint, 5},
   {"nro_circus_show", (DL_FUNC) &nro_circus_show, 5},
-  {"nro_circus_write", (DL_FUNC) &nro_circus_write, 6},
+  {"nro_circus_write", (DL_FUNC) &nro_circus_write, 7},
   {"nro_colorize", (DL_FUNC) &nro_colorize, 2},
   {"nro_destratify", (DL_FUNC) &nro_destratify, 2},
   {"nro_diffuse", (DL_FUNC) &nro_diffuse, 4},

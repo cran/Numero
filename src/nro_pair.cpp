@@ -48,8 +48,12 @@ make_pairs(vector<abacus::Element>& pairs,
 	   const vector<vector<mdreal> >& pool,
 	   const mdsize nsub, const bool flip) {
   mdreal rlnan = medusa::rnan();
-  mt19937 twister;
 
+  /* Set up random numbers. */
+  string seedval = (long2string(nsub) + real2string(samples[0][0]));
+  seed_seq seed(seedval.begin(), seedval.end());
+  mt19937 twister(seed);
+ 
   /* Full sampling mask. */
   vector<mdsize> full;
   mdsize npool = pool.size();

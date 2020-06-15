@@ -32,7 +32,7 @@ Maximum number of subgroups to compare.
 
 \details{
 The input \code{results} must contain the output from
-code{\link{numero.evaluate}()} or similar.
+\code{\link{numero.evaluate}()} or similar.
 
 The input argument \code{topology} must be a definition of a SOM with
 additional columns as in the output from \code{\link{numero.subgroup}()}.

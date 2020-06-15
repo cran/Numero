@@ -14,7 +14,8 @@ map colorings simultaneously.
 \usage{
 nroPlot(topology, colors, labels = NULL, subplot = NULL,
         interactive = FALSE, clear = NULL)
-nroPlot.save(file, topology, colors, labels = NULL, subplot = NULL)
+nroPlot.save(file, topology, colors, labels = NULL,
+             subplot = NULL, font = 1.0)
 }
 
 \arguments{
@@ -42,6 +43,9 @@ If TRUE, an interactive version of the plot is launched.
   \item{file}{
 If non-empty, the figure is saved as an SVG or HTML file
 instead of plotting on graphics device.
+  }
+  \item{font}{
+Multiplier to adjust font size for SVG and HTML output.
   }
 }
 

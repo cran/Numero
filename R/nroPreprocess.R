@@ -2,11 +2,12 @@ nroPreprocess <- function(
     data,
     method="standard",
     clip=3.0,
-    resolution=100) {
+    resolution=100,
+    trim=FALSE) {
 
     # Convert input to numeric matrix.
     frameflag <- is.data.frame(data)
-    data <- nroRcppMatrix(data, trim=TRUE)
+    data <- nroRcppMatrix(data, trim=trim)
     binary <- attr(data, "binary")
 
     # Check if any rows or columns were excluded.
