@@ -21,6 +21,7 @@
 #include "scriptum.h"
 #include "punos.h"
 #include "koho.h"
+#include "turnip.h"
 
 using namespace std;
 using namespace Rcpp;

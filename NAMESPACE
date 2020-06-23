@@ -1,6 +1,10 @@
 useDynLib("Numero")
 
 export("nroAggregate")
+export("nroCoalesce")
+export("nroCoalesce.prune")
+export("nroCoalesce.split")
+export("nroCoalesce.merge")
 export("nroColorize")
 export("nroDestratify")
 export("nroKohonen")

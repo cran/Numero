@@ -14,6 +14,7 @@ map colorings simultaneously.
 \usage{
 nroPlot(topology, colors, labels = NULL, subplot = NULL,
         interactive = FALSE, clear = NULL)
+
 nroPlot.save(file, topology, colors, labels = NULL,
              subplot = NULL, font = 1.0)
 }

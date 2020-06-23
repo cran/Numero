@@ -1777,6 +1777,97 @@ batches and then run each batch on a different processor in parallel.
 ###########################################################################
 ---
 
+# Collinear inputs
+
+High-dimensional datasets are usually characterized by strong correlations
+between groups of variables. The correlations can arise from multiple factors
+and the SOM is in general a safe approach to use even if some unwanted
+collinearity is present. In an extreme case, data collection can be biased
+to an extent that the SOM patterns start to reflect the limitations of
+the collection protocol rather than the phenomena under study.
+
+Consider the following example: a mass spectrometry platform is optimized to
+capture a large number of lipid molecules from a biological sample, but
+only a few non-lipid metabolites are available. If the goal of the SOM is
+to model the biochemical profiles, then using such data as such may end up
+reducing the SOM to a model that is too heavily influenced by the amount of
+lipid in the sample at the expence of other molecular information.
+
+The Numero offers a network-based tool to merge collinear variables in a
+dataset. This is beneficial particularly when training the SOM as it allows
+for a more balanced model fit, but it is also of general utility as a means
+to reduce the dimensionality of a given dataset in a way that is also easy
+to interpret.
+
+To demonstrate how the procedure works, we start with a random dataset:
+
+``` {r eval=TRUE}
+# Random data matrix.
+x <- matrix(rnorm(100000), ncol=100)
+```
+
+Next, correlation structure is introduced by adding values together across
+columns:
+
+``` {r eval=TRUE}
+# Create correlation modules.
+x[,12:20] <- (x[,12:20] + x[,11])
+x[,32:40] <- (x[,32:40] + x[,31])
+x[,62:90] <- (x[,62:90] + x[,61])
+x[,50] <- (x[,20] + x[,90]) # connecting node
+```
+
+Note the addition of the connecting node. This will produce an edge between
+two network modules to illustrate a scenario where correlation structure is
+too complex to be divided into fully separate modules.
+
+To keept track of things, the columns are named in a way that reflects the
+modular correlations. This helps us to verify that the results are correct.
+``` {r eval=TRUE}
+# Set column names.
+cnames <- paste0("X", 1:ncol(x))
+cnames[11:20] <- paste0("M1.", cnames[11:20])
+cnames[31:40] <- paste0("M2.", cnames[31:40])
+cnames[61:90] <- paste0("M3.", cnames[61:90])
+colnames(x) <- cnames
+```
+To merge redundant columns into a single column of aggregated score, we
+invoke the appropriate option in `numero.prepare()`:
+``` {r eval=TRUE}
+# Merge collinear modules.
+y <- numero.prepare(x, coalesce=TRUE, method="")
+```
+
+For a more granular control of the algorithm, refer to the help page of
+`nroCoalesce()`.
+
+We can now compare the columns before and after merging:
+``` {r eval=TRUE}
+# Columns that were removed or added.
+print(setdiff(colnames(x), colnames(y)))
+print(setdiff(colnames(y), colnames(x)))
+```
+
+The output from `numero.prepare()` also contains detailed information
+of the modules:
+``` {r eval=TRUE}
+# Show module members.
+modules <- attr(y,"pipeline")$modules
+mnames <- names(modules)
+lapply(mnames, function(k, x) {
+    cat("\n", k, "\n", sep="")
+    print(x[[k]]$weights)
+}, x=modules)
+```
+
+Importantly, the same pipeline can be applied to new datasets (via
+`numero.prepare()`) to allow the same preprocessing procedures to be used
+across multiple datasets.
+
+---
+###########################################################################
+---
+
 # Terminology
 
 **Best-matching centroid**: The BMC is the district centroid that is the most

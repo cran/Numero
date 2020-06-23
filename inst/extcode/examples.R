@@ -34,6 +34,40 @@ rm(list=ls())
     print(head(planes))
 
 
+cat("\nnroCoalesce.Rd\n")
+rm(list=ls())
+
+    # Random data matrix.
+    x <- matrix(rnorm(100000), ncol=100)
+    
+    # Create correlation modules.
+    x[,12:20] <- (x[,12:20] + x[,11])
+    x[,32:40] <- (x[,32:40] + x[,31])
+    x[,62:90] <- (x[,62:90] + x[,61])
+    x[,50] <- (x[,20] + x[,90]) # connecting node
+    
+    # Set column names.
+    cnames <- paste0("X", 1:ncol(x))
+    cnames[11:20] <- paste0("M1.", cnames[11:20])
+    cnames[31:40] <- paste0("M2.", cnames[31:40])
+    cnames[61:90] <- paste0("M3.", cnames[61:90])
+    colnames(x) <- cnames
+    
+    # Merge collinear modules.
+    y <- nroCoalesce(x)
+    
+    # Show merged columns.
+    modules <- attr(y,"modules")
+    mnames <- names(modules)
+    print(summary(y[,mnames]))
+    
+    # Show module members.
+    lapply(mnames, function(k, x) {
+        cat("\n", k, "\n", sep="")
+        print(x[[k]]$weights)
+    }, x=modules)
+
+
 cat("\nnroColorize.Rd\n")
 rm(list=ls())
 

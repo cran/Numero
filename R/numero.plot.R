@@ -8,7 +8,7 @@ numero.plot <- function(
     subplot=NULL,
     gain=1.0,
     detach=FALSE,
-    capacity=90,
+    capacity=500,
     font=NULL) {
 
     # Start processing.

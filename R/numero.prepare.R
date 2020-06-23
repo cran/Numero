@@ -4,6 +4,7 @@ numero.prepare <- function(
     confounders=NULL,
     batch=NULL,
     method="standard",
+    coalesce=FALSE,
     pipeline=NULL) {
 
     # Start processing.
@@ -30,9 +31,9 @@ numero.prepare <- function(
         convars <- setdiff(convars, batch)
 
         # Convert to numeric and trim unusable rows and columns.
-        ds <- nroRcppMatrix(data[,c(convars, datvars)], trim=TRUE)
-        convars <- intersect(convars, colnames(ds))
-        datvars <- intersect(datvars, colnames(ds))
+        dsT <- nroRcppMatrix(data[,c(convars, datvars)], trim=TRUE)
+        convars <- intersect(convars, colnames(dsT))
+        datvars <- intersect(datvars, colnames(dsT))
 
         # Check that enough columns.
         cat(length(convars), " / ", length(confounders),
@@ -47,44 +48,54 @@ numero.prepare <- function(
         }
 
         # First round of preprocessing.
-        suppressWarnings(ds <- nroPreprocess(data=ds,
+        suppressWarnings(dsT <- nroPreprocess(data=dsT,
 	    method=method, trim=TRUE))
-        pipeline$mapping1 <- attr(ds, "mapping")
+        pipeline$mapping1 <- attr(dsT, "mapping")
 
         # Regression model of confounding.
         if(length(convars) > 0) {
-            ds <- numero.prepare.regress(ds, convars)
-            pipeline$adjustment <- attr(ds, "adjustment")
+            dsT <- numero.prepare.regress(dsT, convars)
+            pipeline$adjustment <- attr(dsT, "adjustment")
         }
 
         # Correction model for batch differences.
         if(length(batvars) > 0) {
-            ds <- numero.prepare.flatten(ds, data, batvars)
-            pipeline$correction <- attr(ds, "correction")
+            dsT <- numero.prepare.flatten(dsT, data, batvars)
+            pipeline$correction <- attr(dsT, "correction")
         }
 
         # Second round of preprocessing.
         if((length(convars) + length(batvars)) > 0) {
-            suppressWarnings(ds <- nroPreprocess(data=ds,
+            suppressWarnings(dsT <- nroPreprocess(data=dsT,
 	        method=method, trim=TRUE))
-            pipeline$mapping2 <- attr(ds, "mapping")
+            pipeline$mapping2 <- attr(dsT, "mapping")
         }
 
-        # Prune collinear variables.
-        #if(!is.null(modules)) {
-        #    suppressWarnings(ds <- nroPrune(data=ds, modules=modules))
-        #    pipeline$modules <- attr(ds, "modules")
-        #}
+        # Merge collinear variables.
+	if(is.logical(coalesce)) {
+	    if(coalesce[[1]]) {
+	        dsT <- nroCoalesce(data=dsT)
+                pipeline$modules <- attr(dsT, "modules")
+	    }
+	}
+        if(is.numeric(coalesce)) {
+	    dsT <- nroCoalesce(data=dsT,
+		threshold=coalesce[[1]], degree=coalesce[[2]])
+            pipeline$modules <- attr(dsT, "modules")
+	}
+        if(!is.null(pipeline$modules))
+            cat(length(pipeline$modules), " collinear module(s)\n", sep="")
     }
 
     # Check if pipeline is in the attribute.
     if(is.data.frame(pipeline) || is.matrix(pipeline)) 
         pipeline <- attr(pipeline, "pipeline")
+    ds <- data
 
     # First round of preprocessing, keep empty rows.
     cat("\nProcessing:\n")
     if(!is.null(pipeline$mapping1)) {
-        suppressWarnings(ds <- nroPostprocess(data=data,
+        suppressWarnings(ds <- nroPostprocess(data=ds,
             mapping=pipeline$mapping1, trim=FALSE))
         cat(ncol(ds), " column(s) standardized\n", sep="")
     }
@@ -107,17 +118,17 @@ numero.prepare <- function(
         cat(ncol(ds), " column(s) re-standardized\n", sep="")
     }
 
-    # Prune collinear variables.
-    #if(!is.null(pipeline$modules)) {
-    #    suppressWarnings(ds <- nroPrune(ds, pipeline$modules))
-    #    cat(ncol(ds), " column(s) after pruning\n", sep="")
-    #}
+    # Merge collinear variables.
+    nusable <- ncol(ds)
+    if(!is.null(pipeline$modules))
+        ds <- nroCoalesce.merge(data=ds, modules=pipeline$modules)
 
     # Final report.
     if(is.null(ds)) ds <- data.frame()
     cat("\nSummary:\n", sep="")
     cat(nrow(ds), " / ", nrow(data), " usable row(s)\n", sep="")
-    cat(ncol(ds), " / ", ncol(data), " usable column(s)\n", sep="")
+    cat(nusable, " / ", ncol(data), " usable column(s)\n", sep="")
+    if(ncol(ds) < nusable) cat(ncol(ds), " coalesced column(s)\n", sep="")
 
     # Return results.
     attr(ds, "pipeline") <- pipeline

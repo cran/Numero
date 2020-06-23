@@ -8,7 +8,7 @@
 \usage{
 numero.plot(results, variables = NULL, topology = NULL, folder = NULL,
             prefix = "figure", reference = NULL, subplot = NULL,
-	    gain = 1, detach = FALSE, capacity = 90, font = NULL)
+	    gain = 1, detach = FALSE, capacity = 500, font = NULL)
 }
 
 \arguments{

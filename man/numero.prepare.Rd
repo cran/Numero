@@ -7,8 +7,8 @@
 standardizing values.}
 
 \usage{
-numero.prepare(data, variables = NULL, confounders = NULL,
-               batch = NULL, method = "standard", pipeline = NULL)
+numero.prepare(data, variables = NULL, confounders = NULL, batch = NULL,
+               method = "standard", coalesce = FALSE, pipeline = NULL)
 }
 
 \arguments{
@@ -27,6 +27,9 @@ The name of the column that contains batch labels.
 \item{method}{
 Method to standardize values, see \code{\link{nroPreprocess}()}.
 }
+\item{coalesce}{
+Parameters for merging collinear variables, see details.
+}
 \item{pipeline}{
 Processing parameters from a previous use of the function.
 }
@@ -43,6 +46,11 @@ parameters irrespective of other input arguments.
 
 Due to safeguards against numerical instability, the standardized values
 may deviate slightly from the expected range (<0.1 percent error is typical).
+
+The coalesce option can be a logical value or a two-element numerical
+vector. If TRUE, default parameters of \code{\link{nroCoalesce}()} are
+used. If numbers are provided, the first value sets the threshold and the
+second sets the degree for the subroutine \code{\link{nroCoalesce}()}.
 }
 
 \value{

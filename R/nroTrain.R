@@ -60,15 +60,15 @@ nroTrain <- function(
 
     # Train the SOM.
     res <- .Call("nro_train",
-                 as.matrix(topology),
-                 as.double(smoothness),
-                 as.matrix(centroids[,vars]),
-                 as.matrix(data[,vars]),
-         	 as.character(metric),
-                 as.integer(subsample),
-                 0.0,
-		 as.double(message),
-                 PACKAGE="Numero")
+        as.matrix(topology),
+        as.double(smoothness),
+        as.matrix(centroids[,vars]),
+        as.matrix(data[,vars]),
+        as.character(metric),
+        as.integer(subsample),
+        0.0,
+        as.double(message),
+        PACKAGE="Numero")
     if(is.character(res)) stop(res)
 
     # Recode missing unit labels.
