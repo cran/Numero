@@ -42,13 +42,6 @@ The function is named after Teuvo Kohonen, the inventor of the
 self-organizing map.
 }
 
-\references{
-Gao S, Mutter S, Casey AE, Mäkinen V-P (2018) Numero: a
-statistical framework to define multivariable subgroups in complex
-population-based datasets, Int J Epidemiology,
-https://doi.org/10.1093/ije/dyy113
-}
-
 \seealso{
 Please see \code{\link{nroKmeans}()} to create the seeds.
 }

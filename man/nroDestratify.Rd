@@ -30,13 +30,9 @@ by matching subset-specific ranking with ranking of all values.
 }
 
 \value{
-A data frame or a matrix of de-stratified values. The output also includes
-the attribute "incomplete" that lists those columns where some of the values
-were set to missing due to processing failures.
-}
-
-\author{
-Ville-Petteri Makinen
+A matrix of de-stratified values. The output also includes the attribute
+'incomplete' that lists those columns where (some of) the values were set
+to missing due to processing failures.
 }
 
 \examples{

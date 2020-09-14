@@ -1,6 +1,5 @@
-/* Created by Ville-Petteri Makinen 2003-2010
-   Copyright (C) V-P Makinen
-   All rights reserved */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #include "medusa.local.h"
 
@@ -9,5 +8,5 @@
  */
 string
 medusa::version() {
-  return ("531.200425");
+  return ("532.200701");
 }

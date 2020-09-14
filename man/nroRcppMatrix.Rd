@@ -25,8 +25,8 @@ Detects columns that can be represented as 0s and 1s.
 }
 
 \value{
-A matrix or a data frame with the attribute "binary" that contains the
-names of binary columns and "excl.rows" and "excl.columns" contain the names
+A matrix or a data frame with the attribute 'binary' that contains the
+names of binary columns and 'excl.rows' and 'excl.columns' contain the names
 of rows and columns that were excluded.
 }
 

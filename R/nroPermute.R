@@ -36,7 +36,7 @@ nroPermute <- function(
     mu <- colMeans(data, na.rm=TRUE)
     cols <- which(0*mu == 0)
     if(length(cols) < length(mu)) {
-        warning("Unusable column(s) excluded.")
+        warning("Unusable columns excluded.")
         data <- data[,cols]
     }
 
@@ -74,13 +74,13 @@ nroPermute <- function(
 
     # Estimate statistics.
     res <- .Call("nro_permute",
-                 as.matrix(topology),
-                 as.double(smoothness),
-                 as.integer(districts),
-                 as.matrix(data),
-                 as.integer(numcycl),
-		 as.double(message),
-                 PACKAGE="Numero")  
+        as.matrix(topology),
+        as.double(smoothness),
+        as.integer(districts),
+        as.matrix(data),
+        as.integer(numcycl),
+        as.double(message),
+        PACKAGE="Numero") 
     if(is.character(res)) stop(res)
 
     # Convert results to data frame.
@@ -112,6 +112,7 @@ nroPermute <- function(
 	delta <- 0.2*sqrt(z.tr[mask] - evbase)
         z.tr[mask] <- (evbase + delta)
     }
+
     # Estimate color amplitudes.
     z <- c(z.tr, z.ev)
     rows <- c(trmask, evmask)

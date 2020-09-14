@@ -8,7 +8,7 @@ Iterative algorithm to adapt a self-organizing map (SOM) to a set of
 multivariable data.
 }
 \usage{
-nroTrain(map, data, subsample = NULL, metric = "euclid", message = NULL)
+nroTrain(map, data, subsample = NULL, message = NULL)
 }
 \arguments{
   \item{map}{
@@ -20,9 +20,6 @@ A matrix or a data frame.
   \item{subsample}{
 Number of rows used during a single training cycle.
   }
-  \item{metric}{
-Distance metric in data space, either "euclid" or "pearson".
-  } 
   \item{message}{
 If positive, progress information is printed at the specified
 interval in seconds.
@@ -41,17 +38,9 @@ the specified size is used for each training cycle. By default,
 \value{
 A copy of the list object \code{map}, where the element \code{centroids} is
 updated according to the data patterns. The quantization errors during
-training are stored in the element \code{history} and the element
-\code{metric} is set to the distance measure used. The subsampling
+training are stored in the element \code{history}. The subsampling
 parameter that was used during training is stored in the element
 \code{subsample}.
-}
-
-\references{
-Gao S, Mutter S, Casey AE, Mäkinen V-P (2018) Numero: a
-statistical framework to define multivariable subgroups in complex
-population-based datasets, Int J Epidemiology,
-https://doi.org/10.1093/ije/dyy113
 }
 
 \examples{

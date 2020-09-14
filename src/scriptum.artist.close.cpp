@@ -1,5 +1,5 @@
-/* Created by Ville-Petteri Makinen 2003-2010
-   Copyright (C) V-P Makinen */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #include "scriptum.local.h"
 
@@ -12,7 +12,7 @@ Artist::close(const string& script) {
   if(p->output == NULL) return p->filesize;
 
   /* Close all open groups. */
-  while(p->ngroups > 0) this->group(-1);
+  while(this->group() > 0) {};
 
   /* Write custom script segment. */
   if(script.size() > 0)
@@ -25,7 +25,7 @@ Artist::close(const string& script) {
 			endsvg.size(), p->output);
   
   /* Update prolog. */
-  string protext = p->prolog(Color());
+  string protext = p->prolog();
   if(protext.size() != p->prosize)
     medusa::panic("Prolog failed.", __FILE__, __LINE__);
 

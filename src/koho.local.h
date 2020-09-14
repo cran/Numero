@@ -1,6 +1,5 @@
-/* Created by Ville-Petteri Makinen 2003-2010
-   Copyright (C) V-P Makinen
-   All rights reserved */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #ifndef koho_local_INCLUDED
 #define koho_local_INCLUDED
@@ -57,7 +56,7 @@ namespace koho_local {
   class Buffer {
   public:
     Topology topology;
-    unordered_map<string, Point> points; /* data as rows */
+    map<string, Point> points; /* data as rows */
   public:
     Buffer() {};
     Buffer(const void* ptr) {
@@ -94,24 +93,21 @@ namespace koho_local {
    */
   class Trainer {
   private:
-    char formula;
     vector<Subset> subsets;
     vector<vector<mdreal> > prototypes;
   private:
+    void allocate(const mdsize, const mdsize);
     mdreal match(vector<Point*>&, const Topology&);
     void update(const Topology&);
   public:
     Trainer();
-    Trainer(const Matrix&, const Topology&, const mdsize,
-	    const mdreal, const string&);
+    Trainer(const Matrix&, const Topology&, const mdsize, const mdreal);
     ~Trainer();
     mdreal cycle(vector<Point*>&, const Topology&);
     Matrix codebook() const;
+    vector<mdreal> distance(const Point&) const;
     mdreal distance(const Point&, const mdsize) const;
-    vector<mdreal> distances(const Point&) const;
     mdsize size() const;
-    static mdreal euclid(const vector<mdreal>&, const vector<mdreal>&);
-    static mdreal pearson(const vector<mdreal>&, const vector<mdreal>&);
   };
   
   /*
@@ -122,7 +118,6 @@ namespace koho_local {
     mdsize ntrain;
     mdreal equality;
     mdreal proximity;
-    string metric;
     mt19937 twister;
     Matrix codebook;
     Trainer trainer;
@@ -132,13 +127,11 @@ namespace koho_local {
     ModelBuffer() : Buffer() {
       this->ntrain = medusa::snan();
       this->equality = 0.0;
-      this->metric = "euclid";
     };
     ModelBuffer(const void* ptr) : Buffer(ptr) {
       ModelBuffer* p = (ModelBuffer*)ptr;
       this->ntrain = p->ntrain;
       this->equality = p->equality;
-      this->metric = p->metric;
       this->twister = p->twister;
       this->codebook = p->codebook;
       this->trainer = p->trainer;

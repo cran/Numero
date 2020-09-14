@@ -11,7 +11,7 @@ profiles of a self-organizing map (SOM).
 }
 
 \usage{
-nroMatch(centroids, data, metric = NULL)
+nroMatch(centroids, data)
 }
 
 \arguments{
@@ -23,9 +23,6 @@ Either a matrix, a data frame or a list that contains the element
   \item{data}{
 A data matrix with identical column names to the centroid matrix.
   }
-  \item{metric}{
-Distance metric in data space, either "euclid" or "pearson".
-  }
 }
 
 \details{
@@ -33,12 +30,6 @@ The input argument \code{centroids} can be a matrix or a data frame that
 contains multivariable data profiles organized row-wise. It can also be
 the output list object from \code{\link{nroKmeans}()} or
 \code{\link{nroTrain}()}.
-
-If \code{metric} is empty, the matching error between a data point and a
-profile is defined as Euclidean distance in N-dimensional data space,
-where N is the number of variables. If \code{centroids} is a list object
-with the element \code{metric}, it is used as the distance measure instead,
-see \code{\link{nroKmeans}()} for possible values.
 }
 
 \value{
@@ -55,13 +46,6 @@ available for matching.
 
 The names of the columns that were used for matching are stored in the
 attribute \code{variables}.
-}
-
-\references{
-Gao S, Mutter S, Casey AE, Mäkinen V-P (2018) Numero: a
-statistical framework to define multivariable subgroups in complex
-population-based datasets, Int J Epidemiology,
-https://doi.org/10.1093/ije/dyy113
 }
 
 \examples{

@@ -2,19 +2,20 @@ nroTrain <- function(
     map,
     data,
     subsample=NULL,
-    metric="euclid",
     message=NULL) {
 
     # Convert data to numeric matrix.
     data <- nroRcppMatrix(data, trim=TRUE)
-    if(nrow(data) < 10) stop("Less than ten usable rows.")
-    if(ncol(data) < 3) stop("Less than three usable columns.")
+    if((nrow(data) < 10) || (ncol(data) < 3)) {
+        warning("Not enough usable rows or columns.")
+	return(NULL)
+    }
 	 
     # Check if any rows or columns were excluded.
     if(length(attr(data, "excl.rows")) > 0)
-        warning("Unusable row(s) excluded.")
+        warning("Unusable rows excluded.")
     if(length(attr(data, "excl.columns")) > 0)
-        warning("Unusable column(s) excluded.")
+        warning("Unusable columns excluded.")
 
     # Convert centroids to numeric matrix.
     centroids <- nroRcppMatrix(map$centroids, trim=FALSE)
@@ -30,30 +31,24 @@ nroTrain <- function(
     somnames <- colnames(centroids)
     vars <- intersect(colnames(data), somnames)
     if(length(vars) < 3)
-        stop("Less than three usable training columns available.")
+        stop("Less than three usable training columns.")
     if(length(vars) < length(somnames))
-        warning("One or more training column(s) unavailable.")
+        warning("One or more training columns unavailable.")
 
     # Check parameters.
-    metric <- nroRcppVector(metric[[1]], default="", numeric=FALSE)
     message <- nroRcppVector(message[[1]], default=-1)
     subsample <- as.integer(nroRcppVector(subsample[[1]], default=NA))
 
     # Automatic subsample.
     if(!is.finite(subsample)) {
         subsample <- 10*sqrt(nrow(data))*sqrt(nrow(topology))
-	subsample <- min(subsample, 0.95*nrow(data), na.rm=TRUE)
+	subsample <- min((subsample + 500), 0.95*nrow(data), na.rm=TRUE)
 	subsample <- round(subsample)
     }
 
     # Check subsample size.
-    if(subsample > nrow(data)) subsample <- nrow(data)
-    if(subsample < (nrow(centroids) + 10))
-        stop("Too small subsample.")
-
-    # Check distance metric.
-    if((metric != "euclid") && (metric != "pearson"))
-        stop("Unknown distance metric.")
+    subsample <- max(subsample, (nrow(centroids) + 10))
+    subsample <- min(subsample, nrow(data))
     
     # Check message interval.
     if(!is.finite(message)) message <- -1.0
@@ -64,7 +59,6 @@ nroTrain <- function(
         as.double(smoothness),
         as.matrix(centroids[,vars]),
         as.matrix(data[,vars]),
-        as.character(metric),
         as.integer(subsample),
         0.0,
         as.double(message),
@@ -81,6 +75,5 @@ nroTrain <- function(
     map$centroids[,vars] <- res$centroids
     map$subsample <- subsample
     map$history <- res$history
-    map$metric <- metric
     return(map)
 }

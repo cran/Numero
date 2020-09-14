@@ -1,6 +1,5 @@
-/* Created by Ville-Petteri Makinen 2003-2010
-   Copyright (C) V-P Makinen
-   All rights reserved */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #include "abacus.local.h"
 
@@ -9,7 +8,7 @@
  */
 vector<mdsize>
 abacus::shuffle(const mdsize n, const bool flag) {
-  static mt19937 twister;
+  mt19937 twister;
   
   /* Allocate output. */
   vector<mdsize> x; x.reserve(n);

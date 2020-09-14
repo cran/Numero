@@ -91,7 +91,7 @@ stats.basic$statistics[c("CHOL","MALE","AGE","T1D_DURAT"),
 
 ## ----echo=FALSE, results=FALSE-------------------------------------------
 # Workaround for the vignette document, DO NOT USE IN REAL STUDIES!
-x <- (stats.basic$planes$DIAB_KIDNEY)*(stats.basic$planes$uALB)
+x <- (stats.basic$planes[,"DIAB_KIDNEY"])*(stats.basic$planes[,"uALB"])
 tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
 bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
 workaround <- as.data.frame(stats.basic$map$topology)
@@ -184,8 +184,8 @@ c(max(qc.basic$layout$RESIDUAL.z, na.rm=TRUE),
 
 ## ------------------------------------------------------------------------
 # Variation in point density in unadjusted and adjusted analyses.
-c(sd(qc.basic$planes$HISTOGRAM, na.rm=TRUE),
-  sd(qc.adj$planes$HISTOGRAM, na.rm=TRUE))
+c(sd(qc.basic$planes[,"HISTOGRAM"], na.rm=TRUE),
+  sd(qc.adj$planes[,"HISTOGRAM"], na.rm=TRUE))
 
 ## ----dev="svg", results="hide", fig.width=9, fig.height=3, fig.align="center", fig.cap="Figure: Visualization of data point quality measures across map districts from age and sex adjusted analysis."----
 # Plot map quality measures.
@@ -226,7 +226,7 @@ numero.plot(results = stats.adjM, variables = trvars,
 
 ## ----echo=FALSE, results=FALSE-------------------------------------------
 # Workaround for the vignette document, DO NOT USE IN REAL STUDIES!
-x <- (stats.adj$planes$DIAB_KIDNEY)*(stats.adj$planes$uALB)
+x <- (stats.adj$planes[,"DIAB_KIDNEY"])*(stats.adj$planes[,"uALB"])
 tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
 bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
 workaround <- as.data.frame(stats.adj$map$topology)
@@ -262,11 +262,11 @@ numero.plot(results = stats.adj,
 
 ## ------------------------------------------------------------------------
 # District averages from unadjusted analysis.
-summary(stats.basic$planes$MALE)
+summary(stats.basic$planes[,"MALE"])
 
 ## ------------------------------------------------------------------------
 # District averages from adjusted analysis.
-summary(stats.adj$planes$MALE)
+summary(stats.adj$planes[,"MALE"])
 
 ## ------------------------------------------------------------------------
 # Compare subgroups.
@@ -280,7 +280,7 @@ report.adj[rows,c("SUBGROUP","N","MEAN","P.chisq")]
 ## ------------------------------------------------------------------------
 ds.discov <- dataset[women,]
 ds.replic <- dataset[men,]
-ds.mets <- ds.replic[which(ds.replic$METAB_SYNDR == 1),]
+ds.mets <- ds.replic[which(ds.replic[,"METAB_SYNDR"] == 1),]
 
 ## ----results="hide"------------------------------------------------------
 # Discovery cohort and training set.
@@ -289,7 +289,7 @@ trdata.discov <- numero.prepare(data = ds.discov, variables = trvars,
                                 method = "tapered")
 
 ## ------------------------------------------------------------------------
-summary(trdata.discov$uALB)
+summary(trdata.discov[,"uALB"])
 
 ## ----results="hide"------------------------------------------------------
 # Replication cohort, version A.
@@ -297,7 +297,7 @@ param <- attr(trdata.discov, "pipeline")
 trdata.replicA <- numero.prepare(data = ds.replic, pipeline = param)
 
 ## ------------------------------------------------------------------------
-summary(trdata.replicA$uALB)
+summary(trdata.replicA[,"uALB"])
 
 ## ----results="hide"------------------------------------------------------
 # Replication cohort, version B.
@@ -306,7 +306,7 @@ trdata.replicB <- numero.prepare(data = ds.replic, variables = trvars,
                              method = "tapered")
 
 ## ------------------------------------------------------------------------
-summary(trdata.replicB$uALB)
+summary(trdata.replicB[,"uALB"])
 
 ## ----results="hide"------------------------------------------------------
 # Replication cohort, MetS version.
@@ -315,7 +315,7 @@ trdata.mets <- numero.prepare(data = ds.mets, variables = trvars,
                             method = "tapered")
 
 ## ------------------------------------------------------------------------
-summary(trdata.mets$uALB)
+summary(trdata.mets[,"uALB"])
 
 ## ------------------------------------------------------------------------
 # Create a new self-organizing map based on sex-adjusted data.
@@ -332,27 +332,27 @@ qc.mets <- numero.quality(model = modl.discov, data = trdata.mets)
 
 ## ------------------------------------------------------------------------
 # Define comparable histogram bins.
-rz <- c(qc.adj$layout$RESIDUAL.z, qc.discov$layout$RESIDUAL.z)
+rz <- c(qc.adj$layout[,"RESIDUAL.z"], qc.discov$layout[,"RESIDUAL.z"])
 rz.breaks <- seq(min(rz, na.rm=TRUE), max(rz, na.rm=TRUE), length.out=20)
 
 ## ----dev="svg", results="hide", fig.width=7, fig.height=3, fig.align="center", fig.cap="Figure: Distribution of model residuals when the training data were preprocessed by scaling & centering or by tapered ranking."----
 # Plot frequencies of data points at different quality levels.
 par(mar = c(5,4,1,0), mfrow = c(1,2))
-hist(x = qc.adj$layout$RESIDUAL.z, breaks = rz.breaks,
+hist(x = qc.adj$layout[,"RESIDUAL.z"], breaks = rz.breaks,
      main = NULL, xlab = "RESIDUAL.z (scale & center)",
      ylab = "Number of data points", col = "#FFEFA0", cex = 0.8)
-hist(x = qc.discov$layout$RESIDUAL.z, breaks = rz.breaks,
+hist(x = qc.discov$layout[,"RESIDUAL.z"], breaks = rz.breaks,
      main = NULL, xlab = "RESIDUAL.z (rank)",
      ylab = "Number of data points", col = "#FFEFA0", cex = 0.8)
 
 ## ------------------------------------------------------------------------
 # Comparison of maximum residuals across examples.
-r <- c(max(qc.basic$layout$RESIDUAL.z, na.rm=TRUE),
-       max(qc.adj$layout$RESIDUAL.z, na.rm=TRUE),
-       max(qc.discov$layout$RESIDUAL.z, na.rm=TRUE),
-       max(qc.replicA$layout$RESIDUAL.z, na.rm=TRUE),
-       max(qc.replicB$layout$RESIDUAL.z, na.rm=TRUE),
-       max(qc.mets$layout$RESIDUAL.z, na.rm=TRUE))
+r <- c(max(qc.basic$layout[,"RESIDUAL.z"], na.rm=TRUE),
+       max(qc.adj$layout[,"RESIDUAL.z"], na.rm=TRUE),
+       max(qc.discov$layout[,"RESIDUAL.z"], na.rm=TRUE),
+       max(qc.replicA$layout[,"RESIDUAL.z"], na.rm=TRUE),
+       max(qc.replicB$layout[,"RESIDUAL.z"], na.rm=TRUE),
+       max(qc.mets$layout[,"RESIDUAL.z"], na.rm=TRUE))
 names(r) <- c("basic", "adj", "discov", "replicA", "replicB", "mets")
 print(r)
 
@@ -406,7 +406,7 @@ clinvars <- c("uALB", "AGE", "DIAB_KIDNEY", "DIAB_RETINO",
 
 ## ----echo=FALSE, results=FALSE-------------------------------------------
 # Workaround for the vignette document, DO NOT USE IN REAL STUDIES!
-x <- (stats.discov$planes$DIAB_KIDNEY)*(stats.discov$planes$uALB)
+x <- (stats.discov$planes[,"DIAB_KIDNEY"])*(stats.discov$planes[,"uALB"])
 tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
 bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
 workaround <- as.data.frame(stats.discov$map$topology)
@@ -502,43 +502,6 @@ cat(s)
 ## ----eval=FALSE----------------------------------------------------------
 #  # Calculate subgroup statistics.
 #  report <- numero.summary(results = stats.basic, topology = subgr)
-
-## ----eval=TRUE-----------------------------------------------------------
-# Random data matrix.
-x <- matrix(rnorm(100000), ncol=100)
-
-## ----eval=TRUE-----------------------------------------------------------
-# Create correlation modules.
-x[,12:20] <- (x[,12:20] + x[,11])
-x[,32:40] <- (x[,32:40] + x[,31])
-x[,62:90] <- (x[,62:90] + x[,61])
-x[,50] <- (x[,20] + x[,90]) # connecting node
-
-## ----eval=TRUE-----------------------------------------------------------
-# Set column names.
-cnames <- paste0("X", 1:ncol(x))
-cnames[11:20] <- paste0("M1.", cnames[11:20])
-cnames[31:40] <- paste0("M2.", cnames[31:40])
-cnames[61:90] <- paste0("M3.", cnames[61:90])
-colnames(x) <- cnames
-
-## ----eval=TRUE-----------------------------------------------------------
-# Merge collinear modules.
-y <- numero.prepare(x, coalesce=TRUE, method="")
-
-## ----eval=TRUE-----------------------------------------------------------
-# Columns that were removed or added.
-print(setdiff(colnames(x), colnames(y)))
-print(setdiff(colnames(y), colnames(x)))
-
-## ----eval=TRUE-----------------------------------------------------------
-# Show module members.
-modules <- attr(y,"pipeline")$modules
-mnames <- names(modules)
-lapply(mnames, function(k, x) {
-    cat("\n", k, "\n", sep="")
-    print(x[[k]]$weights)
-}, x=modules)
 
 ## ----echo=FALSE----------------------------------------------------------
 sessionInfo()

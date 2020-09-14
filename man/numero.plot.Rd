@@ -90,7 +90,8 @@ dataset <- numero.clean(dataset, identity = "INDEX")
 
 # Prepare training variables.
 trvars <- c("CHOL", "HDL2C", "TG", "CREAT", "uALB")
-trdata <- numero.prepare(data = dataset, variables = trvars)
+trdata <- numero.prepare(data = dataset, variables = trvars,
+    batch = "MALE", confounders = c("AGE", "T1D_DURAT"))
 
 # Create a self-organizing map.
 modl <- numero.create(data = trdata)

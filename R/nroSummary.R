@@ -11,6 +11,10 @@ nroSummary <- function(
         data <- data.frame(X=data, stringsAsFactors=FALSE)
         if(!is.null(keys)) rownames(data) <- keys
     }
+    if(nrow(data)*ncol(data) < 1) {
+        warning("Empty input.")
+        return(NULL)
+    }
 
     # Check input sizes.
     if(length(districts) != nrow(data))
@@ -43,7 +47,7 @@ nroSummary <- function(
     pos <- match(districts, rownames(regions))
     mask <- which(pos > 0)
     if(length(mask) < length(pos))
-        warning("Unusable district(s) or region(s) excluded.")
+        warning("Unusable districts or regions excluded.")
     g <- regions[pos[mask],"REGION"]
     g.label <- regions[pos[mask],"REGION.label"]
     data <- data[mask,]
@@ -60,7 +64,7 @@ nroSummary <- function(
     }
 
     # Process data columns.
-    output <- data.frame()
+    output <- NULL
     for(vn in colnames(data)) {
         x <- data[,vn]
         nlev <- nlevels(as.factor(x))
@@ -153,13 +157,16 @@ nroSummary.categ <- function(x, g) {
     stats$MEDIAN <- rep(NA, length(xsets))
     stats$MAD <- rep(NA, length(xsets))
     stats$Q025 <- rep(NA, length(xsets))
+    stats$Q250 <- rep(NA, length(xsets))
+    stats$Q750 <- rep(NA, length(xsets))
     stats$Q975 <- rep(NA, length(xsets))
     if(nlevs == 2) stats$MEAN <- lapply(xsets, mean, na.rm=TRUE)
 
     # Convert to data frame.
     stats <- lapply(stats, as.double)
-    stats <- as.data.frame(stats)
-    stats <- data.frame(SUBGROUP=names(xsets), LABEL=NA, stats)
+    stats <- as.data.frame(stats, stringsAsFactors=FALSE)
+    stats <- data.frame(SUBGROUP=names(xsets), LABEL=NA, stats,
+        stringsAsFactors=FALSE)
 
     # Add P-value columns.
     stats$TYPE <- "categ"
@@ -237,15 +244,18 @@ nroSummary.real <- function(x, g) {
         xj <- as.double(xsets[[j]])
 	muj <- as.double(stats$MEDIAN[j])
         stats$MAD[j] <- stats::median(abs(xj - muj), na.rm=TRUE)
-        q95 <- stats::quantile(xj, c(0.025, 0.975), na.rm=TRUE)
-        stats$Q025[j] <- q95[1]
-        stats$Q975[j] <- q95[2]
+        qi <- stats::quantile(xj, c(0.025, 0.25, 0.75, 0.975), na.rm=TRUE)
+        stats$Q025[j] <- qi[1]
+        stats$Q250[j] <- qi[2]
+        stats$Q750[j] <- qi[3]
+        stats$Q975[j] <- qi[4]
     }
 
     # Convert to data frame.
     stats <- lapply(stats, as.double)
     stats <- as.data.frame(stats, stringsAsFactors=FALSE)
-    stats <- data.frame(SUBGROUP=names(xsets), LABEL=NA, stats)
+    stats <- data.frame(SUBGROUP=names(xsets), LABEL=NA, stats,
+        stringsAsFactors=FALSE)
 
     # Add P-value columns.
     stats$TYPE <- "real"
@@ -289,6 +299,8 @@ nroSummary.real <- function(x, g) {
     stats$MEDIAN[1] <- stats::median(x, na.rm=TRUE)
     stats$MAD[1] <- stats::median(abs(x - stats$MEDIAN[1]), na.rm=TRUE)
     stats$Q025[1] <- stats::quantile(x, 0.025, na.rm=TRUE)
+    stats$Q250[1] <- stats::quantile(x, 0.250, na.rm=TRUE)
+    stats$Q750[1] <- stats::quantile(x, 0.750, na.rm=TRUE)
     stats$Q975[1] <- stats::quantile(x, 0.975, na.rm=TRUE)
     stats$P.anova[1] <- p.anova
 

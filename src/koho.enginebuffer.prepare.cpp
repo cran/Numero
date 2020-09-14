@@ -1,6 +1,5 @@
-/* Created by Ville-Petteri Makinen 2003-2010
-   Copyright (C) V-P Makinen
-   All rights reserved */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #include "koho.local.h"
 
@@ -21,7 +20,7 @@ EngineBuffer::prepare() {
    
   /* Collect data. */
   vector<mdsize> loci;
-  unordered_map<string, Point>::iterator pt;
+  map<string, Point>::iterator pt;
   for(pt = points.begin(); pt != points.end(); pt++) {
     
     /* Copy location. */

@@ -10,8 +10,7 @@ K-means clustering for multi-dimensional data.
 }
 
 \usage{
-nroKmeans(data, k = 3, subsample = NULL, balance = 0,
-          metric = "euclid", message = NULL)
+nroKmeans(data, k = 3, subsample = NULL, balance = 0, message = NULL)
 }
 
 \arguments{
@@ -26,9 +25,6 @@ Number of randomly selected rows used during a single training cycle.
   }    
   \item{balance}{
 Penalty parameter for size difference between clusters.
-  }
-  \item{metric}{
-Distance metric in data space, either "euclid" or "pearson".
   }
   \item{message}{
 If positive, progress information is printed at the specified
@@ -53,15 +49,9 @@ balancing may become less accurate.
 \value{
 A list with named elements: \code{centroids} is a matrix of the
 main results, \code{layout} contains the best-matching centroid labels
-and model residuals for each usable data point, \code{history} is the
-chronological record of training errors, and \code{metric} is the distance
-metric that was used. The subsampling parameter that was used during
-training is stored in the element \code{subsample}.
-}
-
-\references{
-Lloyd SP (1982) Least squares quantization in PCM. IEEE Transactions on
-Information Theory, 28:129–137
+and model residuals for each usable data point and \code{history} is the
+chronological record of training errors. The subsampling parameter that was
+used during training is stored in the element \code{subsample}.
 }
 
 \examples{

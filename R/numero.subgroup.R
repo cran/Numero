@@ -27,7 +27,7 @@ numero.subgroup <- function(
     comps <- results$planes
     stats <- results$statistics
     variables <- intersect(variables, colnames(comps))
-    cat(length(variables), " column(s) included\n", sep="")
+    cat(length(variables), " columns included\n", sep="")
     if(length(variables) < 2) {
         cat("less than two usable variables\n")
         return(0)
@@ -99,10 +99,10 @@ numero.subgroup <- function(
     t <- table(topology$REGION)
     if(sum(names(t) == "not_selected") < 1) {
         nsubs <- length(t)
-        cat("\n", nsubs, " subgroup(s) selected\n", sep="")
+        cat("\n", nsubs, " subgroups selected\n", sep="")
     } else {
         nsubs <- (length(t) - 1)
-        cat("\n", nsubs, " + 1 subgroup(s) selected\n", sep="")
+        cat("\n", nsubs, " + 1 subgroups selected\n", sep="")
     }
     return(topology)
 }

@@ -32,18 +32,18 @@ numero.plot <- function(
     comps <- results$planes
     stats <- results$statistics
     variables <- intersect(variables, colnames(comps))
-    cat(length(variables), " column(s) included\n", sep="")
-    if(length(variables) < 2) {
-        cat("less than two usable variables\n", sep="")
+    cat(length(variables), " columns included\n", sep="")
+    if(length(variables) < 1) {
+        cat("no usable variables\n", sep="")
         return(0)
     }
 
     # Check if too many variables.
-    comps <- comps[,variables]
     stats <- stats[variables,]
+    comps <- comps[,variables,drop=FALSE]
     if(nrow(stats) > capacity) {
         cat("capacity exceeded, showing ", capacity, " plots.\n", sep="")
-        comps <- comps[,1:capacity]
+        comps <- comps[,1:capacity,drop=FALSE]
 	stats <- stats[1:capacity,]
     }
 
@@ -128,7 +128,7 @@ numero.plot <- function(
         # Print progress message.
         nfigs <- (nfigs + 1)
         cat("\nFigure ", nfigs, ":\n", sep="")
-        cat(length(mask), " subplot(s)\n", sep="")
+        cat(length(mask), " subplots\n", sep="")
 
         # Set file names.
         fn.svg <- NULL
@@ -189,7 +189,7 @@ numero.plot <- function(
 
     # Final report.
     cat("\nSummary:\n")
-    if(length(folder) < 1) cat(nfigs, " figure(s)\n", sep="")
-    else cat(nfigs, " figure(s) -> '", folder, "'\n", sep="")
+    if(length(folder) < 1) cat(nfigs, " figures\n", sep="")
+    else cat(nfigs, " figures -> '", folder, "'\n", sep="")
     return(nfigs)
 }

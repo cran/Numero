@@ -38,43 +38,44 @@ nroPostprocess <- function(
         return(NULL)
     }
 
-    # Preprocess new data.
-    output <- data[,vars]
-    for(vn in colnames(output)) {
-      output[,vn] <- NA
-      x <- model.in[,vn]
-      y <- model.out[,vn]
-      xout <- as.double(data[,vn])
-      mask <- which(is.finite(x*y))
-      if(length(mask) < 3) next
-      output[,vn] <- stats::approx(x=x[mask], y=y[mask],
-                                   rule=2, xout=xout)$y
+    # Prepare output.
+    output <- data
+    if(trim[[1]]) output <- NA*output
+
+    # Process columns.
+    for(vn in vars) {
+        x <- model.in[,vn]
+        y <- model.out[,vn]
+        xout <- as.double(data[,vn])
+        mask <- which(is.finite(x*y) & !duplicated(x))
+        if(length(mask) < 3) next
+        output[,vn] <- stats::approx(x=x[mask], y=y[mask],
+	                   rule=2, xout=xout)$y
     }
 
     # Remove empty rows.
-    if(trim) {
+    if(trim[[1]]) {
         mu <- rowMeans(output, na.rm=TRUE)
-        output <- output[which(is.finite(mu)),]
+        output <- output[which(is.finite(mu)),,drop=FALSE]
     }
     if(nrow(output) < 1) {
         warning("No usable rows.")
         return(NULL)
     }
     if(nrow(output) < nrow(data))
-        warning("Unusable row(s) excluded.")
+        warning("Unusable rows excluded.")
 
     # Remove empty columns.
-    if(trim) {
+    if(trim[[1]]) {
         mu <- colMeans(output, na.rm=TRUE)
-        output <- output[,which(is.finite(mu))]
+        output <- output[,which(is.finite(mu)),drop=FALSE]
     }
-    if(is.vector(output)) output <- as.matrix(output)
     if(ncol(output) < 1) {
         warning("No usable columns.")
         return(NULL)
     }
     if(ncol(output) < ncol(data))
-        warning("Unusable column(s) excluded.")
+        warning("Unusable columns excluded.")
 
     # Return results.
     return(output)

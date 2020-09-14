@@ -2,9 +2,7 @@
 \alias{nroPlot}
 \alias{nroPlot.save}
 
-\title{
-Plot a self-organizing map
-}
+\title{Plot a self-organizing map}
 
 \description{
 Create a graphical interface for selecting subgroups from multiple
@@ -25,11 +23,11 @@ A data frame with K rows and six or more columns that contain the district
 positions of a self-organizing map and optional region assignments.
   }
   \item{colors}{
-A character vector with K topology or a K x N matrix of hexadecimal
+A character vector with K elements or a K x N matrix of hexadecimal
 color codes as strings.
   }
   \item{labels}{
-A character vector with K topology or a K x N matrix of district labels.
+A character vector with K elements or a K x N matrix of district labels.
   }
   \item{subplot}{
 A two-element vector that sets out the number of rows and columns for
@@ -57,16 +55,16 @@ and REGION.label that specify the names for subsets of districts and the
 single character labels to be shown on top of those districts. The input
 can also be the list object as returned by \code{\link{nroKohonen}()}.
 
-The color input can include the attribute "contrast" that contains a
+The color input can include the attribute 'contrast' that contains a
 binary vector or a matrix of equal size. If an element is set, it means
 a dark label or highlight will have better contrast with the background.
 
-The label input can include the attribute "visible" that contains a
+The label input can include the attribute 'visible' that contains a
 binary vector or a matrix of equal size. If an element is set, it means
 a label is visible, otherwise it will not be shown on the map.
 
 Some non-alphanumeric characters are not supported and will be
-automatically converted to '_'. Too long labels or column names will be
+automatically converted to "_". Too long labels or column names will be
 truncated.
 
 The default value for \code{clear} is TRUE to prevent multiple plot windows
@@ -74,7 +72,7 @@ from accumulating within the RStudio. If you are running R from the terminal
 or using detached devices, setting \code{clear} to FALSE will retain the
 current window when refreshing.
 
-If the file name ends with '.html', an interactive HTML document is
+If the file name ends with ".html", an interactive HTML document is
 produced, otherwise an SVG document is created. We recommend opening the
 HTML file with a web browser to select regions on large maps (i.e. when the
 R plot window becomes too slow to use). The HTML page allows you to assign
@@ -83,15 +81,8 @@ subgroups and to save the results as tab-delimited text.
 
 \value{
 The main function returns a data frame with K rows that contains the
-topology and subgrouping information. The \code{.save} version returns
+topology and subgrouping information. The \code{.save} subroutine returns
 the number of bytes written in the output file.
-}
-
-\references{
-Gao S, Mutter S, Casey AE, Mäkinen V-P (2018) Numero: a
-statistical framework to define multivariable subgroups in complex
-population-based datasets, Int J Epidemiology,
-https://doi.org/10.1093/ije/dyy113
 }
 
 \examples{

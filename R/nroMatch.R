@@ -1,7 +1,6 @@
 nroMatch <- function(
     centroids,
-    data,
-    metric=NULL) {
+    data) {
 
     # Check if input is a list.
     som <- list()
@@ -13,16 +12,6 @@ nroMatch <- function(
         warning("Empty input.")
         return(NULL)
     }
-
-    # Check distance metric.
-    if(!is.null(metric) && !is.null(som$metric)) {
-        warning("Metric set according to centroids.")
-        metric <- som$metric
-    }
-    if(length(metric) < 1) metric <- som$metric
-    metric <- nroRcppVector(metric[[1]], default="", numeric=F)
-    if((metric != "euclid") && (metric != "pearson"))
-        stop("Unknown distance metric.")
 
     # Check variable names.
     vars <- colnames(centroids)
@@ -38,10 +27,9 @@ nroMatch <- function(
 
     # Find best-matching units.
     res <- .Call("nro_match",
-                 as.matrix(centroids),
-                 as.matrix(data),
-		 as.character(metric),
-                 PACKAGE="Numero")
+        as.matrix(centroids),
+        as.matrix(data),
+        PACKAGE="Numero")
     if(is.character(res)) stop(res)
     
     # Convert to data frame.
@@ -52,8 +40,8 @@ nroMatch <- function(
     if(is.null(som$history) == FALSE)
         delta <- som$history[length(som$history)]
     if(is.null(som$layout) == FALSE) {
-        sigma <- stats::quantile(som$layout$RESIDUAL, c(0.3085, 0.6915),
-                                 na.rm=TRUE)
+        sigma <- stats::quantile(som$layout$RESIDUAL,
+	    c(0.3085, 0.6915), na.rm=TRUE)
         sigma <- (sigma[2] - sigma[1])
     }
 

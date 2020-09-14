@@ -1,5 +1,5 @@
-/* Created by Ville-Petteri Makinen 2003-2010
-   Copyright (C) V-P Makinen */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #include "scriptum.local.h"
 
@@ -25,7 +25,7 @@ Artist::Artist(const string& fname) {
   }
   
   /* Print prolog. */
-  string protext = p->prolog(Color());
+  string protext = p->prolog();
   p->filesize += fprintf(p->output, "%s", protext.c_str());
   p->prosize = protext.size();
 }

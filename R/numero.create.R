@@ -23,13 +23,14 @@ numero.create <- function(
     # Set map radius.
     cat("\nSelf-organizing map:\n")
     if(is.null(radius)) {
-        radius <- round(log10(nrow(trdata) + 1))
+        radius <- 0.53*log(nrow(trdata) + 1)
+	radius <- max(round(radius), 3)
         cat("automatic radius set to ", radius, "\n", sep="")
     }
     
     # Set map smoothness.
     if(is.null(smoothness)) {
-        smoothness <- (0.5*log10(radius - 1) + 1)
+        smoothness <- (0.3*log(radius - 1) + 1)
         cat("automatic smoothness set to ", smoothness, "\n", sep="")
     }
 

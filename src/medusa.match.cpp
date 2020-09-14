@@ -1,6 +1,5 @@
-/* Created by Ville-Petteri Makinen 2016
-   Copyright (C) V-P Makinen
-   All rights reserved */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #include "medusa.local.h"
 

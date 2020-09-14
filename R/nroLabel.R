@@ -10,6 +10,10 @@ nroLabel <- function(
     # Convert inputs to numeric matrices.
     topology <- nroRcppMatrix(topology, trim=FALSE)
     values <- nroRcppMatrix(values, trim=FALSE)
+    if(nrow(values)*ncol(values) < 1) {
+        warning("Empty input.")
+	return(NULL)
+    }
 
     # Check topology and values.
     if(nrow(topology) < 2) stop("Unusable topology.")
@@ -26,33 +30,28 @@ nroLabel <- function(
 
     # Determine label positions.
     res <- .Call("nro_label",
-                 as.matrix(topology),
-                 as.matrix(values),
-		 as.integer(binflags),
-                 as.numeric(gap),
-                 PACKAGE = "Numero" )
+        as.matrix(topology),
+        as.matrix(values),
+	as.integer(binflags),
+        as.numeric(gap),
+        PACKAGE = "Numero" )
     if(is.character(res)) stop(res)
 
-    # Convert to data frame.
-    if(ncol(values) < 2) {
-        res$labels <- data.frame(as.vector(res$labels[[1]]),
-	    stringsAsFactors=FALSE)
-        res$visible <- data.frame(as.vector(res$visible[[1]]),
-	    stringsAsFactors=FALSE)
-    }
-    else {
-        res$labels <- data.frame(res$labels, stringsAsFactors=FALSE)
-        res$visible <- data.frame(res$visible, stringsAsFactors=FALSE)
+    # Convert to matrices.
+    labels <- matrix("", nrow=nrow(values), ncol=ncol(values))
+    visible <- matrix(NA, nrow=nrow(values), ncol=ncol(values))
+    for(j in 1:ncol(values)) {
+        labels[,j] <- res$labels[[j]]
+        visible[,j] <- res$visible[[j]]
     }
 
-    # Set row and columns names.
-    rownames(res$labels) <- rownames(values)
-    rownames(res$visible) <- rownames(values)
-    colnames(res$labels) <- colnames(values)
-    colnames(res$visible) <- colnames(values)
+    # Set row and column names.
+    rownames(labels) <- rownames(values)
+    rownames(visible) <- rownames(values)
+    colnames(labels) <- colnames(values)
+    colnames(visible) <- colnames(values)
 
     # Return results.
-    output <- res$labels
-    attr(output, "visible") <- res$visible
-    return(output)
+    attr(labels, "visible") <- visible
+    return(labels)
 }

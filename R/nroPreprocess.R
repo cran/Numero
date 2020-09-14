@@ -6,15 +6,14 @@ nroPreprocess <- function(
     trim=FALSE) {
 
     # Convert input to numeric matrix.
-    frameflag <- is.data.frame(data)
-    data <- nroRcppMatrix(data, trim=trim)
+    data <- nroRcppMatrix(data, trim=trim[[1]])
     binary <- attr(data, "binary")
 
     # Check if any rows or columns were excluded.
     if(length(attr(data, "excl.rows")) > 0)
-        warning("Unusable row(s) excluded.")
+        warning("Unusable rows excluded.")
     if(length(attr(data, "excl.columns")) > 0)
-        warning("Unusable column(s) excluded.")
+        warning("Unusable columns excluded.")
 
     # Check input size.
     if(nrow(data) < 1) {
@@ -27,10 +26,8 @@ nroPreprocess <- function(
  
     # Check resolution.
     resolution <- as.integer(resolution[[1]])
-    if(resolution < 20) { # see downsampling
-        warning("Unusable resolution.")
-        return(NULL)
-    }
+    if(resolution < 20) # see downsampling
+        stop("Unusable resolution.")
 
     # Standardize location and scale.
     ds.in <- data
@@ -44,9 +41,6 @@ nroPreprocess <- function(
     # Truncate extreme values.
     for(vn in colnames(ds.out))
         ds.out[,vn] <- nroPreprocess.clip(ds.out[,vn], method, clip)
-
-    # Convert back to data frame.
-    if(frameflag) ds.out <- as.data.frame(ds.out, stringsAsFactors=FALSE)
 
     # If no preprocessing, binary variables remain binary.
     if(method == "") {

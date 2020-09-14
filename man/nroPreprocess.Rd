@@ -47,9 +47,9 @@ Clipping is not applied if the method is rank-based.
 }
 
 \value{
-A matrix (or data frame) of numerical values. A value mapping model is
-stored in the attribute "mapping". The names of binary columns are stored
-in the attribute "binary".
+A matrix of numerical values. A value mapping model is stored in the
+attribute 'mapping'. The names of binary columns are stored in the
+attribute 'binary'.
 }
 
 \author{

@@ -4,7 +4,6 @@ numero.prepare <- function(
     confounders=NULL,
     batch=NULL,
     method="standard",
-    coalesce=FALSE,
     pipeline=NULL) {
 
     # Start processing.
@@ -37,11 +36,11 @@ numero.prepare <- function(
 
         # Check that enough columns.
         cat(length(convars), " / ", length(confounders),
-            " confounder column(s)\n", sep="")
+            " confounder columns\n", sep="")
         cat(length(batvars), " / ", length(batch),
-            " batch column(s)\n", sep="")
+            " batch columns\n", sep="")
         cat(length(datvars), " / ", length(variables),
-            " data column(s)\n", sep="")
+            " data columns\n", sep="")
         if(length(datvars) < 3) {
             cat("too few data columns\n")
             return(NULL)
@@ -70,34 +69,18 @@ numero.prepare <- function(
 	        method=method, trim=TRUE))
             pipeline$mapping2 <- attr(dsT, "mapping")
         }
-
-        # Merge collinear variables.
-	if(is.logical(coalesce)) {
-	    if(coalesce[[1]]) {
-	        dsT <- nroCoalesce(data=dsT)
-                pipeline$modules <- attr(dsT, "modules")
-	    }
-	}
-        if(is.numeric(coalesce)) {
-	    dsT <- nroCoalesce(data=dsT,
-		threshold=coalesce[[1]], degree=coalesce[[2]])
-            pipeline$modules <- attr(dsT, "modules")
-	}
-        if(!is.null(pipeline$modules))
-            cat(length(pipeline$modules), " collinear module(s)\n", sep="")
     }
 
     # Check if pipeline is in the attribute.
     if(is.data.frame(pipeline) || is.matrix(pipeline)) 
         pipeline <- attr(pipeline, "pipeline")
-    ds <- data
 
     # First round of preprocessing, keep empty rows.
-    cat("\nProcessing:\n")
+    cat("\nProcessing:\n"); ds <- data
     if(!is.null(pipeline$mapping1)) {
         suppressWarnings(ds <- nroPostprocess(data=ds,
             mapping=pipeline$mapping1, trim=FALSE))
-        cat(ncol(ds), " column(s) standardized\n", sep="")
+        cat(ncol(ds), " columns standardized\n", sep="")
     }
 
     # Adjust for confounding.
@@ -115,20 +98,17 @@ numero.prepare <- function(
     if(!is.null(pipeline$mapping2) && (length(ds) > 0)) {
         suppressWarnings(ds <- nroPostprocess(data=ds,
             mapping=pipeline$mapping2, trim=TRUE))
-        cat(ncol(ds), " column(s) re-standardized\n", sep="")
+        cat(ncol(ds), " columns re-standardized\n", sep="")
     }
 
-    # Merge collinear variables.
-    nusable <- ncol(ds)
-    if(!is.null(pipeline$modules))
-        ds <- nroCoalesce.merge(data=ds, modules=pipeline$modules)
+    # Convert to matrix.
+    if(is.null(ds)) ds <- matrix(nrow=0, ncol=0)
+    else ds <- as.matrix(ds)
 
     # Final report.
-    if(is.null(ds)) ds <- data.frame()
     cat("\nSummary:\n", sep="")
-    cat(nrow(ds), " / ", nrow(data), " usable row(s)\n", sep="")
-    cat(nusable, " / ", ncol(data), " usable column(s)\n", sep="")
-    if(ncol(ds) < nusable) cat(ncol(ds), " coalesced column(s)\n", sep="")
+    cat(nrow(ds), " / ", nrow(data), " usable rows\n", sep="")
+    cat(ncol(ds), " / ", ncol(data), " usable columns\n", sep="")
 
     # Return results.
     attr(ds, "pipeline") <- pipeline
@@ -208,22 +188,22 @@ numero.prepare.adjust <- function(ds, coeff) {
     failed <- character()
     vars <- intersect(colnames(ds), rownames(coeff))
     for(vn in vars) {
-        ds[,vn] <- (ds[,vn] - confs %*% coeff[vn,])
+        x <- as.double(confs %*% coeff[vn,])
+        ds[,vn] <- (ds[,vn] - x)
         if(sum(is.finite(ds[,vn])) > 0) next
 	failed <- c(failed, vn)
     }
-    
 
     # Number of failed adjustments.
     nfail <- length(failed)
-    if(nfail > 0) cat(nfail, " adjustment(s) failed\n", sep="")
+    if(nfail > 0) cat(nfail, " adjustments failed\n", sep="")
     if(nfail == length(vars)) return(NULL)
 
     # Show report.
-    cat(length(vars), " column(s) adjusted\n", sep="")
+    cat(length(vars), " columns adjusted\n", sep="")
 
     # Return results.
-    return(ds[,vars])
+    return(ds[,vars,drop=FALSE])
 }
 
 #--------------------------------------------------------------------------
@@ -253,7 +233,7 @@ numero.prepare.flatten <- function(ds, ds.orig, batch) {
     vars <- setdiff(colnames(ds.new), incomp)
     vars <- intersect(vars, colnames(ds))
     ds <- ds[,vars]; ds.new <- ds.new[,vars]
-    cat(length(incomp), " incomplete correction(s)\n", sep="")
+    cat(length(incomp), " incomplete corrections\n", sep="")
 
     # Check if anything to do.
     if(length(vars) < 2) {
@@ -320,7 +300,7 @@ numero.prepare.correct <- function(ds, ds.orig, param) {
     }
 
     # Show report.
-    cat(length(vars), " column(s) corrected\n", sep="")
+    cat(length(vars), " columns corrected\n", sep="")
 
     # Convert row indices to names.
     rnames <- rownames(ds)

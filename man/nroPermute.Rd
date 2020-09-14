@@ -52,9 +52,9 @@ the names of elements in \code{districts}.
 }
 
 \value{
-A data frame with eight columns. For example, P.z is a parametric estimate
-for statistical significance, P.freq is the frequency-based estimate for
-statistical signicance, and Z is the estimated z-score of how far the
+A data frame with eight columns: P.z is a parametric estimate for statistical
+significance, P.freq is the frequency-based estimate for statistical
+signicance, and Z is the estimated z-score of how far the
 observed map plane is from the average randomly generated layout.
 N.data indicates how many data values were used and N.cycles tells the
 number of completed permutations. AMPLITUDE is a dynamic range modifier
@@ -62,13 +62,6 @@ for colors that can be used in \code{\link{nroColorize}()}.
 
 The output also contains the attribute 'zbase' that indicates the
 normalization factor for the color amplitudes.
-}
-
-\references{
-Gao S, Mutter S, Casey AE, Mäkinen V-P (2018) Numero: a
-statistical framework to define multivariable subgroups in complex
-population-based datasets, Int J Epidemiology,
-https://doi.org/10.1093/ije/dyy113
 }
 
 \examples{

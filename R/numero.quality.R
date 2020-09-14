@@ -64,16 +64,16 @@ numero.quality.planes <- function(model, data, layout) {
     if(is.null(data)) data <- model$data
 
     # Component planes.
+    h <- nroAggregate(topology=model$map, districts=layout[,"BMC"])
     comps <- nroAggregate(topology=model$map,
-                          data=layout, districts=layout$BMC)
-    comps$HISTOGRAM <- nroAggregate(topology=model$map,
-                                    districts=layout$BMC)
-    comps$BMC <- NULL
+        data=layout[,setdiff(colnames(layout),"BMC")],
+	districts=layout[,"BMC"])
+    comps <- cbind(comps, HISTOGRAM=h)
 
     # Adjust coverage for missing training variables.
     pos <- match(colnames(model$data), colnames(data))
     r <- sum(is.finite(pos))/ncol(model$data)
-    comps$COVERAGE <- r*(comps$COVERAGE)
+    comps[,"COVERAGE"] <- r*(comps[,"COVERAGE"])
     attr(comps, "binary") <- "COVERAGE"
     return(comps)
 }
@@ -84,13 +84,13 @@ numero.quality.statistics <- function(model, layout) {
     cat("\nStatistics:\n")
 
     # Separate district labels from quality measures.
-    bmc <- layout$BMC
+    bmc <- layout[,"BMC"]
     names(bmc) <- rownames(layout)
-    layout$BMC <- NULL
+    layout[,"BMC"] <- NULL
 
     # Add jitter to coverage to prevent numerical artefacts.
     r <- stats::runif(nrow(layout))
-    layout$COVERAGE <- (layout$COVERAGE + 0.01*r)
+    layout[,"COVERAGE"] <- (layout[,"COVERAGE"] + 0.01*r)
 
     # Permutation analysis.
     stats <- nroPermute(map=model$map, districts=bmc,
@@ -128,11 +128,11 @@ numero.quality.statistics <- function(model, layout) {
 
     # Update base score and apmplitudes.
     zbase <- max(c(stats$Z, 3), na.rm=TRUE)
-    stats$AMPLITUDE <- pmax((stats$Z)/zbase, 0.04)
+    stats[,"AMPLITUDE"] <- pmax((stats[,"Z"])/zbase, 0.04)
     attr(stats, "zbase") <- zbase
 
     # Show report.
     cat(nrow(stats), " quality measures\n", sep="")
-    cat(sum(stats$N.cycles), " permutations\n", sep="")
+    cat(sum(stats[,"N.cycles"]), " permutations\n", sep="")
     return(stats)
 }

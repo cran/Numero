@@ -1,5 +1,5 @@
-/* Created by Ville-Petteri Makinen 2003-2010
-   Copyright (C) V-P Makinen */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #include "scriptum.local.h"
 
@@ -19,7 +19,7 @@ Frame::text(const mdreal x, const mdreal y, const string& s) {
   /* Create element. */
   mdreal fs = sty.fontsize;
   sprintf(p->f(), "\n<text x=\"%.3f\" ", x);
-  sprintf(p->f(), "y=\"%.3f\"\n", (y + 0.3*fs));
+  sprintf(p->f(), "y=\"%.3f\"\n", (y + 0.34*fs));
   p->append(p->textstycode);
   p->append(">\n"); p->append(s); 
   p->append("\n</text>\n");

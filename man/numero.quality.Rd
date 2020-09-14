@@ -36,10 +36,6 @@ the colormap to be used for colorings; and \code{statistics} contains
 the output from \code{\link{nroPermute}()}.
 }
 
-\author{
-Ville-Petteri Makinen
-}
-
 \examples{
 # Import data.
 fname <- system.file("extdata", "finndiane.txt", package = "Numero")

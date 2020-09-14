@@ -34,40 +34,6 @@ rm(list=ls())
     print(head(planes))
 
 
-cat("\nnroCoalesce.Rd\n")
-rm(list=ls())
-
-    # Random data matrix.
-    x <- matrix(rnorm(100000), ncol=100)
-    
-    # Create correlation modules.
-    x[,12:20] <- (x[,12:20] + x[,11])
-    x[,32:40] <- (x[,32:40] + x[,31])
-    x[,62:90] <- (x[,62:90] + x[,61])
-    x[,50] <- (x[,20] + x[,90]) # connecting node
-    
-    # Set column names.
-    cnames <- paste0("X", 1:ncol(x))
-    cnames[11:20] <- paste0("M1.", cnames[11:20])
-    cnames[31:40] <- paste0("M2.", cnames[31:40])
-    cnames[61:90] <- paste0("M3.", cnames[61:90])
-    colnames(x) <- cnames
-    
-    # Merge collinear modules.
-    y <- nroCoalesce(x)
-    
-    # Show merged columns.
-    modules <- attr(y,"modules")
-    mnames <- names(modules)
-    print(summary(y[,mnames]))
-    
-    # Show module members.
-    lapply(mnames, function(k, x) {
-        cat("\n", k, "\n", sep="")
-        print(x[[k]]$weights)
-    }, x=modules)
-
-
 cat("\nnroColorize.Rd\n")
 rm(list=ls())
 
@@ -93,7 +59,7 @@ rm(list=ls())
     planes <- nroAggregate(topology = sm, districts = matches, data = dataset)
     
     # District colors for cholesterol.
-    chol <- nroColorize(values = planes$CHOL)
+    chol <- nroColorize(values = planes[,"CHOL"])
     print(head(chol))
     
     # District colors for all variables.
@@ -138,20 +104,20 @@ rm(list=ls())
     
     # Convert identities to strings (produces a warning later).
     ds <- dataset
-    ds$INDEX <- paste("K", ds$INDEX, sep=".")
+    ds[,"INDEX"] <- paste("K", ds[,"INDEX"], sep=".")
     
     # Introduce missing values to cholesterol.
     missing <- seq(from = 1, to = nrow(ds), length.out = 40)
     missing <- unique(round(missing))
-    ds$CHOL[missing] <- NA
+    ds[missing,"CHOL"] <- NA
     
     # Impute missing values with and without standardization.
     ds.std <- nroImpute(data = ds, standard = TRUE)
     ds.orig <- nroImpute(data = ds, standard = FALSE)
     
     # Compare against "true" cholesterol values.
-    rho.std <- cor(ds.std$CHOL[missing], dataset$CHOL[missing])
-    rho.orig <- cor(ds.orig$CHOL[missing], dataset$CHOL[missing])
+    rho.std <- cor(ds.std[missing,"CHOL"], dataset[missing,"CHOL"])
+    rho.orig <- cor(ds.orig[missing,"CHOL"], dataset[missing,"CHOL"])
     cat("Correlation, standard = TRUE:  ", rho.std, "\n", sep="")
     cat("Correlation, standard = FALSE: ", rho.orig, "\n", sep="")
 
@@ -223,7 +189,7 @@ rm(list=ls())
     planes <- nroAggregate(topology = sm, districts = matches, data = dataset)
     
     # District labels for cholesterol.
-    chol <- nroLabel(topology = sm, values = planes$CHOL)
+    chol <- nroLabel(topology = sm, values = planes[,"CHOL"])
     print(head(attr(chol, "visible")))
     print(head(chol))
     
@@ -498,7 +464,7 @@ rm(list=ls())
     # Calculate district averages for urinary albumin.
     plane <- nroAggregate(topology = sm, districts = matches,
                           data = dataset$uALB)
-    plane <- as.vector(plane[[1]])
+    plane <- as.vector(plane)
     
     # Assign subgroups based on urinary albumin.
     regns <- rep("HighAlb", length.out=length(plane))
@@ -652,7 +618,8 @@ rm(list=ls())
     
     # Prepare training variables.
     trvars <- c("CHOL", "HDL2C", "TG", "CREAT", "uALB")
-    trdata <- numero.prepare(data = dataset, variables = trvars)
+    trdata <- numero.prepare(data = dataset, variables = trvars,
+        batch = "MALE", confounders = c("AGE", "T1D_DURAT"))
     
     # Create a self-organizing map.
     modl <- numero.create(data = trdata)
@@ -753,7 +720,7 @@ rm(list=ls())
     stats <- numero.evaluate(model = modl, data = dataset)
     
     # Define subgroups.
-    x <- stats$planes$uALB
+    x <- stats$planes[,"uALB"]
     tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
     bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
     elem <- data.frame(stats$map$topology, stringsAsFactors = FALSE)

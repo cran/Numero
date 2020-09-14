@@ -512,6 +512,9 @@ to integer labels before analyses.
 
 ## Prepare
 
+Before any analysis, we recommend using `numero.create` to check that
+the data are in usable format (the previous section on data integrity).
+
 A typical usage case of the Numero framework involves a set of training
 variables that are considered to explain medical or other outcomes. Here,
 we use the biochemical data as the training variables under the general
@@ -770,7 +773,7 @@ REAL STUDIES.**
 
 ``` {r echo=FALSE, results=FALSE}
 # Workaround for the vignette document, DO NOT USE IN REAL STUDIES!
-x <- (stats.basic$planes$DIAB_KIDNEY)*(stats.basic$planes$uALB)
+x <- (stats.basic$planes[,"DIAB_KIDNEY"])*(stats.basic$planes[,"uALB"])
 tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
 bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
 workaround <- as.data.frame(stats.basic$map$topology)
@@ -997,8 +1000,8 @@ balanced
 
 ``` {r}
 # Variation in point density in unadjusted and adjusted analyses.
-c(sd(qc.basic$planes$HISTOGRAM, na.rm=TRUE),
-  sd(qc.adj$planes$HISTOGRAM, na.rm=TRUE))
+c(sd(qc.basic$planes[,"HISTOGRAM"], na.rm=TRUE),
+  sd(qc.adj$planes[,"HISTOGRAM"], na.rm=TRUE))
 ```
 
 and the depletion of data points in the poor quality area is attenuated:
@@ -1125,7 +1128,7 @@ REAL STUDIES.**
 
 ``` {r echo=FALSE, results=FALSE}
 # Workaround for the vignette document, DO NOT USE IN REAL STUDIES!
-x <- (stats.adj$planes$DIAB_KIDNEY)*(stats.adj$planes$uALB)
+x <- (stats.adj$planes[,"DIAB_KIDNEY"])*(stats.adj$planes[,"uALB"])
 tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
 bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
 workaround <- as.data.frame(stats.adj$map$topology)
@@ -1191,12 +1194,12 @@ here the gap has been reduced:
 
 ``` {r}
 # District averages from unadjusted analysis.
-summary(stats.basic$planes$MALE)
+summary(stats.basic$planes[,"MALE"])
 ```
 
 ``` {r}
 # District averages from adjusted analysis.
-summary(stats.adj$planes$MALE)
+summary(stats.adj$planes[,"MALE"])
 ```
 
 The results for mortality have changed as a consequence of the changes in
@@ -1256,7 +1259,7 @@ add a dataset of men with the metabolic syndrome as a third cohort:
 ``` {r}
 ds.discov <- dataset[women,]
 ds.replic <- dataset[men,]
-ds.mets <- ds.replic[which(ds.replic$METAB_SYNDR == 1),]
+ds.mets <- ds.replic[which(ds.replic[,"METAB_SYNDR"] == 1),]
 ```
 
 We create four preprocessed datasets (one for discovery/training and three
@@ -1272,7 +1275,7 @@ trdata.discov <- numero.prepare(data = ds.discov, variables = trvars,
 ```
 
 ``` {r}
-summary(trdata.discov$uALB)
+summary(trdata.discov[,"uALB"])
 ```
 
 ``` {r results="hide"}
@@ -1282,7 +1285,7 @@ trdata.replicA <- numero.prepare(data = ds.replic, pipeline = param)
 ```
 
 ``` {r}
-summary(trdata.replicA$uALB)
+summary(trdata.replicA[,"uALB"])
 ```
 
 The first replication dataset A is analogous to a situation where two
@@ -1301,7 +1304,7 @@ trdata.replicB <- numero.prepare(data = ds.replic, variables = trvars,
 ```
 
 ``` {r}
-summary(trdata.replicB$uALB)
+summary(trdata.replicB[,"uALB"])
 ```
 
 The second dataset B is adjusted for discrepancies in average values.
@@ -1318,7 +1321,7 @@ trdata.mets <- numero.prepare(data = ds.mets, variables = trvars,
 ```
 
 ``` {r}
-summary(trdata.mets$uALB)
+summary(trdata.mets[,"uALB"])
 ```
 
 The third dataset reflects a situation where the study cohort have been
@@ -1374,17 +1377,17 @@ compared to the earlier examples:
 
 ``` {r}
 # Define comparable histogram bins.
-rz <- c(qc.adj$layout$RESIDUAL.z, qc.discov$layout$RESIDUAL.z)
+rz <- c(qc.adj$layout[,"RESIDUAL.z"], qc.discov$layout[,"RESIDUAL.z"])
 rz.breaks <- seq(min(rz, na.rm=TRUE), max(rz, na.rm=TRUE), length.out=20)
 ``` 
 
 ``` {r dev="svg", results="hide", fig.width=7, fig.height=3, fig.align="center", fig.cap="Figure: Distribution of model residuals when the training data were preprocessed by scaling & centering or by tapered ranking."}
 # Plot frequencies of data points at different quality levels.
 par(mar = c(5,4,1,0), mfrow = c(1,2))
-hist(x = qc.adj$layout$RESIDUAL.z, breaks = rz.breaks,
+hist(x = qc.adj$layout[,"RESIDUAL.z"], breaks = rz.breaks,
      main = NULL, xlab = "RESIDUAL.z (scale & center)",
      ylab = "Number of data points", col = "#FFEFA0", cex = 0.8)
-hist(x = qc.discov$layout$RESIDUAL.z, breaks = rz.breaks,
+hist(x = qc.discov$layout[,"RESIDUAL.z"], breaks = rz.breaks,
      main = NULL, xlab = "RESIDUAL.z (rank)",
      ylab = "Number of data points", col = "#FFEFA0", cex = 0.8)
 ```
@@ -1396,12 +1399,12 @@ residuals than the previous centered and scaled training set:
 
 ``` {r}
 # Comparison of maximum residuals across examples.
-r <- c(max(qc.basic$layout$RESIDUAL.z, na.rm=TRUE),
-       max(qc.adj$layout$RESIDUAL.z, na.rm=TRUE),
-       max(qc.discov$layout$RESIDUAL.z, na.rm=TRUE),
-       max(qc.replicA$layout$RESIDUAL.z, na.rm=TRUE),
-       max(qc.replicB$layout$RESIDUAL.z, na.rm=TRUE),
-       max(qc.mets$layout$RESIDUAL.z, na.rm=TRUE))
+r <- c(max(qc.basic$layout[,"RESIDUAL.z"], na.rm=TRUE),
+       max(qc.adj$layout[,"RESIDUAL.z"], na.rm=TRUE),
+       max(qc.discov$layout[,"RESIDUAL.z"], na.rm=TRUE),
+       max(qc.replicA$layout[,"RESIDUAL.z"], na.rm=TRUE),
+       max(qc.replicB$layout[,"RESIDUAL.z"], na.rm=TRUE),
+       max(qc.mets$layout[,"RESIDUAL.z"], na.rm=TRUE))
 names(r) <- c("basic", "adj", "discov", "replicA", "replicB", "mets")
 print(r)
 ```
@@ -1588,7 +1591,7 @@ REAL STUDIES.**
 
 ``` {r echo=FALSE, results=FALSE}
 # Workaround for the vignette document, DO NOT USE IN REAL STUDIES!
-x <- (stats.discov$planes$DIAB_KIDNEY)*(stats.discov$planes$uALB)
+x <- (stats.discov$planes[,"DIAB_KIDNEY"])*(stats.discov$planes[,"uALB"])
 tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
 bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
 workaround <- as.data.frame(stats.discov$map$topology)
@@ -1772,97 +1775,6 @@ try setting the `subsample` parameter to something less than the number of
 rows in the training set. It may also take a long time to evaluate the map
 statistics; to reduce waiting time, you can assign data columns into smaller
 batches and then run each batch on a different processor in parallel.
-
----
-###########################################################################
----
-
-# Collinear inputs
-
-High-dimensional datasets are usually characterized by strong correlations
-between groups of variables. The correlations can arise from multiple factors
-and the SOM is in general a safe approach to use even if some unwanted
-collinearity is present. In an extreme case, data collection can be biased
-to an extent that the SOM patterns start to reflect the limitations of
-the collection protocol rather than the phenomena under study.
-
-Consider the following example: a mass spectrometry platform is optimized to
-capture a large number of lipid molecules from a biological sample, but
-only a few non-lipid metabolites are available. If the goal of the SOM is
-to model the biochemical profiles, then using such data as such may end up
-reducing the SOM to a model that is too heavily influenced by the amount of
-lipid in the sample at the expence of other molecular information.
-
-The Numero offers a network-based tool to merge collinear variables in a
-dataset. This is beneficial particularly when training the SOM as it allows
-for a more balanced model fit, but it is also of general utility as a means
-to reduce the dimensionality of a given dataset in a way that is also easy
-to interpret.
-
-To demonstrate how the procedure works, we start with a random dataset:
-
-``` {r eval=TRUE}
-# Random data matrix.
-x <- matrix(rnorm(100000), ncol=100)
-```
-
-Next, correlation structure is introduced by adding values together across
-columns:
-
-``` {r eval=TRUE}
-# Create correlation modules.
-x[,12:20] <- (x[,12:20] + x[,11])
-x[,32:40] <- (x[,32:40] + x[,31])
-x[,62:90] <- (x[,62:90] + x[,61])
-x[,50] <- (x[,20] + x[,90]) # connecting node
-```
-
-Note the addition of the connecting node. This will produce an edge between
-two network modules to illustrate a scenario where correlation structure is
-too complex to be divided into fully separate modules.
-
-To keept track of things, the columns are named in a way that reflects the
-modular correlations. This helps us to verify that the results are correct.
-``` {r eval=TRUE}
-# Set column names.
-cnames <- paste0("X", 1:ncol(x))
-cnames[11:20] <- paste0("M1.", cnames[11:20])
-cnames[31:40] <- paste0("M2.", cnames[31:40])
-cnames[61:90] <- paste0("M3.", cnames[61:90])
-colnames(x) <- cnames
-```
-To merge redundant columns into a single column of aggregated score, we
-invoke the appropriate option in `numero.prepare()`:
-``` {r eval=TRUE}
-# Merge collinear modules.
-y <- numero.prepare(x, coalesce=TRUE, method="")
-```
-
-For a more granular control of the algorithm, refer to the help page of
-`nroCoalesce()`.
-
-We can now compare the columns before and after merging:
-``` {r eval=TRUE}
-# Columns that were removed or added.
-print(setdiff(colnames(x), colnames(y)))
-print(setdiff(colnames(y), colnames(x)))
-```
-
-The output from `numero.prepare()` also contains detailed information
-of the modules:
-``` {r eval=TRUE}
-# Show module members.
-modules <- attr(y,"pipeline")$modules
-mnames <- names(modules)
-lapply(mnames, function(k, x) {
-    cat("\n", k, "\n", sep="")
-    print(x[[k]]$weights)
-}, x=modules)
-```
-
-Importantly, the same pipeline can be applied to new datasets (via
-`numero.prepare()`) to allow the same preprocessing procedures to be used
-across multiple datasets.
 
 ---
 ###########################################################################

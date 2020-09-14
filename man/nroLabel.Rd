@@ -40,16 +40,9 @@ aforementioned output list.
 }
 
 \value{
-A data frame with K rows and N columns that contains easy-to-read labels
+A matrix with K rows and N columns that contains selected labels
 for the map districts for each of the columns in \code{values}. The output
-has the attribute "visible" that contains binary flags to guide visibility.
-}
-
-\references{
-Gao S, Mutter S, Casey AE, Mäkinen V-P (2018) Numero: a
-statistical framework to define multivariable subgroups in complex
-population-based datasets, Int J Epidemiology,
-https://doi.org/10.1093/ije/dyy113
+has the attribute 'visible' that contains binary flags to guide visibility.
 }
 
 \examples{
@@ -75,7 +68,7 @@ matches <- nroMatch(centroids = sm, data = trdata)
 planes <- nroAggregate(topology = sm, districts = matches, data = dataset)
 
 # District labels for cholesterol.
-chol <- nroLabel(topology = sm, values = planes$CHOL)
+chol <- nroLabel(topology = sm, values = planes[,"CHOL"])
 print(head(attr(chol, "visible")))
 print(head(chol))
 

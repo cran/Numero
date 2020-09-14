@@ -67,12 +67,8 @@ A data frame of summary statistics that contains a row for every
 combination of subgroups and variables. The chi-squared test is used for
 comparisons with respect to categorical variables, and rank-regulated t-test
 and ANOVA are applied to continuous variables. Region labels for each row
-are stored in the attribute "labels" and a list that contains the subsets
-of rows in each region is stored in the attribute "subgroups".
-}
-
-\author{
-Ville-Petteri Makinen
+are stored in the attribute 'labels' and a list that contains the subsets
+of rows in each region is stored in the attribute 'subgroups'.
 }
 
 \examples{
@@ -97,7 +93,7 @@ matches <- nroMatch(centroids = sm, data = trdata)
 # Calculate district averages for urinary albumin.
 plane <- nroAggregate(topology = sm, districts = matches,
                       data = dataset$uALB)
-plane <- as.vector(plane[[1]])
+plane <- as.vector(plane)
 
 # Assign subgroups based on urinary albumin.
 regns <- rep("HighAlb", length.out=length(plane))

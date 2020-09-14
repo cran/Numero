@@ -1,6 +1,5 @@
-/* Created by Ville-Petteri Makinen 2003-2010
-   Copyright (C) V-P Makinen
-   All rights reserved */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #include "koho.local.h"
 
@@ -14,12 +13,10 @@ Model::Model() {
 /*
  *
  */
-Model::Model(const Topology& topo, const mdsize nsub,
-	     const mdreal eq, const string& s) {
+Model::Model(const Topology& topo, const mdsize nsub, const mdreal eq) {
   ModelBuffer* p = new ModelBuffer();
   p->ntrain = nsub;
   p->equality = eq;
-  p->metric = s;
   p->topology = topo;
   this->buffer = p;
 }

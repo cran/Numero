@@ -1,5 +1,5 @@
-/* Created by Ville-Petteri Makinen 2003-2010
-   Copyright (C) V-P Makinen */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #ifndef scriptum_local_INCLUDED
 #define scriptum_local_INCLUDED
@@ -74,6 +74,7 @@ namespace scriptum_local {
   class ArtistBuffer {
   public:
     mdsize ngroups;
+    Color bgcolor;
     unsigned long counter;
     unsigned long filesize;
     unsigned long prosize;
@@ -85,6 +86,7 @@ namespace scriptum_local {
       this->counter = 0;
       this->filesize = 0;
       this->prosize = 0;
+      this->bgcolor = Color("#ffffff");
       this->output = NULL;
     };
     ArtistBuffer(const void* ptr) {
@@ -101,7 +103,7 @@ namespace scriptum_local {
     ~ArtistBuffer() {
       if(output != NULL) closefile(output);
     };
-    string prolog(const Color&) const;
+    string prolog() const;
   };
 
   /* Utility functions. */

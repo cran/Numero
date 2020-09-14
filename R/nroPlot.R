@@ -11,6 +11,10 @@ nroPlot <- function(
     if(is.factor(labels)) labels <- as.character(labels)
     if(is.vector(colors)) colors <- as.matrix(colors)
     if(is.vector(labels)) labels <- as.matrix(labels)
+    if(nrow(colors)*ncol(colors) < 1) {
+        warning("Empty input.")
+        return(NULL)
+    }
 
     # Default labels.
     if(is.null(labels)) labels <- matrix(nrow=0, ncol=0)
@@ -390,10 +394,11 @@ nroPlot.multi <- function(elements, param, targets=c()) {
 	elements$LABEL <- labls[,j]
 
         # Set label colors.
-        elements$LABEL.color <- "black"
-        lum <- grDevices::col2rgb(elements$COLOR)
-        lum <- apply(lum, 2, stats::median, na.rm=TRUE)
-        elements$LABEL.color[which(lum < 90)] <- "white"
+	elements$LABEL.color <- "#00000060"
+        #elements$LABEL.color <- "black"
+        #lum <- grDevices::col2rgb(elements$COLOR)
+        #lum <- apply(lum, 2, stats::median, na.rm=TRUE)
+        #elements$LABEL.color[which(lum < 90)] <- "white"
 
         # Create subplot.
         nroPlot.single(elements, c(dx, dy), scale=cexcoeff, targets)

@@ -19,15 +19,14 @@ A vector of K values or a K x N data frame, where K is the number of map
 districts and N is the number of variables.
   }
   \item{ranges}{
-A data frame with N rows and 2 columns.
+A data frame with N rows and 2 columns, see details.
   }
   \item{amplitudes}{
 Single value or a vector of N elements or a data frame of N rows that
 contains the column AMPLITUDE.
   }
   \item{palette}{
-One of pre-defined colormap names (see details) or a sorted vector of
-hexadecimal color codes as strings. 
+One of pre-defined colormap names (see details). 
   }
 }
 
@@ -50,17 +49,10 @@ or "tan". Any other word will revert to a rainbow colormap.
 }
 
 \value{
-A data frame of hexadecimal color codes as strings. The output also includes
-the attribute "contrast" that indicates which colors have a good contrast with
-black as opposed to white, and the attribute "ranges" that contains a copy
+A matrix of hexadecimal color codes as strings. The output also includes
+the attribute 'contrast' that indicates which colors have a good contrast with
+black as opposed to white, and the attribute 'ranges' that contains a copy
 of the dynamic ranges across districts.
-}
-
-\references{
-Gao S, Mutter S, Casey AE, Mäkinen V-P (2018) Numero: a
-statistical framework to define multivariable subgroups in complex
-population-based datasets, Int J Epidemiology,
-https://doi.org/10.1093/ije/dyy113
 }
 
 \examples{
@@ -86,7 +78,7 @@ matches <- nroMatch(centroids = sm, data = trdata)
 planes <- nroAggregate(topology = sm, districts = matches, data = dataset)
 
 # District colors for cholesterol.
-chol <- nroColorize(values = planes$CHOL)
+chol <- nroColorize(values = planes[,"CHOL"])
 print(head(chol))
 
 # District colors for all variables.

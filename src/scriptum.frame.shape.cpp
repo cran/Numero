@@ -1,5 +1,5 @@
-/* Created by Ville-Petteri Makinen 2003-2010
-   Copyright (C) V-P Makinen */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #include "scriptum.local.h"
 
@@ -61,9 +61,9 @@ make_path(const mdreal x, const mdreal y, const mdreal r,
   }
 
   /* Determine symbol rotation. */
-  string s = (name + "/0.0 ");
+  string s = (name + "|0.0 ");
   const char* array = s.c_str();
-  char* pos = (char*)strchr(array, '/'); pos++;
+  char* pos = (char*)strchr(array, '|'); pos++;
   double theta = atof(pos)*3.1416/180;
 
   /* Create polygonal shapes. */
@@ -102,16 +102,12 @@ make_path(const mdreal x, const mdreal y, const mdreal r,
     break;
   case 's':
     if(s.substr(0, 6) == "square") {
-      px.resize(8); py.resize(8);
-      px[0]  = -0.9500; py[0]  = -0.9500;
-      px[1]  =  0.0000; py[1]  = -0.8265;
-      px[2]  =  0.9500; py[2]  = -0.9500;
-      px[3]  =  0.8265; py[3]  =  0.0000;
-      px[4]  =  0.9500; py[4]  =  0.9500;
-      px[5]  =  0.0000; py[5]  =  0.8265;
-      px[6]  = -0.9500; py[6]  =  0.9500;
-      px[7]  = -0.8265; py[7]  =  0.0000;
-    }
+      px.resize(4); py.resize(4);
+      px[0]  = -0.9400; py[0]  = -0.9400;
+      px[1]  =  0.9400; py[1]  = -0.9400;
+      px[2]  =  0.9400; py[2]  =  0.9400;
+      px[3]  = -0.9400; py[3]  =  0.9400;
+     }
     if(s.substr(0, 4) == "star") {
       px.resize(12); py.resize(12);
       px[0]  =  0.8125; py[0]  =  0.0000;
@@ -142,15 +138,15 @@ make_path(const mdreal x, const mdreal y, const mdreal r,
   case 'p':
     if(s.substr(0, 8) == "pentagon") {
       px.resize(5); py.resize(5);
-      px[0]  =  1.0937; py[0]  =  0.2979;
-      px[1]  =  0.0000; py[1]  =  1.0925;
-      px[2]  = -1.0937; py[2]  =  0.2979;
-      px[3]  = -0.6760; py[3]  = -0.9879;
-      px[4]  =  0.6760; py[4]  = -0.9879;
+      px[0]  =  1.0937; py[0]  =  0.3539;
+      px[1]  =  0.0000; py[1]  =  1.1485;
+      px[2]  = -1.0937; py[2]  =  0.3539;
+      px[3]  = -0.6760; py[3]  = -0.9319;
+      px[4]  =  0.6760; py[4]  = -0.9319;
     }
     break;
   default:
-    panic("Unknown shape '" + name + "'.\n", __FILE__, __LINE__);
+    return "";
   }
   
   /* Rotate. */

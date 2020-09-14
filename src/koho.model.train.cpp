@@ -1,6 +1,5 @@
-/* Created by Ville-Petteri Makinen 2003-2010
-   Copyright (C) V-P Makinen
-   All rights reserved */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #include "koho.local.h"
 
@@ -12,7 +11,7 @@ Model::train(vector<Resident>& layout, vector<mdreal>& trace,
 	     const mdreal quota) {
   mdreal rlnan = medusa::rnan();
   ModelBuffer* p = (ModelBuffer*)buffer;
-  unordered_map<string, Point>& points = p->points;
+  map<string, Point>& points = p->points;
   mt19937& twister = p->twister;
   time_t stamp = time(NULL);
   
@@ -40,12 +39,11 @@ Model::train(vector<Resident>& layout, vector<mdreal>& trace,
   }
 
   /* Create training engine. */
-  Trainer trainer(p->codebook, topocopy, p->ntrain,
-		  p->equality, p->metric);
+  Trainer trainer(p->codebook, topocopy, p->ntrain, p->equality);
   
   /* Make pointers to points. */
   vector<Point*> pointers;
-  for(unordered_map<string, Point>::iterator it = points.begin();
+  for(map<string, Point>::iterator it = points.begin();
       it != points.end(); it++)
     pointers.push_back(&(it->second));
 
@@ -113,7 +111,7 @@ Model::train(vector<Resident>& layout, vector<mdreal>& trace,
   p->codebook = trainer.codebook();
   
   /* Return final layout. */
-  for(unordered_map<string, Point>::iterator it = points.begin();
+  for(map<string, Point>::iterator it = points.begin();
       it != points.end(); it++) {
     Resident res;
     res.identity = it->first;

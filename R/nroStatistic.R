@@ -10,7 +10,7 @@ nroStatistic <- function(
 
     # Check input sizes.
     if(nrow(data)*ncol(data) < 1) {
-        warning("No data.")
+        warning("Empty input.")
         return(NULL)
     }
     if(nrow(data) != nrow(weights))

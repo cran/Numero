@@ -9,7 +9,7 @@ nroRcppMatrix <- function(
     # Convert to matrix.
     if(is.data.frame(data))
         data <- as.matrix(data)
-   if(is.atomic(data) && !is.matrix(data)) {
+    if(is.atomic(data) && !is.matrix(data)) {
         data <- as.matrix(data)
  	colnames(data) <- "data"
     }
@@ -70,29 +70,32 @@ nroRcppMatrix <- function(
     }
 
     # Remove unusable data points.
-    nprev <- nrow(data)*ncol(data)
-    if(trim && (ncol(data) > 1)) nprev <- 0
-    while(nrow(data)*ncol(data) != nprev) {
-        nprev <- nrow(data)*ncol(data)
+    if(trim) {
+        nprev <- 0
+        while(nrow(data)*ncol(data) != nprev) {
+            nprev <- nrow(data)*ncol(data)
+	    if(nprev < 1) break
 
-        # Remove rows with no usable values.
-        rows <- which(is.finite(rowMeans(data, na.rm=TRUE)))
-        if(length(rows) != nrow(data)) data <- data[rows,]
+            # Remove rows with no usable values.
+	    if(ncol(data) > 1) {
+                rows <- which(is.finite(rowMeans(data, na.rm=TRUE)))
+		data <- data[rows,,drop=FALSE]
+            }
+	    else {
+	        rows <- which(is.finite(data[,1]))
+		data <- data[rows,,drop=FALSE]
+	    }
 
-        # Remove columns with no usable values.
-        cols <- which(is.finite(colMeans(data, na.rm=TRUE)))
-        if(length(cols) != ncol(data)) data <- data[,cols]
-    }
-
-    # Remove unusable values from a single column.
-    if(trim && (ncol(data) == 1)) {
-        rows <- which(is.finite(data[,1]))
-        if(length(rows) < 1) return(matrix(nrow=0, ncol=0))
-        rn <- rownames(data)
-        cn <- colnames(data)
-        data <- as.matrix(data[rows,1])
-        rownames(data) <- rn[rows]
-        colnames(data) <- cn
+            # Remove columns with no usable values.
+	    if(nrow(data) > 1) {
+                cols <- which(is.finite(colMeans(data, na.rm=TRUE)))
+		data <- data[,cols,drop=FALSE]
+	    }
+	    else {
+                cols <- which(is.finite(data[1,]))
+		data <- data[,cols,drop=FALSE]
+            }
+       }
     }
 
     # Return results.

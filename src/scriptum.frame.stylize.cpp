@@ -1,5 +1,5 @@
-/* Created by Ville-Petteri Makinen 2003-2010
-   Copyright (C) V-P Makinen */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #include "scriptum.local.h"
 
@@ -23,6 +23,7 @@ Frame::stylize(const Style& st) {
   if(st.anchor == "end") base.anchor = st.anchor;
 
   /* Rotation angle in degrees [-180, 180]. */
+  if(st.angle == 0.0) base.angle = 0.0;
   if(st.angle != rlnan) {
     long nrot = (long)(fabs(st.angle)/360.0);
     if(st.angle < 0.0) base.angle = (st.angle + nrot*360.0);

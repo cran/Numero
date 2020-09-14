@@ -24,6 +24,10 @@ nroPlot.save <- function(
     if(is.factor(labels)) labels <- as.character(labels)
     if(is.vector(colors)) colors <- as.matrix(colors)
     if(is.vector(labels)) labels <- as.matrix(labels)
+    if(nrow(colors)*ncol(colors) < 1) {
+        warning("Empty input.")
+        return(NULL)
+    }
 
     # Default labels.
     if(is.null(labels)) {
@@ -307,7 +311,7 @@ nroPlotSave.figure <- function(codes, boxes) {
             s <- c(s, sprintf("onload=\"initPage('%s', true)\"", k))
         s <- c(s, "draggable=\"false\"")
         s <- c(s, "xmlns=\"http://www.w3.org/2000/svg\"")
-        s <- c(s, "style=\"user-select: none;")
+        s <- c(s, "style=\"user-select: none;\"")
         s <- c(s, sprintf("x=\"0\" width=\"%d\"", w))
         s <- c(s, sprintf("y=\"0\" height=\"%d\">", h))
 

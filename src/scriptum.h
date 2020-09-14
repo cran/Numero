@@ -1,5 +1,5 @@
-/* Created by Ville-Petteri Makinen 2003-2010
-   Copyright (C) V-P Makinen */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #ifndef scriptum_INCLUDED
 #define scriptum_INCLUDED
@@ -135,13 +135,13 @@ namespace scriptum {
        Returns the current number of groups. */
     medusa::mdsize group(const std::string&);
 
-    /* Coordinate range that contains rendered elements. */
+    /* Coordinate range that contains elements of the frame. */
     virtual std::pair<medusa::mdreal, medusa::mdreal> horizontal() const;
 
     /* Draw a predefined shape. The first two arguments set the position
        and the third sets the radius. The fourth argument defines the shape
-       itself and the optional rotation angle (e.g. 'circle', 'cross/50',
-       'square/120', 'star/130' or 'triangle/200'). */
+       itself and the optional rotation angle (e.g. 'circle', 'cross|50',
+       'square|120', 'star|130' or 'triangle|200'). */
     bool shape(const medusa::mdreal, const medusa::mdreal,
 	       const medusa::mdreal, const std::string&);
 
@@ -164,7 +164,7 @@ namespace scriptum {
     bool text(const medusa::mdreal, const medusa::mdreal,
 	      const std::string&);
 
-    /* Coordinate range that contains rendered elements. */
+    /* Coordinate range that contains elements of the frame. */
     virtual std::pair<medusa::mdreal, medusa::mdreal> vertical() const;
 
     /* List of shape names available. */
@@ -191,19 +191,30 @@ namespace scriptum {
     /* Free resources. */
     ~Artist();
 
+    /* Set background color. */
+    void background(const Color&);
+    
     /* Finish rendering and return the number of bytes. The background
        will be filled according to the current style. The input is any
        custom inline content that will be added within the 'svg' or
        the HTML 'body' depending on the file format. */
     unsigned long close(const std::string&);
 
-    /* Start/stop an element group. If argument is positive, a new
-       group is started, if negative the current active group is closed. 
-       Returns the number of open groups. */
-    medusa::mdsize group(const int);
+    /* Close the current group. Returns the number of remaining groups. */
+    medusa::mdsize group();
+    
+    /* Open a new element group with the specified identity.
+       Returns the current number of groups. */
+    medusa::mdsize group(const std::string&);
 
+    /* Coordinate range that contains rendered elements. */
+    std::pair<medusa::mdreal, medusa::mdreal> horizontal() const;
+    
     /* Render graphics from a frame. */
     bool paint(Frame&);
+    
+    /* Coordinate range that contains rendered elements. */
+    std::pair<medusa::mdreal, medusa::mdreal> vertical() const;
   };
   
   /* Version information. */

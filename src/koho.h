@@ -1,6 +1,5 @@
-/* Created by Ville-Petteri Makinen 2003-2010
-   Copyright (C) V-P Makinen
-   All rights reserved */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #ifndef koho_INCLUDED
 #define koho_INCLUDED
@@ -37,13 +36,11 @@ namespace koho {
     Model();
 
     /* Set up a model with the given topology. The second input sets
-       the maximum number of training samples per cycle.  The third
+       the maximum number of training samples per cycle. The third
        input sets the balancing coefficient for spatial point histogram:
-       0.0 means no balancing and 1.0 means maximum balancing. The fourth
-       input sets the distance metric: 'euclid' for Euclidean vector distance
-       (default) or 'pearson' for Pearson correlation. */
+       0.0 means no balancing and 1.0 means maximum balancing. */
     Model(const punos::Topology&, const medusa::mdsize,
-	  const medusa::mdreal, const std::string&);
+	  const medusa::mdreal);
 
     /* Copy the contents from the input. */
     Model(const Model&);
@@ -59,7 +56,7 @@ namespace koho {
 			  const std::vector<medusa::mdreal>&);
  
     /* Estimate distances to the district profiles in data space. */
-    std::vector<medusa::mdreal> distances(const std::string&) const;
+    std::vector<medusa::mdreal> distance(const std::string&) const;
 
     /* Return data point identities. */
     std::vector<std::string> identities() const;

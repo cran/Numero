@@ -29,7 +29,7 @@ If true, unusable rows and columns are removed.
 }
 
 \details{
-The input argument can be a data frame with the attribute "mapping" as
+The input argument can be a data frame with the attribute 'mapping' as
 returned from \code{\link{nroPreprocess}()} or a list object with the
 elements \code{input} and \code{output} that each contain a data frame or
 a matrix of equal size.
@@ -43,7 +43,7 @@ The mapping elements must have consistent row and column names.
 }
 
 \value{
-A data frame of processed values.
+A matrix or data frame of processed values.
 }
 
 \author{

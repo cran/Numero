@@ -3,24 +3,24 @@ nroKmeans <- function(
     k=3,
     subsample=NULL,
     balance=0,
-    metric="euclid",
     message=NULL) {
 
     # Convert data to numeric matrix.
     data <- nroRcppMatrix(data, trim=TRUE)
-    if(nrow(data) < 10) stop("Less than ten usable rows.")
-    if(ncol(data) < 3) stop("Less than three usable columns.")
+    if((nrow(data) < 10) || (ncol(data) < 3)) {
+        warning("Not enough usable rows or columns.")
+	return(NULL)
+    }
 	 
     # Check if any rows or columns were excluded.
     if(length(attr(data, "excl.rows")) > 0)
-        warning("Unusable row(s) excluded.")
+        warning("Unusable rows excluded.")
     if(length(attr(data, "excl.columns")) > 0)
-        warning("Unusable column(s) excluded.")
+        warning("Unusable columns excluded.")
 
     # Check parameters.
     k <- as.integer(nroRcppVector(k[[1]]), default=3)
     balance <- nroRcppVector(balance[[1]], default=0)
-    metric <- nroRcppVector(metric[[1]], default="", numeric=FALSE)
     message <- nroRcppVector(message[[1]], default=-1)
     subsample <- as.integer(nroRcppVector(subsample[[1]], default=NA))
 
@@ -42,25 +42,20 @@ nroKmeans <- function(
     if(!is.finite(subsample)) stop("Unusable subsample.")
     if(subsample > nrow(data)) subsample <- nrow(data)
     if(subsample < (k + 10)) stop("Too small subsample.")
-
-    # Check distance metric.
-    if((metric != "euclid") && (metric != "pearson"))
-        stop("Unknown distance metric.")
     
     # Check message interval.
     if(!is.finite(message)) message <- -1.0
-
+    
     # Estimate centroids.
     res <- .Call("nro_train",
-                 as.matrix(k),
-                 as.double(0.0),
-                 as.matrix(NA),
-                 as.matrix(data),
-		 as.character(metric),
-                 as.integer(subsample),
-                 as.double(balance),
-		 as.double(message),
-                 PACKAGE="Numero")
+        as.matrix(k),
+        as.double(0.0),
+        as.matrix(NA),
+        as.matrix(data),
+        as.integer(subsample),
+        as.double(balance),
+	as.double(message),
+        PACKAGE="Numero")
     if(is.character(res)) stop(res)
     
     # Recode missing unit labels.

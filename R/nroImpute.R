@@ -5,21 +5,18 @@ nroImpute <- function(
     message=NULL) {
 
     # Convert input to numeric matrix.
-    dfbit <- is.data.frame(data)
     data <- nroRcppMatrix(data, trim=FALSE)
     binary <- attr(data, "binary")
     binary <- nroRcppVector(binary, default=NULL,
         numeric=is.numeric(binary))
 
     # Check input size.
-    if(ncol(data) < 2) {
-        warning("Less than two columns.")
-        return(data)
+    if(nrow(data)*ncol(data) < 1) {
+        warning("Empty input.")
+        return(NULL)
     }
-    if(nrow(data) < 2) {
-        warning("Less than two rows.")
-        return(data)
-    }
+    if(nrow(data) < 2) return(data)
+    if(ncol(data) < 2) return(data)
 
     # Ensure inputs are safe for C++.
     subsample <- nroRcppVector(subsample[[1]], default=nrow(data))
@@ -49,7 +46,7 @@ nroImpute <- function(
         return(data)
     }
     if(length(numerics) < ncol(data))
-        warning("Non-numeric column(s) ignored.")
+        warning("Non-numeric columns.")
 
     # Standardize data.
     sigma <- rep(1, ncol(data))
@@ -66,7 +63,7 @@ nroImpute <- function(
 
     # Impute missing values.
     res <- .Call("nro_impute",
-        as.matrix(data[,numerics]),
+        as.matrix(data[,numerics,drop=FALSE]),
         as.integer(subsample),
         as.double(message),
         PACKAGE="Numero")
@@ -76,9 +73,6 @@ nroImpute <- function(
     # Restore original scale.
     for(j in numerics)
         data[,j] <- (sigma[j])*(data[,j])
-
-    # Convert to data frame.
-    if(dfbit) data <- data.frame(data, stringsAsFactors=FALSE)
 
     # Restore names and attributes.
     rownames(data) <- rnames

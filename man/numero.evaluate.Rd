@@ -46,10 +46,6 @@ the colormap and the element \code{data} contains the data points
 that were used for calculating the statistics.
 }
 
-\author{
-Ville-Petteri Makinen
-}
-
 \examples{
 # Import data.
 fname <- system.file("extdata", "finndiane.txt", package = "Numero")

@@ -48,7 +48,7 @@ A data frame of summary statistics, see \code{\link{nroSummary}()}
 for details. The data frame also contains additional information on which
 variables were used for the training of the SOM.
 
-The attribute "layout" is added to the output. It indicates the location
+The attribute 'layout' is added to the output. It indicates the location
 on the map and the subgroup name and label for each data row that were
 included in the analysis.
 }
@@ -76,7 +76,7 @@ modl <- numero.create(data = trdata)
 stats <- numero.evaluate(model = modl, data = dataset)
 
 # Define subgroups.
-x <- stats$planes$uALB
+x <- stats$planes[,"uALB"]
 tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
 bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
 elem <- data.frame(stats$map$topology, stringsAsFactors = FALSE)

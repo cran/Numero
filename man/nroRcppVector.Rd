@@ -34,7 +34,7 @@ is a vector (or can be converted to a vector).
 }
 
 \value{
-A numeric or character vector.
+A numeric or a character vector.
 }
 
 \author{

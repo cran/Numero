@@ -1,6 +1,5 @@
-/* Created by Ville-Petteri Makinen 2003-2010
-   Copyright (C) V-P Makinen
-   All rights reserved */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #include "koho.h"
 
@@ -11,5 +10,5 @@ using namespace std;
  */
 string
 koho::version() {
-  return ("1144.200106");
+  return ("1160.200904");
 }

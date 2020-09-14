@@ -1,5 +1,5 @@
-/* Created by Ville-Petteri Makinen 2003-2010
-   Copyright (C) V-P Makinen */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #include "scriptum.local.h"
 
@@ -8,7 +8,7 @@
  * the same number of bytes or zero.
  */
 string
-ArtistBuffer::prolog(const Color& color) const {
+ArtistBuffer::prolog() const {
   mdreal rlnan = medusa::rnan();
   char bytes[4090];
   char* p = bytes;
@@ -42,14 +42,15 @@ ArtistBuffer::prolog(const Color& color) const {
   p += sprintf(p, "\nx=\"0\" y=\"0\" ");
   p += sprintf(p, "width=\"%06ld\" ", width); /* fixed byte count  */
   p += sprintf(p, "height=\"%06ld\">\n", height);
-
+  
   /* Add background. */
   p += sprintf(p, "\n<polygon points=\"");
   p += sprintf(p, "\n\t0,0\n\t%06ld,0", width);
   p += sprintf(p, "\n\t%06ld,%06ld", width, height);
   p += sprintf(p, "\n\t0,%06ld\"", height);
   p += sprintf(p, "\nstyle=\"");
-  p += sprintf(p, "\nfill: #%s;", color.hex().substr(0, 6).c_str());
+  p += sprintf(p, "\nfill: #%s;", bgcolor.hex().substr(0,6).c_str());
+  p += sprintf(p, "\nfill-opacity: %.4f;", bgcolor.opacity);
   p += sprintf(p, "\npointer-events: none;");
   p += sprintf(p, "\"\nid=\"plot_background\"/>\n");
   

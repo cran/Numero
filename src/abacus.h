@@ -1,6 +1,5 @@
-/* Created by Ville-Petteri Makinen 2003-2010
-   Copyright (C) V-P Makinen
-   All rights reserved */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #ifndef abacus_INCLUDED
 #define abacus_INCLUDED
@@ -286,6 +285,12 @@ namespace abacus {
   extern std::vector<medusa::mdreal>
   histogram(const std::vector<medusa::mdreal>&, 
 	    const std::vector<medusa::mdreal>&);
+
+  /* Impute missing values within the vectors using nearest neighbor
+     pairing and Euclidean distance. The second input sets the maximum
+     subsample size for speeding up the process. */
+  extern void impute(std::vector<std::vector<medusa::mdreal> >&,
+		     const medusa::mdsize);
 
   /* Linear interpolation of points (x-coordinate in 1st and y-coordinate
      in 2nd input) at given positions (3rd input). */

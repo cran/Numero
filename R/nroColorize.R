@@ -1,14 +1,16 @@
 nroColorize <- function(
-   values,
-   ranges=NULL,
-   amplitudes=1,
-   palette="rhodo") {
+    values,
+    ranges=NULL,
+    amplitudes=1,
+    palette="rhodo") {
 
     # Convert vector input to matrix.
     values <- nroRcppMatrix(values, trim=FALSE)
 
     # Check that ranges are usable.
     if(length(ranges) > 0) {
+        if(is.vector(ranges) && (length(ranges) == 2))
+	    ranges <- t(as.matrix(ranges))
         if(nrow(ranges) != ncol(values)) {
             warning("Unusable ranges, reverting to defaults.")
             ranges <- NULL
@@ -27,6 +29,9 @@ nroColorize <- function(
                              stringsAsFactors=FALSE)
         rownames(ranges) <- colnames(values)
     }
+
+    # Check palette.
+    palette <- as.character(palette[[1]])
 
     # Check if amplitudes is a data frame or a matrix.
     if(is.data.frame(amplitudes) || is.matrix(amplitudes))
@@ -54,9 +59,10 @@ nroColorize <- function(
     
     # Set colors.
     res <- .Call("nro_colorize",
-                 as.matrix(z),
-                 as.character(palette[[1]]),
-                 PACKAGE="Numero")
+        as.matrix(z),
+        as.character(palette),
+        PACKAGE="Numero")
+    if(is.character(res)) stop(res)
 
     # Convert to data frame.
     if(ncol(values) < 2) {

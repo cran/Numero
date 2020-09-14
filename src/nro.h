@@ -18,23 +18,26 @@
 #include <Rcpp.h>
 #include "medusa.h"
 #include "abacus.h"
-#include "scriptum.h"
 #include "punos.h"
 #include "koho.h"
-#include "turnip.h"
+#include "scriptum.h"
 
 using namespace std;
 using namespace Rcpp;
 using namespace medusa;
 using namespace abacus;
-using namespace scriptum;
 using namespace punos;
 using namespace koho;
+using namespace scriptum;
 
 /*
  *
  */
 namespace nro {
+
+  /*
+   *
+   */
   extern vector<vector<mdreal> > matrix2reals(const SEXP&, const mdreal);
   extern NumericMatrix reals2matrix(const vector<vector<mdreal> >&);
   extern NumericVector reals2vector(const vector<mdreal>&);

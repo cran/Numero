@@ -8,14 +8,13 @@
  */
 RcppExport SEXP
 nro_train(SEXP topo_R, SEXP sigma_R, SEXP codebook_R, SEXP data_R,
-	  SEXP metric_R, SEXP nsub_R, SEXP eq_R, SEXP lag_R) {
+	  SEXP nsub_R, SEXP eq_R, SEXP lag_R) {
   mdreal rlnan = medusa::rnan();
   mdreal sigma = as<mdreal>(sigma_R);
   time_t stamp = time(NULL);
   string err;
   
   /* Input parameters. */
-  string metric = as<string>(metric_R);
   mdsize nsub = as<mdsize>(nsub_R);
   mdreal eq = as<mdreal>(eq_R);
   mdreal lag = as<mdreal>(lag_R);
@@ -47,7 +46,7 @@ nro_train(SEXP topo_R, SEXP sigma_R, SEXP codebook_R, SEXP data_R,
   if(ncols < 3) return CharacterVector("Too few dimensions.");
   
   /* Create a self-organizing map. */
-  koho::Model model(topo, nsub, eq, metric);
+  koho::Model model(topo, nsub, eq);
   for(mdsize k = 0; k < protos.size(); k++) {
     err = model.configure(k, protos[k]);
     if(err.size() > 0) return CharacterVector(err);
@@ -105,6 +104,5 @@ nro_train(SEXP topo_R, SEXP sigma_R, SEXP codebook_R, SEXP data_R,
   res.push_back(nro::reals2vector(residuals), "residuals");
   res.push_back(nro::reals2matrix(protos), "centroids");
   res.push_back(nro::reals2vector(history), "history");
-  res.push_back(metric, "metric");
   return res;
 }

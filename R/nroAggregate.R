@@ -11,25 +11,25 @@ nroAggregate <- function(
     smoothness <- attr(topology, "smoothness")
     smoothness <- nroRcppVector(smoothness[[1]], default=NA)
     if(!is.finite(smoothness)) stop("Unusable map smoothness.")
-    if(smoothness < 1) stop("Map smoothness less than one.")
+    if(smoothness < 0) stop("Negative map smoothness.")
 
     # Ensure topology is a numeric matrix.
     topology <- nroRcppMatrix(topology, trim=FALSE)
 
-    # Make sure map info is available.
+    # Check if data are available.
     if((length(districts) < 1) || (ncol(topology) < 1)) {
-        warning("Empty inputs.")
+        warning("Empty input.")
 	return(NULL)
     }
 
     # Estimate sample histogram.
     if(is.null(data)) {
         res <- .Call("nro_diffuse",
-                     as.matrix(topology),
-                     as.double(smoothness),
-	             as.integer(districts),
-		     matrix(nrow=0, ncol=0),
-                     PACKAGE="Numero")
+            as.matrix(topology),
+            as.double(smoothness),
+	    as.integer(districts),
+            matrix(nrow=0, ncol=0),
+            PACKAGE="Numero")
         if(is.character(res)) stop(res)
 	return(as.numeric(res$histograms))
     }
@@ -63,20 +63,8 @@ nroAggregate <- function(
     if(is.character(res)) stop(res)
 
     # Transpose to column-major format.
-    hgrams <- t(res$histograms)
     planes <- t(res$planes)
-
-    # Convert to a data frame or a vector.
-    if(ncol(planes) < 2) {
-        hgrams <- data.frame(X=as.vector(hgrams),
-	    stringsAsFactors=FALSE)
-        planes <- data.frame(X=as.vector(planes),
-	    stringsAsFactors=FALSE)
-    }
-    else {
-        hgrams <- data.frame(hgrams, stringsAsFactors=FALSE)
-        planes <- data.frame(planes, stringsAsFactors=FALSE)
-    }
+    hgrams <- t(res$histograms)
 
     # Set row and column names.
     colnames(planes) <- colnames(data)
@@ -88,7 +76,7 @@ nroAggregate <- function(
     planes[,empty] <- NA
     hgrams[,empty] <- 0
 
-    # Finish results.
+    # Return results.
     attr(planes, "histogram") <- hgrams
     attr(planes, "binary") <- intersect(binary, colnames(data))
     return(planes)

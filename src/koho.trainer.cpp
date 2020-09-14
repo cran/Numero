@@ -1,22 +1,18 @@
-/* Created by Ville-Petteri Makinen 2014
-   South Australian Health and Medical Research Institute */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #include "koho.local.h"
 
 /*
  *
  */
-Trainer::Trainer() {
-  this->formula = 'e';
-}
+Trainer::Trainer() {}
 
 /*
  *
  */
 Trainer::Trainer(const Matrix& codebook, const Topology& topo,
-		 const mdsize ntrain, const mdreal eq, const string& s) {
-  this->formula = 'e';
-  if(s == "pearson") this->formula = 'p';
+		 const mdsize ntrain, const mdreal eq) {
   
   /* Optimal subset capacities. */
   mdsize nunits = topo.size();

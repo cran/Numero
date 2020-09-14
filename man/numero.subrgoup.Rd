@@ -59,10 +59,6 @@ into a subgroup of their own.
 A data frame similar to the format returned by \code{\link{nroPlot}()}.
 }
 
-\author{
-Ville-Petteri Makinen
-}
-
 \examples{
 # Import data.
 fname <- system.file("extdata", "finndiane.txt", package = "Numero")

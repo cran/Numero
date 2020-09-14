@@ -1,5 +1,5 @@
-/* Created by Ville-Petteri Makinen 2003-2010
-   Copyright (C) V-P Makinen */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #include "scriptum.local.h"
 
@@ -65,7 +65,8 @@ scriptum_local::style2code(string& linecode, string& textcode,
   /* Stroke color and width. */
   mdreal opacity = sty.strokecolor.opacity;
   if((opacity > 0.0) && (sty.strokewidth > 0.0)) {
-    p += sprintf(p, "\nstroke: #%s;", sty.strokecolor.hex().c_str());
+    string tmp = sty.strokecolor.hex();
+    p += sprintf(p, "\nstroke: #%s;", tmp.substr(0, 6).c_str());
     p += sprintf(p, "\nstroke-linecap: round;");
     p += sprintf(p, "\nstroke-width: %.2fpx;", sty.strokewidth);
     if(opacity < 1.0)

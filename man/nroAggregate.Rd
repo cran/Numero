@@ -38,22 +38,13 @@ The input argument \code{districts} is expected to be the output from
 
 \value{
 If the input argument \code{data} is empty, the histogram of the data points
-on the map is returned (a K x 1 vector of estimated counts after smoothing).
+on the map is returned (a vector of K elements).
 
-If data are available, a data frame of K rows and N columns that contains
-the average district values after smoothing is returned. The data frame has
-the attribute "histogram" that contains data point counts over
-each data column. Column names and the attribute "binary" are copied
-from the input data.
+If data are available, a matrix of K rows and N columns that contains
+the average district values after smoothing is returned. The output includes
+the attribute 'histogram' that contains data point counts over each data
+column. Column names and the attribute 'binary' are copied from the input.
 }
-
-\references{
-Gao S, Mutter S, Casey AE, Mäkinen V-P (2018) Numero: a
-statistical framework to define multivariable subgroups in complex
-population-based datasets, Int J Epidemiology,
-https://doi.org/10.1093/ije/dyy113
-}
-
 \examples{
 # Import data.
 fname <- system.file("extdata", "finndiane.txt", package = "Numero")

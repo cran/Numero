@@ -1,5 +1,5 @@
-/* Created by Ville-Petteri Makinen 2014
-   South Australian Health and Medical Research Institute */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #include "koho.local.h"
 
@@ -39,7 +39,7 @@ Trainer::match(vector<Point*>& points, const Topology& topo) {
       Point* pnt = pool[i];
       
       /* Estimate distances to centroids. */
-      vector<mdreal> delta = this->distances(*pnt);
+      vector<mdreal> delta = this->distance(*pnt);
 
       /* Find the best available subset. */
       Point* replc = Subset::match(this->subsets, delta, pnt);

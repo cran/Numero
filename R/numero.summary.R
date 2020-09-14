@@ -18,12 +18,12 @@ numero.summary <- function(
     rows <- which(pos > 0)
     data <- data[pos[rows],]
     layout <- layout[rows,]
-    cat(length(rows), " data point(s) matched with layout\n", sep="")
+    cat(length(rows), " data points matched with layout\n", sep="")
     if(nrow(data) < 10) {
         cat("less than ten usable data points\n")
         return(NULL)
     }
-    cat(ncol(data), " data column(s)\n", sep="")
+    cat(ncol(data), " data columns\n", sep="")
 
     # Convert topology to data frame.
     topology <- data.frame(topology, stringsAsFactors=FALSE)
@@ -76,12 +76,12 @@ numero.summary <- function(
     binary <- unique(output$VARIABLE[intersect(success, binary)])
     categ <- unique(output$VARIABLE[intersect(success, categ)])
     real <- unique(output$VARIABLE[intersect(success, real)])
-    cat(length(binary), " binary column(s)\n", sep="")
-    cat(length(categ), " categorical column(s)\n", sep="")
-    cat(length(real), " continuous column(s)\n", sep="")
+    cat(length(binary), " binary columns\n", sep="")
+    cat(length(categ), " categorical columns\n", sep="")
+    cat(length(real), " continuous columns\n", sep="")
 
     # Unusable variables.
     nskip <- (ncol(data) - length(binary) - length(categ) - length(real))
-    cat(nskip, " unusable column(s)\n", sep="")
+    cat(nskip, " unusable columns\n", sep="")
     return(output)
 }

@@ -35,10 +35,10 @@ nroPair <- function(
 
     # Find best-matching pairs.
     res <- .Call("nro_pair",
-                 as.matrix(data.x),
-                 as.matrix(data.y),
-		 as.integer(subsample),
-                 PACKAGE="Numero")
+        as.matrix(data.x),
+        as.matrix(data.y),
+        as.integer(subsample),
+        PACKAGE="Numero")
     if(is.character(res)) stop(res)
 
     # Convert to data frame.

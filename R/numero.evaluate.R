@@ -16,10 +16,6 @@ numero.evaluate <- function(
     # Check if input is a vector.
     if(is.vector(data)) stop("Data must be a matrix or a data frame.")
 
-    # Check if dataset was pruned.
-    #if(!is.null(attr(data, "modules")))
-    #    stop("Pruned dataset (non-identifiable variables).")
-
     # Check that data and layout are compatible.
     cat("\nDataset:\n")
     pos <- match(rownames(data), rownames(layout))
@@ -31,8 +27,8 @@ numero.evaluate <- function(
 
     # Harmonize data and layout.
     nprev <- nrow(data)
-    data <- data[rows,]
-    layout <- layout[pos[rows],]
+    data <- data[rows,,drop=FALSE]
+    layout <- layout[pos[rows],,drop=FALSE]
     cat(nrow(data), " / ", nprev, " rows included\n", sep="")
     cat(ncol(data), " columns included\n", sep="")
 
@@ -51,8 +47,20 @@ numero.evaluate <- function(
     suppressWarnings(
         stats <- nroPermute(map=model$map, districts=bmc,
                             data=data, n=n, message=10))
-    cat(nrow(stats), " variable(s)\n", sep="")
-    cat(sum(stats$N.cycles), " permutation(s)\n", sep="")
+    cat(nrow(stats), " usable variables\n", sep="")
+    cat(sum(stats$N.cycles), " permutations\n", sep="")
+
+    # Make sure all variables are included.
+    missed <- setdiff(colnames(data), rownames(stats))
+    if(length(missed) > 0) {
+        x <- list()
+        for(v in colnames(stats))
+          x[[v]] <- rep(NA, length(missed))
+        x <- data.frame(x, stringsAsFactors=FALSE)
+	rownames(x) <- missed
+	stats <- rbind(stats, x)
+	stats <- stats[colnames(data),,drop=FALSE]
+    }
 
     # Revert transform.
     if(ranked) comps <- nroPostprocess(data=comps,

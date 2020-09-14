@@ -146,12 +146,12 @@ numero.clean <- function(
     # Final report.
     cat("\nSummary:\n", sep="")
     if(length(processed) > 1) {
-        cat(length(output), " usable dataset(s)\n", sep="")
-        cat(length(rnames), " unique row name(s)\n", sep="")
-        cat(length(cnames), " unique column name(s)\n", sep="")
+        cat(length(output), " usable datasets\n", sep="")
+        cat(length(rnames), " unique row names\n", sep="")
+        cat(length(cnames), " unique column names\n", sep="")
     }
-    cat(nrows, " usable row(s)\n", sep="")
-    cat(ncols, " usable column(s)\n", sep="")
+    cat(nrows, " usable rows\n", sep="")
+    cat(ncols, " usable columns\n", sep="")
 
     # Return results.
     if(length(processed) > 1) return(output)
@@ -177,7 +177,7 @@ numero.clean.names <- function(ds, keys) {
         # Check that keys are available.
         dskeys <- intersect(keys, colnames(ds))
         if(length(dskeys) < length(keys)) {
-            cat("one or more identity column(s) not found\n")
+            cat("one or more identity columns not found\n")
             return(NULL)
         }
 
@@ -203,7 +203,7 @@ numero.clean.names <- function(ds, keys) {
 	mask <- which(!duplicated(rnames))
 	ndupl <- (length(rnames) - length(mask))
         if(ndupl > 0) {
-	    cat(ndupl, " duplicate(s) removed\n", sep="")
+	    cat(ndupl, " duplicates removed\n", sep="")
 	    rnames <- rnames[mask]
             ds <- ds[mask,]
         }
@@ -211,7 +211,7 @@ numero.clean.names <- function(ds, keys) {
         # Remove identity columns from dataset.
 	rownames(ds) <- rnames
 	ds <- ds[,setdiff(colnames(ds), keys)]
-	cat(length(keys), " identity column(s) consumed\n", sep="")
+	cat(length(keys), " identity columns consumed\n", sep="")
     }
 
     # Set default row names.
@@ -233,7 +233,7 @@ numero.clean.names <- function(ds, keys) {
     vars <- vars[which(vars != "_")] # numero.prepare.adjust
     if(length(vars) < ncol(ds)) {
         nskip <- (ncol(ds) - length(vars))
-        cat(nskip, " column(s) with unusable name\n", sep="")
+        cat(nskip, " columns with unusable name\n", sep="")
         ds <- ds[,vars]
     }
 
@@ -243,7 +243,7 @@ numero.clean.names <- function(ds, keys) {
         u <- unique(rownames(ds))
         ds <- ds[u,]
     }
-    cat(nrow(ds), " unique row name(s)\n", sep="")
+    cat(nrow(ds), " unique row names\n", sep="")
 
     # Check if any data.
     if(nrow(ds) < 1) {
@@ -264,7 +264,7 @@ numero.clean.filter <- function(ds, rnames, na.freq, num.only) {
 
     # Select data points.
     rnames <- intersect(rnames, rownames(ds))
-    cat(length(rnames), " / ", nrow(ds), " row(s) selected\n", sep="")
+    cat(length(rnames), " / ", nrow(ds), " rows selected\n", sep="")
     ds <- ds[rnames,]
     if(nrow(ds) < 2) {
         cat("less than two usable rows")
@@ -275,7 +275,7 @@ numero.clean.filter <- function(ds, rnames, na.freq, num.only) {
     flags <- apply(ds, 2, numero.clean.check, flimit=na.freq)
     if(sum(flags) > 0) {
         ds <- ds[,which(!flags)]
-        cat(sum(flags), " unusable column(s)\n", sep="")
+        cat(sum(flags), " unusable columns\n", sep="")
 	if(ncol(ds) < 2) {
 	    cat("less than two usable columns")
 	    return(NULL)
@@ -286,7 +286,7 @@ numero.clean.filter <- function(ds, rnames, na.freq, num.only) {
     flags <- apply(ds, 1, numero.clean.check, flimit=na.freq)
     if(sum(flags) > 0) {
         ds <- ds[which(!flags),]
-        cat(sum(flags), " unusable rows(s)\n", sep="")
+        cat(sum(flags), " unusable rowss\n", sep="")
 	if(nrow(ds) < 2) {
 	    cat("less than two usable rows")
 	    return(NULL)
@@ -317,10 +317,10 @@ numero.clean.filter <- function(ds, rnames, na.freq, num.only) {
 
     # Print report.
     nother <- (ncol(ds) - length(factors) - length(numerics))
-    cat(length(binary), " binary column(s)\n", sep="")
-    cat(length(factors), " factor column(s)\n", sep="")
-    cat(length(numerics), " numeric column(s)\n", sep="")
-    cat(nother, " other column(s)\n", sep="")
+    cat(length(binary), " binary columns\n", sep="")
+    cat(length(factors), " factor columns\n", sep="")
+    cat(length(numerics), " numeric columns\n", sep="")
+    cat(nother, " other columns\n", sep="")
 
     # Select only numeric columns.
     if(num.only) {
@@ -328,7 +328,7 @@ numero.clean.filter <- function(ds, rnames, na.freq, num.only) {
 	if(nremov > 0) {
             ds <- ds[,numerics]
             factors <- character()
-	    cat(nremov, " non-numeric column(s) removed\n", sep="")
+	    cat(nremov, " non-numeric columns removed\n", sep="")
 	}
     }
 
