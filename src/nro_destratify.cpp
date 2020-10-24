@@ -1,5 +1,5 @@
-/* Created by Ville-Petteri Makinen 2019
-   South Australian Health and Medical Research Institute */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #include "nro.h"
 

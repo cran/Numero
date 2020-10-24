@@ -1,5 +1,5 @@
-/* Created by Ville-Petteri Makinen 2017
-   South Australian Health and Medical Research Institute */
+/* Created by Ville-Petteri Makinen
+   email: ville.makinen@vipmak.net */
 
 #ifndef nro_INCLUDED
 #define nro_INCLUDED

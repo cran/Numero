@@ -98,7 +98,7 @@ nroPreprocess.std <- function(x, method, clip=NA) {
 	 if((w$p.value < 0.05) && (w$statistic < w.log$statistic)) {
              x <- log(x + 1e-20)
              t <- t.log
-	 }
+	 }	 
     }
 
     # Basic statistics.

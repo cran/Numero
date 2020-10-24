@@ -23,8 +23,7 @@ numero.create <- function(
     # Set map radius.
     cat("\nSelf-organizing map:\n")
     if(is.null(radius)) {
-        radius <- 0.53*log(nrow(trdata) + 1)
-	radius <- max(round(radius), 3)
+        radius <- floor(0.5*log(nrow(trdata) + 2000))
         cat("automatic radius set to ", radius, "\n", sep="")
     }
     

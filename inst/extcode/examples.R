@@ -219,29 +219,6 @@ rm(list=ls())
     print(table(matches))
 
 
-cat("\nnroPair.Rd\n")
-rm(list=ls())
-
-    # Import data.
-    fname <- system.file("extdata", "finndiane.txt", package = "Numero")
-    dataset <- read.delim(file = fname)
-    
-    # Set row names.
-    rownames(dataset) <- paste("r", 1:nrow(dataset), sep="")
-    
-    # Prepare training data.
-    trvars <- c("CHOL", "HDL2C", "TG", "CREAT", "uALB")
-    trdata <- scale.default(dataset[,trvars])
-    
-    # Split by sex.
-    women <- which(dataset$MALE == 0)
-    men <- which(dataset$MALE == 1)
-    
-    # Find the best matches.
-    pairs <- nroPair(data.x = trdata[women,], data.y = trdata[men,])
-    print(head(pairs))
-
-
 cat("\nnroPermute.Rd\n")
 rm(list=ls())
 
@@ -422,22 +399,6 @@ rm(list=ls())
     names(x) <- c("a","b","c","d")
     y <- nroRcppVector(data=x, numeric=TRUE)
     print(y)
-
-
-cat("\nnroStatistic.Rd\n")
-rm(list=ls())
-
-    # Import data.
-    fname <- system.file("extdata", "finndiane.txt", package = "Numero")
-    dataset <- read.delim(file = fname)
-    
-    # Calculate centers.
-    mu <- nroStatistic(dataset, method = "center")
-    print(mu)
-    
-    # Calculate inter-quartile ranges.
-    iqr <- nroStatistic(dataset, method = "iqr")
-    print(iqr)
 
 
 cat("\nnroSummary.Rd\n")
