@@ -53,7 +53,8 @@ numero.clean <- function(
     for(dn in names(datasets)) {
         if(length(datasets) == 1) cat("\nIdentities:\n", sep="")
 	else cat("\nIdentities in '", dn, "':\n", sep="")
-	datasets[[dn]] <- numero.clean.names(datasets[[dn]], identity)
+	datasets[[dn]] <- numero.clean.names(datasets[[dn]],
+	    identity, length(rnames))
         rnames <- c(rnames, rownames(datasets[[dn]]))
     }
 
@@ -161,7 +162,7 @@ numero.clean <- function(
 
 #--------------------------------------------------------------------------
 
-numero.clean.names <- function(ds, keys) {
+numero.clean.names <- function(ds, keys, nrows) {
     if(length(ds) < 1) {
         cat("empty dataset\n")
         return(NULL)

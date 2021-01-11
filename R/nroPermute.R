@@ -3,20 +3,12 @@ nroPermute <- function(
     districts,
     data,
     n=1000,
-    message=NULL) {
+    message=NULL,
+    zbase=NULL) {
 
     # Convert data to numeric matrix.
     data <- nroRcppMatrix(data, trim=FALSE)
     topology <- nroRcppMatrix(map$topology, trim=FALSE)
-
-    # Check training variables.
-    trvars <- attr(districts, "variables")
-    if(length(trvars) < 1) trvars <- colnames(map$centroids)
-    if(length(trvars) < 1)
-        warning("No information on training variables.")
-    if(length(colnames(data)) < 1)
-        warning("No column names in input data.")
-    trvars <- intersect(colnames(data), trvars)
 
     # Check districts.
     districts <- nroRcppVector(districts,
@@ -31,6 +23,22 @@ nroPermute <- function(
     # Check parameters.
     n <- as.integer(nroRcppVector(n[[1]], default=1000))
     message <- nroRcppVector(message[[1]], default=-1)
+
+    # Check if any training variables.
+    trvars <- colnames(map$centroids)
+    if(length(trvars) < 1)
+        warning("No information on training variables.")
+    if(length(colnames(data)) < 1)
+        warning("No column names in input data.")
+    trvars <- intersect(colnames(data), trvars)
+
+    # Check if any training samples.
+    trkeys <- rownames(map$layout)
+    if(length(trkeys) < 1)
+        warning("No information on training samples.")
+    if(length(rownames(data)) < 1)
+        warning("No row names in input data.")
+    trkeys <- intersect(rownames(data), trkeys)
 
     # Remove empty data columns.
     mu <- colMeans(data, na.rm=TRUE)
@@ -50,13 +58,6 @@ nroPermute <- function(
 
     # Check message interval.
     if(!is.finite(message)) message <- -1.0
-
-    # Collect training samples.
-    trkeys <- intersect(rownames(data), names(districts))
-    if(length(rownames(data)) < 1)
-        warning("No row names in input data.")
-    if(length(names(districts)) < 1)
-        warning("No identity information in district data.")
 
     # Set flags for training variables.
     trflags <- rep("no", length.out=ncol(data))
@@ -113,12 +114,16 @@ nroPermute <- function(
         z.tr[mask] <- (evbase + delta)
     }
 
-    # Estimate color amplitudes.
+    # Mean Z-magnitude for color reference.
     z <- c(z.tr, z.ev)
+    if(length(zbase) < 1) {
+        zbase <- stats::quantile(z, probs=0.95, na.rm=TRUE)
+        zbase <- max(zbase, 3.0)
+    }
+    
+    # Set color amplitudes.
     rows <- c(trmask, evmask)
-    zbase <- stats::quantile(z, probs=0.95, na.rm=TRUE)
-    zbase <- max(1.1*zbase, 3)
     output$AMPLITUDE[rows] <- pmax(z/zbase, 0.04)
-    attr(output, "zbase") <- zbase
+    attr(output, "zbase") <- as.double(zbase[[1]])
     return(output)
 }

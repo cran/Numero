@@ -10,7 +10,7 @@ RcppExport SEXP
 nro_circus_write(SEXP offsets_R, SEXP topo_R, SEXP labels_R, SEXP visible_R,
 		 SEXP contrast_R, SEXP key_R, SEXP font_R) {
   scriptum::Color black = scriptum::colormap(0.0, "grey");
-  scriptum::Color grey = scriptum::colormap(0.6, "grey");
+  scriptum::Color grey = scriptum::colormap(0.7, "grey");
   scriptum::Color white = scriptum::colormap(1.0, "grey");
 
   /* Check subplot key. */
@@ -41,8 +41,10 @@ nro_circus_write(SEXP offsets_R, SEXP topo_R, SEXP labels_R, SEXP visible_R,
   if(topo.size() < 1) return CharacterVector("Unusable topology.");
 
   /* Make sure all text elements are safe. */
+  mdsize ntrunc = 16.0/fntsize;
+  if(ntrunc < 3) ntrunc = 3;
   for(mdsize i = 0; i < labels.size(); i++)
-    labels[i] = medusa::string2safe(labels[i], 16);
+    labels[i] = medusa::string2safe(labels[i], ntrunc);
   
   /* Set labels and colors according to visibility and contrast. */
   vector<scriptum::Color> colors(labels.size());
@@ -63,8 +65,8 @@ nro_circus_write(SEXP offsets_R, SEXP topo_R, SEXP labels_R, SEXP visible_R,
   /* Write label shadows. */
   scriptum::Style sty;
   sty.identity = (key + "_shadow");
+  sty.strokewidth = 0.2*(sty.fontsize)*sqrt(fntsize);
   sty.fontsize *= fntsize;
-  sty.strokewidth = 0.16*(sty.fontsize);
   scriptum::Frame frameB = topo.write(xy[0], xy[1], labels, shadows, sty);
  
   /* Write labels. */

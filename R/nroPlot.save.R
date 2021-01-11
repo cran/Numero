@@ -180,6 +180,7 @@ nroPlotSave.svg <- function(topology, colors, labels,
 	     as.character(colors[,j]),
 	     as.character(keys[j]),
              as.character(titles[j]),
+             as.double(font),
              PACKAGE="Numero")
         if(is.character(res.p)) stop(res.p)
 
@@ -252,9 +253,9 @@ nroPlotSave.write <- function(fname, codes, boxes, jscode) {
 
         # Import HTML wrapper.
         headfile <- system.file("extcode", "circus.head.html",
-	                        package="Numero", mustWork=TRUE)
+	    package="Numero", mustWork=TRUE)
         tailfile <- system.file("extcode", "circus.tail.html",
-	                        package="Numero", mustWork=TRUE)
+	    package="Numero", mustWork=TRUE)
         htmlhead <- readChar(con=headfile, nchars=1e5)
         htmltail <- readChar(con=tailfile, nchars=1e5)
 
@@ -266,9 +267,9 @@ nroPlotSave.write <- function(fname, codes, boxes, jscode) {
 
         # Save as an HTML document.
         res <- .Call("nro_webpage",
-                     as.character(fname),
-                     as.character(codes),
-                     PACKAGE="Numero")
+            as.character(fname),
+            as.character(codes),
+            PACKAGE="Numero")
         if(is.character(res)) stop(res)
     }
     else {
@@ -282,11 +283,11 @@ nroPlotSave.write <- function(fname, codes, boxes, jscode) {
 
        # Save as an SVG document.
        res <- .Call("nro_figure",
-                     as.character(fname),
-                     as.character(codes),
-                     as.numeric(bbox),
-                     as.character(jscode),
-                     PACKAGE="Numero")
+           as.character(fname),
+           as.character(codes),
+           as.numeric(bbox),
+           as.character(jscode),
+           PACKAGE="Numero")
        if(is.character(res)) stop(res)
     }
 

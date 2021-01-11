@@ -560,10 +560,11 @@ rm(list=ls())
     trdata <- numero.prepare(data = dataset, variables = trvars)
     
     # Create a self-organizing map.
-    modl <- numero.create(data = trdata)
+    sm <- numero.create(data = trdata)
+    qc <- numero.quality(model = sm)
     
     # Evaluate map statistics.
-    results <- numero.evaluate(model = modl, data = dataset)
+    results <- numero.evaluate(model = qc, data = dataset)
     print(results$statistics[,c("TRAINING", "Z", "P.z", "P.freq")])
 
 
@@ -583,10 +584,11 @@ rm(list=ls())
         batch = "MALE", confounders = c("AGE", "T1D_DURAT"))
     
     # Create a self-organizing map.
-    modl <- numero.create(data = trdata)
+    sm <- numero.create(data = trdata)
+    qc <- numero.quality(model = sm)
     
     # Evaluate map statistics for all variables.
-    stats <- numero.evaluate(model = modl, data = dataset)
+    stats <- numero.evaluate(model = qc, data = dataset)
     
     # Plot map colorings.
     numero.plot(results = stats)
@@ -651,10 +653,11 @@ rm(list=ls())
     trdata <- numero.prepare(data = dataset, variables = trvars)
     
     # Create a self-organizing map.
-    modl <- numero.create(data = trdata)
+    sm <- numero.create(data = trdata)
+    qc <- numero.quality(model = sm)
     
     # Evaluate map statistics for all variables.
-    stats <- numero.evaluate(model = modl, data = dataset)
+    stats <- numero.evaluate(model = qc, data = dataset)
     
     # Define subgroups, uncomment to launch interactive window.
     #elem <- numero.subgroup(results = stats, variables = trvars)
@@ -675,10 +678,11 @@ rm(list=ls())
     trdata <- numero.prepare(data = dataset, variables = trvars)
     
     # Create a self-organizing map.
-    modl <- numero.create(data = trdata)
+    sm <- numero.create(data = trdata)
+    qc <- numero.quality(model = sm)
     
     # Evaluate map statistics for all variables.
-    stats <- numero.evaluate(model = modl, data = dataset)
+    stats <- numero.evaluate(model = qc, data = dataset)
     
     # Define subgroups.
     x <- stats$planes[,"uALB"]

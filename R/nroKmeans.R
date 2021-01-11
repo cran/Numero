@@ -26,8 +26,10 @@ nroKmeans <- function(
 
     # Automatic subsample.
     if(!is.finite(subsample)) {
-        subsample <- 10*sqrt(nrow(data))*sqrt(k)
-	subsample <- min(subsample, 0.95*nrow(data), na.rm=TRUE)
+        nsub <- nrow(data)/k
+        nsub <- max(sqrt(nsub), 5)
+	subsample <- (nsub*k + 500)
+	subsample <- min(subsample, 0.95*nrow(data))
         if(subsample/nrow(data) < balance)
             subsample <- balance*nrow(data)
 	subsample <- round(subsample)

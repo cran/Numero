@@ -45,7 +45,8 @@ Use detached windows for figures.
 Maximum number of subplots to show on screen.
 }
   \item{font}{
-Multiplier to adjust font size for SVG and HTML output.
+Multiplier to adjust font size for SVG and HTML output,
+see \code{\link{nroPlot.save}()}.
   }
 }
 
@@ -94,10 +95,11 @@ trdata <- numero.prepare(data = dataset, variables = trvars,
     batch = "MALE", confounders = c("AGE", "T1D_DURAT"))
 
 # Create a self-organizing map.
-modl <- numero.create(data = trdata)
+sm <- numero.create(data = trdata)
+qc <- numero.quality(model = sm)
 
 # Evaluate map statistics for all variables.
-stats <- numero.evaluate(model = modl, data = dataset)
+stats <- numero.evaluate(model = qc, data = dataset)
 
 # Plot map colorings.
 numero.plot(results = stats)

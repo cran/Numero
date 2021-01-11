@@ -11,7 +11,8 @@ numero.prepare <- function(
     cat("\n*** numero.prepare ***\n", stamp, "\n", sep="")
 
     # Use all data columns.
-    if(length(variables) < 1) variables <- colnames(data)
+    datvars <- as.character(variables)
+    if(length(datvars) < 1) datvars <- colnames(data)
     if(length(batch) > 1) batch <- batch[[1]]
 
     # Create a new pipeline.
@@ -21,13 +22,14 @@ numero.prepare <- function(
 
         # Make sure variable groups are distinct.
         confounders <- setdiff(confounders, batch)
-        variables <- setdiff(variables, c(confounders, batch))
+        datvars <- setdiff(datvars, c(confounders, batch))
 
         # Select variables.
         convars <- intersect(confounders, colnames(data))
         batvars <- intersect(batch, colnames(data))
-        datvars <- intersect(variables, colnames(data))
+        datvars <- intersect(datvars, colnames(data))
         convars <- setdiff(convars, batch)
+        pipeline$variables <- datvars
 
         # Convert to numeric and trim unusable rows and columns.
         dsT <- nroRcppMatrix(data[,c(convars, datvars)], trim=TRUE)
@@ -80,7 +82,8 @@ numero.prepare <- function(
     if(!is.null(pipeline$mapping1)) {
         suppressWarnings(ds <- nroPostprocess(data=ds,
             mapping=pipeline$mapping1, trim=FALSE))
-        cat(ncol(ds), " columns standardized\n", sep="")
+	nvars <- length(attr(ds, "processed"))
+        cat(nvars, " columns standardized\n", sep="")
     }
 
     # Adjust for confounding.
@@ -99,6 +102,12 @@ numero.prepare <- function(
         suppressWarnings(ds <- nroPostprocess(data=ds,
             mapping=pipeline$mapping2, trim=TRUE))
         cat(ncol(ds), " columns re-standardized\n", sep="")
+    }
+
+    # Select variables.
+    if(length(ds) > 0) {
+        vars <- intersect(pipeline$variables, colnames(ds))
+        ds <- ds[,vars]
     }
 
     # Convert to matrix.

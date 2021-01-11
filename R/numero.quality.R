@@ -15,11 +15,15 @@ numero.quality <- function(
     # Calculate component planes.
     comps <- numero.quality.planes(model, data, layout)
 
-    # Estimate statistics.
-    stats <- numero.quality.statistics(model, layout)
+    # Estimate quality statistics.
+    stats.qc <- numero.quality.control(model, layout)
 
     # Determine district ranges.
     colrs <- nroColorize(comps)
+
+    # Statistics for training data.
+    stats.map <- numero.quality.stats(model, layout, data)
+    model$map$statistics <- stats.map
 
     # Collect results.
     output$map <- model$map
@@ -27,14 +31,15 @@ numero.quality <- function(
     output$planes <- comps
     output$ranges <- attr(colrs, "ranges")
     output$palette <- "fire"
-    output$statistics <- stats
+    output$statistics <- stats.qc
+    output$zbase <- attr(stats.map, "zbase")
     return(output)
 }
 
 #-------------------------------------------------------------------------
 
 numero.quality.layout <- function(model, data) {
-    if(is.null(data)) return(model$layout)
+    if(length(data) < 1) return(model$layout)
 
     # Check dataset compatibility.
     vars <- intersect(colnames(model$data), colnames(data))
@@ -61,7 +66,7 @@ numero.quality.layout <- function(model, data) {
 #-------------------------------------------------------------------------
 
 numero.quality.planes <- function(model, data, layout) {
-    if(is.null(data)) data <- model$data
+    if(length(data) < 1) data <- model$data
 
     # Component planes.
     h <- nroAggregate(topology=model$map, districts=layout[,"BMC"])
@@ -80,8 +85,8 @@ numero.quality.planes <- function(model, data, layout) {
 
 #-------------------------------------------------------------------------
 
-numero.quality.statistics <- function(model, layout) {
-    cat("\nStatistics:\n")
+numero.quality.control <- function(model, layout) {
+    cat("\nQuality statistics:\n")
 
     # Separate district labels from quality measures.
     bmc <- layout[,"BMC"]
@@ -134,5 +139,18 @@ numero.quality.statistics <- function(model, layout) {
     # Show report.
     cat(nrow(stats), " quality measures\n", sep="")
     cat(sum(stats[,"N.cycles"]), " permutations\n", sep="")
+    return(stats)
+}
+
+#-------------------------------------------------------------------------
+
+numero.quality.stats <- function(model, layout, data) {
+    if(length(data) < 1) data <- model$data
+    cat("\nMap statistics:\n")
+    ncycl <- max(10000/ncol(data), 20)
+    stats <- nroPermute(map=model$map, districts=layout$BMC,
+        data=data, n=ncycl, message=10)
+    cat("reference Z-score ", attr(stats, "zbase"), " \n", sep="")
+    cat(sum(stats$N.cycles), " permutations\n", sep="")
     return(stats)
 }

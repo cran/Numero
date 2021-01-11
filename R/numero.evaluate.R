@@ -11,6 +11,7 @@ numero.evaluate <- function(
     # Check that resources are available.
     if(is.null(model$map)) stop("Self-organizing map not available.")
     if(is.null(model$layout)) stop("Map layout not available.")
+    if(is.null(model$zbase)) warning("Reference Z-score not available.")
     layout <- model$layout
 
     # Check if input is a vector.
@@ -43,10 +44,10 @@ numero.evaluate <- function(
     comps <- nroAggregate(topology=model$map, districts=bmc, data=data)
 
     # Estimate statistics in chunks.
-    cat("\nStatistics:\n")
+    cat("\nMap statistics:\n")
     suppressWarnings(
         stats <- nroPermute(map=model$map, districts=bmc,
-                            data=data, n=n, message=10))
+            data=data, n=n, message=10, zbase=model$zbase))
     cat(nrow(stats), " usable variables\n", sep="")
     cat(sum(stats$N.cycles), " permutations\n", sep="")
 

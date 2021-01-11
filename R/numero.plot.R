@@ -18,6 +18,7 @@ numero.plot <- function(
     if(is.null(variables)) variables <- colnames(results$planes)
     if(is.null(topology)) topology <- results$map$topology
     if(is.null(reference)) reference <- results
+    if(is.null(font)) font <- 1.0
     prefix <- as.character(prefix[[1]])
     detach <- as.character(detach[[1]])
 
@@ -95,6 +96,11 @@ numero.plot <- function(
         cat("destination folder not defined\n", sep="")
     }
 
+    # Check font size (label gap).
+    gap <- max(2.3*sqrt(font), 1)
+    if(gap > 0.5*sqrt(nrow(topology)))
+        warning("Large font size may cause labels to fail.")
+
     # Get coloring parameters.
     amplitudes <- reference$statistics[variables,"AMPLITUDE"]
     amplitudes <- gain*amplitudes
@@ -108,7 +114,7 @@ numero.plot <- function(
     # Set colors and labels.
     colrs <- nroColorize(values=comps, amplitudes=amplitudes,
                          ranges=ranges, palette=palette)
-    labls <- nroLabel(topology=topology, values=comps)
+    labls <- nroLabel(topology=topology, values=comps, gap=gap)
 
     # Extract attributes.
     contrast <- attr(colrs, "contrast")

@@ -69,7 +69,7 @@ numero.create <- function(
     cat(sm$subsample, " subsamples\n", sep="")
     cat(length(sm$history), " training cycles\n", sep="")
 
-    # Evaluate map quality.
+    # Evaluate fit quality.
     matches <- nroMatch(centroids=sm, data=trdata)
     layout <- data.frame(BMC=matches, attr(matches, "quality"))
     rownames(layout) <- names(matches)

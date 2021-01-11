@@ -8,10 +8,15 @@
  */
 RcppExport SEXP
 nro_circus_paint(SEXP offsets_R, SEXP topo_R, SEXP ccodes_R,
-		 SEXP key_R, SEXP title_R) {
+		 SEXP key_R, SEXP title_R, SEXP font_R) {
   string key = as<string>(key_R);
   string title = as<string>(title_R);
-  
+
+  /* Check font size. */
+  mdreal fntsize = as<mdreal>(font_R);
+  if(fntsize < 0.1) return CharacterVector("Unusable font.");
+  if(fntsize > 100) return CharacterVector("Unusable font.");
+
   /* Position offsets. */
   vector<mdreal> xy = nro::vector2reals(offsets_R);
   xy.resize(2, 0.0);
@@ -22,11 +27,11 @@ nro_circus_paint(SEXP offsets_R, SEXP topo_R, SEXP ccodes_R,
   if(topo.size() < 1) return CharacterVector("Unusable topology.");
 
   /* Make sure all text elements are safe. */
-  mdsize cap = (mdsize)(6*(topo.radius() + 1.0));
-  if(key.size() >= cap) return CharacterVector("Unusable identifier.");
-  if(key.size() > 8) return CharacterVector("Unusable identifier.");
-  key = string2safe(key, (cap - 1));
-  title = string2safe(title, (cap - key.size()));
+  mdsize cap = (mdsize)(6*(topo.radius() + 1.0)/fntsize);
+  if(key.size() > cap/3)
+    return CharacterVector("No space for identifier.");
+  key = string2safe(key, cap/3);
+  title = string2safe(title, 2*cap/3);
 
   /* Convert color codes to color objects. */
   vector<Color> colors;
@@ -47,6 +52,14 @@ nro_circus_paint(SEXP offsets_R, SEXP topo_R, SEXP ccodes_R,
   inner[2] = frame.horizontal().second;
   inner[3] = frame.vertical().second;
   
+  /* Set style attributes for title. */
+  sty = Style(); sty.identity = (key + "_title");
+  sty.fillcolor = scriptum::colormap(0.0, "grey");
+  sty.anchor = "start";
+  sty.strokewidth = 0.0;
+  sty.fontsize *= fntsize;
+  frame.stylize(sty);
+
   /* Full bounding box. */
   vector<mdreal> outer = inner;
   outer[0] = ceil(outer[0] - 1.0*(sty.fontsize) - 0.5);
@@ -59,13 +72,6 @@ nro_circus_paint(SEXP offsets_R, SEXP topo_R, SEXP ccodes_R,
   mdreal y = (inner[1] - 0.9*(sty.fontsize));
   for(mdsize k = 1; k < key.size(); k++)
     x += 0.67*(sty.fontsize);
-
-  /* Set style attributes for title. */
-  sty = Style(); sty.identity = (key + "_title");
-  sty.fillcolor = scriptum::colormap(0.0, "grey");
-  sty.anchor = "start";
-  sty.strokewidth = 0.0;
-  frame.stylize(sty);
 
   /* Write title. */
   if((title.size() > 0) && (frame.text(x, y, title) == false))

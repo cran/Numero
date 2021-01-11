@@ -78,5 +78,6 @@ nroPostprocess <- function(
         warning("Unusable columns excluded.")
 
     # Return results.
+    attr(output, "processed") <- vars
     return(output)
 }

@@ -16,7 +16,7 @@ numero.prepare(data, variables = NULL, confounders = NULL, batch = NULL,
 A matrix or a data frame.
   }
   \item{variables}{
-A character vector of column names.  
+A character vector of column names, see details.  
   }
   \item{confounders}{
 Names of columns that contain confounder data.

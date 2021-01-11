@@ -11,7 +11,7 @@ regional patterns on a self-organizing maps using permutations.
 }
 
 \usage{
-nroPermute(map, districts, data, n = 1000, message = NULL)
+nroPermute(map, districts, data, n = 1000, message = NULL, zbase = NULL)
 }
 
 \arguments{
@@ -35,6 +35,10 @@ Maximum number of permutations per variable.
   \item{message}{
 If positive, progress information is printed at the specified
 interval in seconds.
+  }
+
+  \item{zbase}{
+Reference Z-score for determining color amplitudes.
   }
 }
 

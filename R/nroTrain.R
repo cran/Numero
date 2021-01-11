@@ -41,8 +41,10 @@ nroTrain <- function(
 
     # Automatic subsample.
     if(!is.finite(subsample)) {
-        subsample <- 10*sqrt(nrow(data))*sqrt(nrow(topology))
-	subsample <- min((subsample + 500), 0.95*nrow(data), na.rm=TRUE)
+        nsub <- nrow(data)/nrow(topology)
+        nsub <- max(sqrt(nsub), 5)/smoothness
+	subsample <- (nsub*nrow(topology) + 500)
+	subsample <- min(subsample, 0.95*nrow(data))
 	subsample <- round(subsample)
     }
 

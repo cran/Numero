@@ -59,9 +59,10 @@ trvars <- c("CHOL", "HDL2C", "TG", "CREAT", "uALB")
 trdata <- numero.prepare(data = dataset, variables = trvars)
 
 # Create a self-organizing map.
-modl <- numero.create(data = trdata)
+sm <- numero.create(data = trdata)
+qc <- numero.quality(model = sm)
 
 # Evaluate map statistics.
-results <- numero.evaluate(model = modl, data = dataset)
+results <- numero.evaluate(model = qc, data = dataset)
 print(results$statistics[,c("TRAINING", "Z", "P.z", "P.freq")])
 }

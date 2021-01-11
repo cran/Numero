@@ -3,7 +3,7 @@
 
 \title{Self-organizing map statistics}
 
-\description{Assign new data to map districts and
+\description{Assign new data points to map districts and
 calculate quality measures}
 
 \usage{
@@ -12,7 +12,7 @@ numero.quality(model, data = NULL)
 
 \arguments{
   \item{model}{
-A list object that contains a self-organizing map and a data layout.
+A list object that contains a self-organizing map (and a data layout).
   }
 
   \item{data}{
