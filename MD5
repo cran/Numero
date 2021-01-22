@@ -1,4 +1,4 @@
-823a0abbdd0678b1f173c357c990ea32 *DESCRIPTION
+9efad188e4621ec15d25335368e121e5 *DESCRIPTION
 fd9642f0ecdfb7655a9d62d331330c15 *NAMESPACE
 3954168b03b05770dcae253419667f65 *R/nroAggregate.R
 b496f92a103fa7e99e953845a6a15c69 *R/nroColorize.R
@@ -11,8 +11,8 @@ a534ce63eb5aa27d4c2086720641a225 *R/nroLabel.R
 54a4c63ed7c017b8c1c302c8c57422a3 *R/nroPermute.R
 c0eb57ec2825d526662813f9fdb3a89e *R/nroPlot.R
 13d98bdf328fa5cd570af570c2fc3128 *R/nroPlot.save.R
-d7d00864da9e0510bb3c57a0c7ac9cb3 *R/nroPostprocess.R
-3016fb50a0446dc9d8bee6618e0cb429 *R/nroPreprocess.R
+6edab91133ce5d7b5cdfd34eb7f31ce5 *R/nroPostprocess.R
+304d954ad8908a6067d1c3ed756d7a6b *R/nroPreprocess.R
 4fb9cba994c001c50eb85a28ab218a59 *R/nroRcppMatrix.R
 9d1814c31f08ba9af23d69817383915a *R/nroRcppVector.R
 8a5a10544a075a62b2c92794fdbb9162 *R/nroSummary.R
@@ -23,17 +23,17 @@ c17bd4e23604044a7f48a28eaf9705c3 *R/numero.create.R
 09a555c8e86220b1db48f651251e4fea *R/numero.plot.R
 b558dea9802c7d78c325ff4b24c8a408 *R/numero.prepare.R
 7ee53e86fc9feaeacf2c5aeeee3fd47b *R/numero.quality.R
-c241f9f4c207cac9419504cf7e87ed32 *R/numero.subgroup.R
+dda4e9faa6408bbcdbcf971839208489 *R/numero.subgroup.R
 e5f562c886ca663e02b13be5fefec4fa *R/numero.summary.R
 4c286e34f33c021adfdc3c2bac8aafa9 *build/vignette.rds
 76c62387c98778aa08fc5ff33dcb6150 *inst/CITATION
-67963a68a81f9c0e3d3ffb61c3ab85db *inst/doc/intro.R
-0e8d5dfc5eacb7782fa875e9bf828bc7 *inst/doc/intro.html
-9fd4b012bdd23a8be90f956d17a9bf7f *inst/doc/intro.rmd
+16e44c81e6bfe128830771cb2c0a6d2f *inst/doc/intro.R
+109d72b6560509ca8b6553e9a0c834bd *inst/doc/intro.html
+7ed850034e8a21f1e6754b69bebce086 *inst/doc/intro.rmd
 2d364c97d2c8644de97170e8185e94d5 *inst/extcode/circus.head.html
 a8685c6bff8702f8eaa79f9e85695064 *inst/extcode/circus.js
 c64111f363b9e1a0b0ea6d1c8ccbb9bd *inst/extcode/circus.tail.html
-6f66ad3599bff7a055327b02300222ae *inst/extcode/examples.R
+1075323275d9c8b7c7f0d4c54921078e *inst/extcode/examples.R
 68fcdb5ba4d7cce50d9997ca6af7a00b *inst/extdata/finndiane.readme.txt
 10d314a68b9cf51ff8dd35a15b446c13 *inst/extdata/finndiane.txt
 1f819f54e3aadfb37f252dd6234901ce *man/nroAggregate.Rd
@@ -47,7 +47,7 @@ e837a2ab51ace3f9d8971e7156974810 *man/nroLabel.Rd
 8744f377a1c2cd4d24cc34b952d93b7a *man/nroPermute.Rd
 2e8a5bfac72ec33d7bd383370accb64a *man/nroPlot.Rd
 8e27c22b8ede236e2b1b4c4d6c4d1f00 *man/nroPostprocess.Rd
-e155bc373f8ca55408a7e4ede45608a4 *man/nroPreprocess.Rd
+916a8ac1ed92b7611ae3495fb89b2cc3 *man/nroPreprocess.Rd
 bdf91789eab3bf852780dedf2a7230cd *man/nroRcppMatrix.Rd
 063d9de1d752c79ac26ce82ab4557e27 *man/nroRcppVector.Rd
 ea9f91228eb3169971be0a2a9edc3c19 *man/nroSummary.Rd
@@ -261,4 +261,4 @@ b8ffb6b267cf8cc6ae9b164b2b51eb5a *src/scriptum.frame.stylize.cpp
 c676cce06a342e48ae23d75a9b0f8060 *src/scriptum.style.cpp
 61aaa6141672f816eae4b7531a22b65c *src/scriptum.style2code.cpp
 0ca86595d35a654c4d52b8bc9df10a68 *src/scriptum.version.cpp
-9fd4b012bdd23a8be90f956d17a9bf7f *vignettes/intro.rmd
+7ed850034e8a21f1e6754b69bebce086 *vignettes/intro.rmd

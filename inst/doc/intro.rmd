@@ -631,7 +631,7 @@ qc.basic <- numero.quality(model = modl.basic)
 
 Outliers can be detected by plotting the distribution of quality measures:
 
-``` {r dev="svg", results="hide", fig.width=7, fig.height=3, fig.align="center", fig.cap="Figure: Distribution of model residuals."}
+``` {r results="hide", fig.width=7, fig.height=3, fig.align="center", fig.cap="Figure: Distribution of model residuals."}
 # Plot frequencies of data points at different quality levels.
 par(mar = c(5,4,1,0), mfrow = c(1,2))
 hist(x = qc.basic$layout$RESIDUAL, breaks = 50,
@@ -653,7 +653,7 @@ separate examples later in the document.
 The quality measures can be visualized on the map to reveal subgroups of
 problematic data points:
 
-``` {r dev="svg", results="hide", fig.width=9, fig.height=3, fig.align="center", fig.cap="Figure: Visualization of quality measures across map districts. "}
+``` {r results="hide", fig.width=9, fig.height=3, fig.align="center", fig.cap="Figure: Visualization of quality measures across map districts. "}
 # Plot map quality measures.
 numero.plot(results = qc.basic, subplot = c(1,4))
 ```
@@ -712,7 +712,7 @@ for constructing the model.
 Overall, the results above comprise the minimal information needed to color
 the SOM according to district averages.
 
-``` {r dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The color intensity depends on how likely the observed regional variation would arise by chance; intense reds and intense blues indicate that these extremes would be very unlikely if the data point layout was random. The numbers show the average values in original units for selected districts."}
+``` {r results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The color intensity depends on how likely the observed regional variation would arise by chance; intense reds and intense blues indicate that these extremes would be very unlikely if the data point layout was random. The numbers show the average values in original units for selected districts."}
 # Plot map colorings of training variables.
 numero.plot(results = stats.basic, variables = trvars, subplot = c(2,3))
 ```
@@ -793,7 +793,7 @@ workaround$REGION[bottoms] <- "LowALB"
 if(!exists("subgr.basic")) subgr.basic <- workaround
 ```
 
-``` {r origgrp1, dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The labels show the results from the subgrouping procedure."}
+``` {r results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The labels show the results from the subgrouping procedure."}
 # Plot results from the subgrouping procedure.
 numero.plot(results = stats.basic, variables = trvars,
             topology = subgr.basic, subplot = c(2,3))
@@ -828,7 +828,7 @@ study design. Since we have now defined the subgroups, it is safe to plot the
 colorings for all the variables. The subplot option was used here to ensure a
 pleasing look for the vignette, but it can be omitted in most circumstances.
 
-``` {r dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of selected variables in the kidney disease dataset."}
+``` {r results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of selected variables in the kidney disease dataset."}
 # Plot results from subgrouping procedure for non-biochemical variables.
 numero.plot(results = stats.basic,
             variables = c("AGE",
@@ -840,7 +840,7 @@ numero.plot(results = stats.basic,
             topology = stats.basic$map$topology, subplot = c(2,3))
 ```
 
-``` {r dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of selected variables with subgroup labels."}
+``` {r results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of selected variables with subgroup labels."}
 # Plot results from subgrouping procedure for non-biochemical variables.
 numero.plot(results = stats.basic,
             variables = c("AGE",
@@ -974,7 +974,7 @@ as we did in the previous example:
 qc.adj <- numero.quality(model = modl.adj)
 ```
 
-``` {r dev="svg", results="hide", fig.width=7, fig.height=3, fig.align="center", fig.cap="Figure: Distribution of model residuals. The training data were adjusted for age and sex."}
+``` {r results="hide", fig.width=7, fig.height=3, fig.align="center", fig.cap="Figure: Distribution of model residuals. The training data were adjusted for age and sex."}
 # Plot frequencies of data points at different quality levels.
 par(mar = c(5,4,1,0), mfrow = c(1,2))
 hist(x = qc.adj$layout$RESIDUAL, breaks = 20,
@@ -1006,7 +1006,7 @@ c(sd(qc.basic$planes[,"HISTOGRAM"], na.rm=TRUE),
 
 and the depletion of data points in the poor quality area is attenuated:
 
-``` {r dev="svg", results="hide", fig.width=9, fig.height=3, fig.align="center", fig.cap="Figure: Visualization of data point quality measures across map districts from age and sex adjusted analysis."}
+``` {r results="hide", fig.width=9, fig.height=3, fig.align="center", fig.cap="Figure: Visualization of data point quality measures across map districts from age and sex adjusted analysis."}
 # Plot map quality measures.
 numero.plot(results = qc.adj, subplot = c(1,4))
 ```
@@ -1061,11 +1061,11 @@ adjustment only affects the individuals' positions on the map, thus the
 well known sex differences in the average biomarker concentrations are
 not affected:
 
-``` {r dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of training variables using the data from female participants."}
+``` {r results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of training variables using the data from female participants."}
 numero.plot(results = stats.adjW, variables = trvars, subplot = c(2,3))
 ```
 
-``` {r dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of training variables using the data from male participants."}
+``` {r results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of training variables using the data from male participants."}
 numero.plot(results = stats.adjM, variables = trvars, subplot = c(2,3))
 ```
 
@@ -1083,12 +1083,12 @@ regardless of which subset of individuals are being visualized.
 This is accomplished by using the results of the full dataset as the
 reference point `reference = stats.adj`:
 
-``` {r dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of training variables using the data from female participants. Color scales were derived from the full dataset."}
+``` {r results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of training variables using the data from female participants. Color scales were derived from the full dataset."}
 numero.plot(results = stats.adjW, variables = trvars,
             subplot = c(2,3), reference = stats.adj)
 ```
 
-``` {r dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of training variables using the data from male participants. Color scales were derived from the full dataset."}
+``` {r results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of training variables using the data from male participants. Color scales were derived from the full dataset."}
 numero.plot(results = stats.adjM, variables = trvars,
             subplot = c(2,3), reference = stats.adj)
 ```
@@ -1148,7 +1148,7 @@ workaround$REGION[bottoms] <- "LowALB"
 if(!exists("subgr.adj")) subgr.adj <- workaround
 ```
 
-``` {r dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The labels show the results from the subgrouping procedure. The map was created from sex-adjusted data."}
+``` {r results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The labels show the results from the subgrouping procedure. The map was created from sex-adjusted data."}
 # Plot results from subgrouping procedure.
 numero.plot(results = stats.adj, variables = trvars,
             topology = subgr.adj, subplot = c(2,3))
@@ -1173,7 +1173,7 @@ as we did earlier. It is always useful to plot the subgroup labels in
 relation to the variables that were not used for training:
 
 
-``` {r dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of selected variables with subgroup labels. The map was created from age and sex adjusted data."}
+``` {r results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of selected variables with subgroup labels. The map was created from age and sex adjusted data."}
 # Plot results from subgrouping procedure for non-biochemical variables.
 numero.plot(results = stats.adj,
             variables = c("AGE",
@@ -1381,7 +1381,7 @@ rz <- c(qc.adj$layout[,"RESIDUAL.z"], qc.discov$layout[,"RESIDUAL.z"])
 rz.breaks <- seq(min(rz, na.rm=TRUE), max(rz, na.rm=TRUE), length.out=20)
 ``` 
 
-``` {r dev="svg", results="hide", fig.width=7, fig.height=3, fig.align="center", fig.cap="Figure: Distribution of model residuals when the training data were preprocessed by scaling & centering or by tapered ranking."}
+``` {r results="hide", fig.width=7, fig.height=3, fig.align="center", fig.cap="Figure: Distribution of model residuals when the training data were preprocessed by scaling & centering or by tapered ranking."}
 # Plot frequencies of data points at different quality levels.
 par(mar = c(5,4,1,0), mfrow = c(1,2))
 hist(x = qc.adj$layout[,"RESIDUAL.z"], breaks = rz.breaks,
@@ -1412,7 +1412,7 @@ print(r)
 More balanced data point density is another potential benefit of the
 rank-transform:
 
-``` {r dev="svg", results="hide", fig.width=10, fig.height=3, fig.align="center", fig.cap="Figure: Visualization of quality measures across map districts for the discovery cohort. "}
+``` {r results="hide", fig.width=10, fig.height=3, fig.align="center", fig.cap="Figure: Visualization of quality measures across map districts for the discovery cohort. "}
 # Plot map quality measures.
 numero.plot(results = qc.discov, subplot = c(1,4))
 ```
@@ -1428,7 +1428,7 @@ particular dataset.
 Comparisons between the replication sets revealed important clues on how
 well the data fit together:
 
-``` {r dev="svg", results="hide", fig.width=10, fig.height=3, fig.align="center", fig.cap="Figure: Visualization of quality measures across map districts for the replication dataset A. "}
+``` {r results="hide", fig.width=10, fig.height=3, fig.align="center", fig.cap="Figure: Visualization of quality measures across map districts for the replication dataset A. "}
 # Plot map quality measures.
 numero.plot(results = qc.replicA, subplot = c(1,4))
 ```
@@ -1440,7 +1440,7 @@ set under the assumption that the two datasets were samples from the same
 underlying population with identical measurement protocols. Evidently, this
 assumption is wrong since the multi-variable data did not overlap well.
 
-``` {r dev="svg", results="hide", fig.width=10, fig.height=3, fig.align="center", fig.cap="Figure: Visualization of quality measures across map districts for the replication dataset B. "}
+``` {r results="hide", fig.width=10, fig.height=3, fig.align="center", fig.cap="Figure: Visualization of quality measures across map districts for the replication dataset B. "}
 # Plot map quality measures.
 numero.plot(results = qc.replicB, subplot = c(1,4))
 ```
@@ -1454,7 +1454,7 @@ but it is possible to investigate demographic factors such as age, sex
 or clinical disease profiles to check that the overall characteristics are
 compatible across the different regions on the map.
 
-``` {r dev="svg", results="hide", fig.width=10, fig.height=3, fig.align="center", fig.cap="Figure: Visualization of quality measures across map districts for the replication dataset with the metabolic syndrome. "}
+``` {r results="hide", fig.width=10, fig.height=3, fig.align="center", fig.cap="Figure: Visualization of quality measures across map districts for the replication dataset with the metabolic syndrome. "}
 # Plot map quality measures.
 numero.plot(results = qc.mets, subplot = c(1,4))
 ```
@@ -1505,7 +1505,7 @@ In addition, we reduce the "gain" or global amplification of the color range.
 This has the effect of making the available value-color mapping wider so that
 values that exceed the reference range wash out less:
 
-``` {r dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of training variables for the discovery dataset."}
+``` {r results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of training variables for the discovery dataset."}
 numero.plot(results = stats.discov, variables = trvars,
             gain = 0.8, subplot = c(2,3))
 ```
@@ -1520,7 +1520,7 @@ quality analysis that the two datasets did not overlap well on the SOM and
 the assumptions on study design were invalid -- this is one of the reasons
 it is important to check the quality of the SOM.
 
-``` {r dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of selected variables for replication A."}
+``` {r results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of selected variables for replication A."}
 numero.plot(results = stats.replicA, variables = trvars,
             gain = 0.8, subplot = c(2,3), reference = stats.discov)
 ```
@@ -1531,7 +1531,7 @@ values are different. This is expected since we assumed that the data
 patterns would be the same but there was systematic bias in the measurement
 data.
 
-``` {r dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of selected variables for replication B."}
+``` {r results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of selected variables for replication B."}
 numero.plot(results = stats.replicB, variables = trvars,
             gain = 0.8, subplot = c(2,3), reference = stats.discov)
 ```
@@ -1539,7 +1539,7 @@ numero.plot(results = stats.replicB, variables = trvars,
 The metabolic syndrome dataset produced colorings that were substantially
 different from the discovery set:
 
-``` {r dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of selected variables for MetS dataset."}
+``` {r results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Colorings of selected variables for MetS dataset."}
 numero.plot(results = stats.mets, variables = trvars,
             gain = 0.8, subplot = c(2,3), reference = stats.discov)
 ```
@@ -1611,7 +1611,7 @@ workaround$REGION[bottoms] <- "LowDiabKD"
 if(!exists("subgr.discov")) subgr.discov <- workaround
 ```
 
-``` {r dev="svg", results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The labels show the results from the subgrouping procedure."}
+``` {r results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The labels show the results from the subgrouping procedure."}
 # Plot results from subgrouping procedure.
 numero.plot(results = stats.discov, variables = clinvars,
             topology = subgr.discov, subplot = c(2,3))

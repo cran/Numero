@@ -361,6 +361,10 @@ rm(list=ls())
     # Tapered ranks.
     ds <- nroPreprocess(dataset, method = "tapered")
     print(summary(ds))
+    
+    # Standard normal ranks.
+    ds <- nroPreprocess(dataset, method = "normal")
+    print(summary(ds))
 
 
 cat("\nnroRcppMatrix.Rd\n")

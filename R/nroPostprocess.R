@@ -5,6 +5,7 @@ nroPostprocess <- function(
     trim=FALSE) {
 
     # Nothing to do.
+    if(length(data) < 1) return(data)
     if(length(mapping) < 1) return(data)
 
     # Check input.
@@ -20,6 +21,10 @@ nroPostprocess <- function(
         model.in <- mapping$input
         model.out <- mapping$output
     }
+
+    # Check if input is a vector.
+    if(is.vector(data)) data <- as.matrix(data)
+    if(ncol(data) == 1) colnames(data) <- colnames(model.in)
 
     # Check model data.
     if(nrow(model.in) != nrow(model.out))

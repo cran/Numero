@@ -74,6 +74,12 @@ nroPreprocess.std <- function(x, method, clip=NA) {
 	if(method == "tapered") z <- (z + 2*z^3)/3
         return(z)
     }
+    if(method == "normal") {
+        nvals <- sum(is.finite(x), na.rm=TRUE)
+        z <- rank(x, na.last="keep")
+        z <- stats::qnorm(z/(nvals + 1))
+	return(z)
+    }
 
     # Default method left.
     if(method != "standard") stop("Unknown method.")

@@ -1,8 +1,8 @@
 Package: Numero
 Type: Package
 Title: Statistical Framework to Define Subgroups in Complex Datasets
-Version: 1.7.3
-Date: 2021-01-11
+Version: 1.7.4
+Date: 2021-01-21
 Author: Song Gao [aut],
   Stefan Mutter [aut],
   Aaron E. Casey [aut],
@@ -19,5 +19,5 @@ Repository: CRAN
 SystemRequirements: C++11
 Encoding: UTF-8
 LazyData: true
-Packaged: 2021-01-11 00:38:46 UTC; vipmak
-Date/Publication: 2021-01-11 06:50:19 UTC
+Packaged: 2021-01-21 08:14:36 UTC; vipmak
+Date/Publication: 2021-01-22 09:00:09 UTC

@@ -40,8 +40,9 @@ if TRUE, empty rows and columns are removed.
 \details{
 Standardization methods include empty string for no action, "standard"
 for centering by mean and division by standard deviation, "uniform" for
-normalized ranks between -1 and 1 and "tapered" for a version of the
-rank-based method that puts more samples around zero.
+normalized ranks between -1 and 1, "tapered" for a version of the
+rank-based method that puts more samples around zero and "normal"
+for quantile-based mapping to standard normal distribution.
 
 Clipping is not applied if the method is rank-based.
 }
@@ -78,5 +79,9 @@ print(summary(ds))
 
 # Tapered ranks.
 ds <- nroPreprocess(dataset, method = "tapered")
+print(summary(ds))
+
+# Standard normal ranks.
+ds <- nroPreprocess(dataset, method = "normal")
 print(summary(ds))
 }
