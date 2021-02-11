@@ -95,33 +95,6 @@ rm(list=ls())
     print(summary(ds[women,"HDL2C"]))
 
 
-cat("\nnroImpute.Rd\n")
-rm(list=ls())
-
-    # Import data.
-    fname <- system.file("extdata", "finndiane.txt", package = "Numero")
-    dataset <- read.delim(file = fname)
-    
-    # Convert identities to strings (produces a warning later).
-    ds <- dataset
-    ds[,"INDEX"] <- paste("K", ds[,"INDEX"], sep=".")
-    
-    # Introduce missing values to cholesterol.
-    missing <- seq(from = 1, to = nrow(ds), length.out = 40)
-    missing <- unique(round(missing))
-    ds[missing,"CHOL"] <- NA
-    
-    # Impute missing values with and without standardization.
-    ds.std <- nroImpute(data = ds, standard = TRUE)
-    ds.orig <- nroImpute(data = ds, standard = FALSE)
-    
-    # Compare against "true" cholesterol values.
-    rho.std <- cor(ds.std[missing,"CHOL"], dataset[missing,"CHOL"])
-    rho.orig <- cor(ds.orig[missing,"CHOL"], dataset[missing,"CHOL"])
-    cat("Correlation, standard = TRUE:  ", rho.std, "\n", sep="")
-    cat("Correlation, standard = FALSE: ", rho.orig, "\n", sep="")
-
-
 cat("\nnroKmeans.Rd\n")
 rm(list=ls())
 

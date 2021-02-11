@@ -14,14 +14,15 @@ numero.quality <- function(
 
     # Calculate component planes.
     comps <- numero.quality.planes(model, data, layout)
-
-    # Estimate quality statistics.
-    stats.qc <- numero.quality.control(model, layout)
-
+    
     # Determine district ranges.
     colrs <- nroColorize(comps)
+    ranges <- attr(colrs, "ranges")
 
-    # Statistics for training data.
+    # Estimate quality statistics.
+    stats.qc <- numero.quality.control(model, layout, ranges)
+
+    # Quality statistics.
     stats.map <- numero.quality.stats(model, layout, data)
     model$map$statistics <- stats.map
 
@@ -29,10 +30,10 @@ numero.quality <- function(
     output$map <- model$map
     output$layout <- layout
     output$planes <- comps
-    output$ranges <- attr(colrs, "ranges")
-    output$palette <- "fire"
+    output$ranges <- ranges
+    output$palette <- attr(colrs, "palette")
     output$statistics <- stats.qc
-    output$zbase <- attr(stats.map, "zbase")
+    output$zbase <- model$zbase
     return(output)
 }
 
@@ -85,23 +86,25 @@ numero.quality.planes <- function(model, data, layout) {
 
 #-------------------------------------------------------------------------
 
-numero.quality.control <- function(model, layout) {
+numero.quality.control <- function(model, data, ranges, refranges) {
     cat("\nQuality statistics:\n")
 
     # Separate district labels from quality measures.
-    bmc <- layout[,"BMC"]
-    names(bmc) <- rownames(layout)
-    layout[,"BMC"] <- NULL
+    bmc <- data[,"BMC"]
+    names(bmc) <- rownames(data)
+    data[,"BMC"] <- NULL
 
     # Add jitter to coverage to prevent numerical artefacts.
-    r <- stats::runif(nrow(layout))
-    layout[,"COVERAGE"] <- (layout[,"COVERAGE"] + 0.01*r)
+    r <- ((13*(1:nrow(data)) + 127)%%177)/177
+    data[,"COVERAGE"] <- (data[,"COVERAGE"] + 0.001*r)
 
     # Permutation analysis.
     stats <- nroPermute(map=model$map, districts=bmc,
-                        data=layout, n=1000)
+                        data=data, n=1000)
+    attr(stats, "zbase") <- NULL
 
     # Observed variation in sample density.
+    dens <- nroAggregate(topology=model$map, districts=bmc)
     h <- table(bmc)
     levs <- as.integer(names(h))
     x <- stats::sd(h)
@@ -120,21 +123,26 @@ numero.quality.control <- function(model, layout) {
     z <- (x - mu)/(sigma + 1e-9)
 
     # Append to the statistics data frame.
+    ind <- nrow(stats)
     stats <- rbind(stats, stats[1,])
-    stats[nrow(stats),] <- NA
-    stats[nrow(stats),"SCORE"] <- x
-    stats[nrow(stats),"Z"] <- z
-    stats[nrow(stats),"P.z"] <- stats::pnorm(z, lower.tail=FALSE)
-    stats[nrow(stats),"P.freq"] <- mean((nulls >= x), na.rm=TRUE)
-    stats[nrow(stats),"N.data"] <- npoints
-    stats[nrow(stats),"N.cycles"] <- length(nulls)
-    stats[nrow(stats),"TRAINING"] <- "no"
-    rownames(stats) <- c(colnames(layout), "HISTOGRAM")
+    stats[ind,] <- NA
+    stats[ind,"SCORE"] <- x
+    stats[ind,"Z"] <- z
+    stats[ind,"P.z"] <- stats::pnorm(z, lower.tail=FALSE)
+    stats[ind,"P.freq"] <- mean((nulls >= x), na.rm=TRUE)
+    stats[ind,"N.data"] <- npoints
+    stats[ind,"N.cycles"] <- length(nulls)
+    stats[ind,"TRAINING"] <- "no"
+    stats[ind,"AMPLITUDE"] <- NA
+    rownames(stats) <- c(colnames(data), "HISTOGRAM")
 
-    # Update base score and apmplitudes.
-    zbase <- max(c(stats$Z, 3), na.rm=TRUE)
-    stats[,"AMPLITUDE"] <- pmax((stats[,"Z"])/zbase, 0.04)
-    attr(stats, "zbase") <- zbase
+    # Set amplitudes.
+    stats["COVERAGE","AMPLITUDE"] <- (ranges["COVERAGE","MAX"] -
+        ranges["COVERAGE","MIN"])/(1.0 - 0.0)
+    stats["RESIDUAL.z","AMPLITUDE"] <- (ranges["RESIDUAL.z","MAX"] -
+        ranges["RESIDUAL.z","MIN"])/(3.5 + 3.5)
+    stats["RESIDUAL","AMPLITUDE"] <- stats["RESIDUAL.z","AMPLITUDE"]
+    stats["HISTOGRAM","AMPLITUDE"] <- (max(dens) - min(dens))/max(dens)
 
     # Show report.
     cat(nrow(stats), " quality measures\n", sep="")

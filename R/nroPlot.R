@@ -89,7 +89,7 @@ nroPlot <- function(
 
     # Set font size adjustment.
     param$plotcap <- (param$nrows)*(param$ncols)
-    param$cexcoeff <- 1.3/log(0.8*sqrt(param$plotcap) + 1.72)
+    param$cexcoeff <- 1.2/log(0.8*sqrt(param$plotcap) + 1.72)
 
     # Set plot size parameters.
     param$xgap <- 0.5
@@ -395,10 +395,6 @@ nroPlot.multi <- function(elements, param, targets=c()) {
 
         # Set label colors.
 	elements$LABEL.color <- "#00000060"
-        #elements$LABEL.color <- "black"
-        #lum <- grDevices::col2rgb(elements$COLOR)
-        #lum <- apply(lum, 2, stats::median, na.rm=TRUE)
-        #elements$LABEL.color[which(lum < 90)] <- "white"
 
         # Create subplot.
         nroPlot.single(elements, c(dx, dy), scale=cexcoeff, targets)

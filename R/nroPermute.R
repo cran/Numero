@@ -4,7 +4,8 @@ nroPermute <- function(
     data,
     n=1000,
     message=NULL,
-    zbase=NULL) {
+    zbase=NULL,
+    seed=0.0) {
 
     # Convert data to numeric matrix.
     data <- nroRcppMatrix(data, trim=FALSE)
@@ -59,6 +60,10 @@ nroPermute <- function(
     # Check message interval.
     if(!is.finite(message)) message <- -1.0
 
+    # Check seed for randomization.
+    seed <- as.double(seed[[1]])
+    if(!is.finite(seed)) seed <- 0
+
     # Set flags for training variables.
     trflags <- rep("no", length.out=ncol(data))
     cols <- which(match(colnames(data), trvars) > 0)
@@ -80,14 +85,22 @@ nroPermute <- function(
         as.integer(districts),
         as.matrix(data),
         as.integer(numcycl),
-        as.double(message),
+        as.double(c(message, seed)),
         PACKAGE="Numero") 
     if(is.character(res)) stop(res)
 
     # Convert results to data frame.
     output <- data.frame(res, stringsAsFactors=FALSE)
-    rownames(output) <- colnames(data)
     output$TRAINING <- trflags
+
+    # Set rownames.
+    rnames <- colnames(data)
+    mask <- which(duplicated(rnames))
+    if(length(mask) > 0) {
+        rnames[mask] <- paste(rnames[mask], 1:length(mask), sep=".")
+        warning("Duplicated column names.")
+    }
+    rownames(output) <- rnames
 
     # Estimate P-values.
     output$P.z <- stats::pnorm(output$Z, lower.tail=FALSE)

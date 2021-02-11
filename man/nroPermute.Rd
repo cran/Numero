@@ -11,7 +11,8 @@ regional patterns on a self-organizing maps using permutations.
 }
 
 \usage{
-nroPermute(map, districts, data, n = 1000, message = NULL, zbase = NULL)
+nroPermute(map, districts, data, n = 1000, message = NULL,
+           zbase = NULL, seed = 0.0)
 }
 
 \arguments{
@@ -39,6 +40,10 @@ interval in seconds.
 
   \item{zbase}{
 Reference Z-score for determining color amplitudes.
+  }
+  
+  \item{seed}{
+Seed value for random number generator.
   }
 }
 

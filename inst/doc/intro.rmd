@@ -751,47 +751,29 @@ It is important to use only the training variables in this step so that we
 remain agnostic to the clinical traits and preserve the original unsupervised
 study design.
 
-The Numero framework includes an interactive tool to conduct the
-subgrouping based on SOM colorings:
-
-``` {r eval=FALSE}
-# Interactive subgrouping based on the training set.
-subgr.basic <- numero.subgroup(results = stats.basic, variables = trvars)
-```
-
-In addition, the colorings can be saved as an interactive web page, which is
-useful when the standard R plotting gets too slow or unusable due to multiple
-colorings or large map size (see the chapter on large datasets and maps).
-
-Unfortunately, the R vignette format is not compatible with the interactive
-procedure, therefore we have to use a naive workaround (i.e. districts with
-the highest and lowest urinary albumin) to demonstrate the features of the
-pipeline.
-
-**THE WORKAROUND IS ONLY FOR THE VIGNETTE AND WE ADVICE AGAINST USING IT IN
-REAL STUDIES.**
-
-``` {r echo=FALSE, results=FALSE}
-# Workaround for the vignette document, DO NOT USE IN REAL STUDIES!
-x <- (stats.basic$planes[,"DIAB_KIDNEY"])*(stats.basic$planes[,"uALB"])
-tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
-bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
-workaround <- as.data.frame(stats.basic$map$topology)
-workaround$REGION.label <- " "
-workaround$REGION.color <- ""
-workaround$REGION <- "not_selected"
-workaround$REGION.label[tops] <- "A"
-workaround$REGION.color[tops] <- "#FF000050"
-workaround$REGION[tops] <- "HighALB"
-workaround$REGION.label[bottoms] <- "B"
-workaround$REGION.color[bottoms] <- "#89AB0070"
-workaround$REGION[bottoms] <- "LowALB"
-```
+The Numero framework includes an interactive tool to conduct the subgrouping
+based on SOM colorings. Unfortunately, the R vignette format is not compatible
+with the interactive procedure, therefore we will rely on the automatic
+subgrouping feature to proceed with the example:
 
 ``` {r}
-# Interactive selection not available in vignette.
-if(!exists("subgr.basic")) subgr.basic <- workaround
+# Automatic subgrouping based on the training set.
+subgr.basic <- numero.subgroup(results = stats.basic,
+                               variables = trvars, automatic = TRUE)
 ```
+
+It is possible to use the interactive feature to tweak the automatic result
+by passing the updated map topology:
+
+``` {r eval=FALSE}
+# Interactive subgrouping.
+subgr.basic <- numero.subgroup(results = stats.basic,
+                               variables = trvars, topology = subgr.basic)
+```
+
+The colorings can also be saved as an interactive web page, which is
+useful when the standard R plotting gets too slow or unusable due to multiple
+colorings or large map size (see the chapter on large datasets and maps).
 
 ``` {r results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The labels show the results from the subgrouping procedure."}
 # Plot results from the subgrouping procedure.
@@ -804,7 +786,8 @@ to cover the most important patterns on the map. Serum creatinine and urinary
 albumin are biomarkers of kidney disease, so they are highly concordant,
 whereas cholesterol and triglycerides show patterns that do not fit well
 with the kidney biomarkers. Therefore, additional subgroups and manual
-adjustments of the district labels is the preferred course of action.
+adjustments of the district labels may be the preferred course of action
+if this were an actual research project.
 
 With the interactive tool, users can choose their own subgroups based on
 the SOM patterns. This is the greatest strength of the pipeline: multiple
@@ -852,7 +835,7 @@ numero.plot(results = stats.basic,
             topology = subgr.basic, subplot = c(2,3))
 ```
 
-The subgroup with the highest urinary albumin (A: HighALB) overlaps with the
+The subgroup with the highest urinary albumin overlaps with the
 clinical classification of diabetic kidney disease (top-right coloring).
 This is expected, since albuminuria is one of the key diagnostic markers
 for kidney disease. Accordingly, the same subgroup overlaps with high
@@ -882,11 +865,8 @@ report.basic[rows,c("SUBGROUP","N","MEAN","P.chisq")]
 
 The first row of the output shows the chi2 test for the full contingency
 table. The largest subgroup is always chosen as the reference, hence
-P = 1 for the individuals who were not selected to either of the albumin
-subgroups. Although the LowALB subgroup (B) shows a lower mortality rate
-compared to the reference, the difference is not as strong statistically.
-Instead, it seems that the HighALB group is responsible for most of the
-signal.
+P = 1 for subgroup with the most members. The subgroup that captured the
+highest urinary albumin values should show the greatest mortality rate.
 
 Lastly, it is often useful to identify the members of these subgroups.
 The output contains that information as attributes, please see the
@@ -991,8 +971,8 @@ residuals have been removed:
 
 ``` {r}
 # Maximum residuals from unadjusted and adjusted analyses.
-c(max(qc.basic$layout$RESIDUAL.z, na.rm=TRUE),
-  max(qc.adj$layout$RESIDUAL.z, na.rm=TRUE))
+c(max(qc.basic$layout$RESIDUAL.z, na.rm = TRUE),
+  max(qc.adj$layout$RESIDUAL.z, na.rm = TRUE))
 ```
 
 Furthermore, the spread of data points across the map is now more
@@ -1000,8 +980,8 @@ balanced
 
 ``` {r}
 # Variation in point density in unadjusted and adjusted analyses.
-c(sd(qc.basic$planes[,"HISTOGRAM"], na.rm=TRUE),
-  sd(qc.adj$planes[,"HISTOGRAM"], na.rm=TRUE))
+c(sd(qc.basic$planes[,"HISTOGRAM"], na.rm = TRUE),
+  sd(qc.adj$planes[,"HISTOGRAM"], na.rm = TRUE))
 ```
 
 and the depletion of data points in the poor quality area is attenuated:
@@ -1119,34 +1099,19 @@ subgr.adj <- numero.subgroup(results = stats.adj, variables = trvars)
 ```
 
 As mentioned previously, the vignette format is not compatible with the
-interactive tool, therefore we have to use a naive workaround (i.e.
-districts with the highest and lowest urinary albumin) to demonstrate the
-features of the pipeline.
-
-**THE WORKAROUND IS ONLY FOR THE VIGNETTE AND WE ADVICE AGAINST USING IT IN
-REAL STUDIES.**
-
-``` {r echo=FALSE, results=FALSE}
-# Workaround for the vignette document, DO NOT USE IN REAL STUDIES!
-x <- (stats.adj$planes[,"DIAB_KIDNEY"])*(stats.adj$planes[,"uALB"])
-tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
-bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
-workaround <- as.data.frame(stats.adj$map$topology)
-workaround$REGION.label <- " "
-workaround$REGION.color <- ""
-workaround$REGION <- "not_selected"
-workaround$REGION.label[tops] <- "A"
-workaround$REGION.color[tops] <- "#FF000050"
-workaround$REGION[tops] <- "HighALB"
-workaround$REGION.label[bottoms] <- "B"
-workaround$REGION.color[bottoms] <- "#89AB0070"
-workaround$REGION[bottoms] <- "LowALB"
-```
+interactive tool, therefore we have to use the automatic subgrouping
+feature to demonstrate the function of the pipeline.
 
 ``` {r}
-# Interactive selection not available in vignette.
-if(!exists("subgr.adj")) subgr.adj <- workaround
+# Automatic subgrouping based on the training set.
+subgr.adj <- numero.subgroup(results = stats.adj,
+                             variables = trvars, automatic = TRUE)
 ```
+
+The colorings can also be saved as an interactive web page, which is
+useful when the standard R plotting gets too slow or unusable due to multiple
+colorings or large map size (see the chapter on large datasets and maps).
+
 
 ``` {r results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The labels show the results from the subgrouping procedure. The map was created from sex-adjusted data."}
 # Plot results from subgrouping procedure.
@@ -1155,7 +1120,7 @@ numero.plot(results = stats.adj, variables = trvars,
 ```
 
 Although the sex adjustment had a minor effect on the map colorings, we can
-observe some changes in the separation of low and high urinary albumin.
+observe minor changes in how the subgroups settled on the map.
 As was discussed earlier, the subgroups could be made more reasonable, which
 highlights the importance of being able to set the subgroup labels yourself
 for the most useful or parsimonious results.
@@ -1378,7 +1343,7 @@ compared to the earlier examples:
 ``` {r}
 # Define comparable histogram bins.
 rz <- c(qc.adj$layout[,"RESIDUAL.z"], qc.discov$layout[,"RESIDUAL.z"])
-rz.breaks <- seq(min(rz, na.rm=TRUE), max(rz, na.rm=TRUE), length.out=20)
+rz.breaks <- seq(min(rz, na.rm = TRUE), max(rz, na.rm = TRUE), length.out=20)
 ``` 
 
 ``` {r results="hide", fig.width=7, fig.height=3, fig.align="center", fig.cap="Figure: Distribution of model residuals when the training data were preprocessed by scaling & centering or by tapered ranking."}
@@ -1399,12 +1364,12 @@ residuals than the previous centered and scaled training set:
 
 ``` {r}
 # Comparison of maximum residuals across examples.
-r <- c(max(qc.basic$layout[,"RESIDUAL.z"], na.rm=TRUE),
-       max(qc.adj$layout[,"RESIDUAL.z"], na.rm=TRUE),
-       max(qc.discov$layout[,"RESIDUAL.z"], na.rm=TRUE),
-       max(qc.replicA$layout[,"RESIDUAL.z"], na.rm=TRUE),
-       max(qc.replicB$layout[,"RESIDUAL.z"], na.rm=TRUE),
-       max(qc.mets$layout[,"RESIDUAL.z"], na.rm=TRUE))
+r <- c(max(qc.basic$layout[,"RESIDUAL.z"], na.rm = TRUE),
+       max(qc.adj$layout[,"RESIDUAL.z"], na.rm = TRUE),
+       max(qc.discov$layout[,"RESIDUAL.z"], na.rm = TRUE),
+       max(qc.replicA$layout[,"RESIDUAL.z"], na.rm = TRUE),
+       max(qc.replicB$layout[,"RESIDUAL.z"], na.rm = TRUE),
+       max(qc.mets$layout[,"RESIDUAL.z"], na.rm = TRUE))
 names(r) <- c("basic", "adj", "discov", "replicA", "replicB", "mets")
 print(r)
 ```
@@ -1574,42 +1539,18 @@ clinvars <- c("uALB", "AGE", "DIAB_KIDNEY", "DIAB_RETINO",
 ```
 
 As mentioned earlier, the Numero framework includes an interactive tool to
-conduct the subgrouping based on SOM colorings
-
-``` {r eval=FALSE}
-# Interactive subgrouping based on the training set.
-subgr.discov <- numero.subgroup(results = stats.discov, variables = clinvars)
-```
-
-However, the vignette format is not compatible with the interactive tool,
-therefore we have to use a naive workaround (i.e. districts with the highest
-and lowest prevalence of kidney disease) to demonstrate the features of the
-pipeline.
-
-**THE WORKAROUND IS ONLY FOR THE VIGNETTE AND WE ADVICE AGAINST USING IT IN
-REAL STUDIES.**
-
-``` {r echo=FALSE, results=FALSE}
-# Workaround for the vignette document, DO NOT USE IN REAL STUDIES!
-x <- (stats.discov$planes[,"DIAB_KIDNEY"])*(stats.discov$planes[,"uALB"])
-tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
-bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
-workaround <- as.data.frame(stats.discov$map$topology)
-workaround$REGION.label <- " "
-workaround$REGION.color <- ""
-workaround$REGION <- "not_selected"
-workaround$REGION.label[tops] <- "A"
-workaround$REGION.color[tops] <- "#FF000050"
-workaround$REGION[tops] <- "HighDiabKD"
-workaround$REGION.label[bottoms] <- "B"
-workaround$REGION.color[bottoms] <- "#89AB0070"
-workaround$REGION[bottoms] <- "LowDiabKD"
-```
+conduct the subgrouping based on SOM colorings, but the vignette does not
+allow user interaction so we use the automatic feature instead:
 
 ``` {r}
-# Interactive selection not available in vignette.
-if(!exists("subgr.discov")) subgr.discov <- workaround
+# Automatic subgrouping based on the training set.
+subgr.discov <- numero.subgroup(results = stats.discov,
+                                variables = clinvars, automatic = TRUE)
 ```
+
+The colorings can also be saved as an interactive web page, which is
+useful when the standard R plotting gets too slow or unusable due to multiple
+colorings or large map size (see the chapter on large datasets and maps).
 
 ``` {r results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The labels show the results from the subgrouping procedure."}
 # Plot results from subgrouping procedure.

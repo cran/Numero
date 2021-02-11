@@ -85,29 +85,15 @@ numero.plot(results = stats.basic, variables = trvars, subplot = c(2,3))
 stats.basic$statistics[c("CHOL","MALE","AGE","T1D_DURAT"),
                        c("TRAINING","Z","P.z")]
 
-## ----eval=FALSE----------------------------------------------------------
-#  # Interactive subgrouping based on the training set.
-#  subgr.basic <- numero.subgroup(results = stats.basic, variables = trvars)
-
-## ----echo=FALSE, results=FALSE-------------------------------------------
-# Workaround for the vignette document, DO NOT USE IN REAL STUDIES!
-x <- (stats.basic$planes[,"DIAB_KIDNEY"])*(stats.basic$planes[,"uALB"])
-tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
-bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
-workaround <- as.data.frame(stats.basic$map$topology)
-workaround$REGION.label <- " "
-workaround$REGION.color <- ""
-workaround$REGION <- "not_selected"
-workaround$REGION.label[tops] <- "A"
-workaround$REGION.color[tops] <- "#FF000050"
-workaround$REGION[tops] <- "HighALB"
-workaround$REGION.label[bottoms] <- "B"
-workaround$REGION.color[bottoms] <- "#89AB0070"
-workaround$REGION[bottoms] <- "LowALB"
-
 ## ------------------------------------------------------------------------
-# Interactive selection not available in vignette.
-if(!exists("subgr.basic")) subgr.basic <- workaround
+# Automatic subgrouping based on the training set.
+subgr.basic <- numero.subgroup(results = stats.basic,
+                               variables = trvars, automatic = TRUE)
+
+## ----eval=FALSE----------------------------------------------------------
+#  # Interactive subgrouping.
+#  subgr.basic <- numero.subgroup(results = stats.basic,
+#                                 variables = trvars, topology = subgr.basic)
 
 ## ----results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The labels show the results from the subgrouping procedure."----
 # Plot results from the subgrouping procedure.
@@ -179,13 +165,13 @@ hist(x = qc.adj$layout$RESIDUAL.z, breaks = 20,
 
 ## ------------------------------------------------------------------------
 # Maximum residuals from unadjusted and adjusted analyses.
-c(max(qc.basic$layout$RESIDUAL.z, na.rm=TRUE),
-  max(qc.adj$layout$RESIDUAL.z, na.rm=TRUE))
+c(max(qc.basic$layout$RESIDUAL.z, na.rm = TRUE),
+  max(qc.adj$layout$RESIDUAL.z, na.rm = TRUE))
 
 ## ------------------------------------------------------------------------
 # Variation in point density in unadjusted and adjusted analyses.
-c(sd(qc.basic$planes[,"HISTOGRAM"], na.rm=TRUE),
-  sd(qc.adj$planes[,"HISTOGRAM"], na.rm=TRUE))
+c(sd(qc.basic$planes[,"HISTOGRAM"], na.rm = TRUE),
+  sd(qc.adj$planes[,"HISTOGRAM"], na.rm = TRUE))
 
 ## ----results="hide", fig.width=9, fig.height=3, fig.align="center", fig.cap="Figure: Visualization of data point quality measures across map districts from age and sex adjusted analysis."----
 # Plot map quality measures.
@@ -224,25 +210,10 @@ numero.plot(results = stats.adjM, variables = trvars,
 #  # Interactive subgrouping based on the training set.
 #  subgr.adj <- numero.subgroup(results = stats.adj, variables = trvars)
 
-## ----echo=FALSE, results=FALSE-------------------------------------------
-# Workaround for the vignette document, DO NOT USE IN REAL STUDIES!
-x <- (stats.adj$planes[,"DIAB_KIDNEY"])*(stats.adj$planes[,"uALB"])
-tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
-bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
-workaround <- as.data.frame(stats.adj$map$topology)
-workaround$REGION.label <- " "
-workaround$REGION.color <- ""
-workaround$REGION <- "not_selected"
-workaround$REGION.label[tops] <- "A"
-workaround$REGION.color[tops] <- "#FF000050"
-workaround$REGION[tops] <- "HighALB"
-workaround$REGION.label[bottoms] <- "B"
-workaround$REGION.color[bottoms] <- "#89AB0070"
-workaround$REGION[bottoms] <- "LowALB"
-
 ## ------------------------------------------------------------------------
-# Interactive selection not available in vignette.
-if(!exists("subgr.adj")) subgr.adj <- workaround
+# Automatic subgrouping based on the training set.
+subgr.adj <- numero.subgroup(results = stats.adj,
+                             variables = trvars, automatic = TRUE)
 
 ## ----results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The labels show the results from the subgrouping procedure. The map was created from sex-adjusted data."----
 # Plot results from subgrouping procedure.
@@ -333,7 +304,7 @@ qc.mets <- numero.quality(model = modl.discov, data = trdata.mets)
 ## ------------------------------------------------------------------------
 # Define comparable histogram bins.
 rz <- c(qc.adj$layout[,"RESIDUAL.z"], qc.discov$layout[,"RESIDUAL.z"])
-rz.breaks <- seq(min(rz, na.rm=TRUE), max(rz, na.rm=TRUE), length.out=20)
+rz.breaks <- seq(min(rz, na.rm = TRUE), max(rz, na.rm = TRUE), length.out=20)
 
 ## ----results="hide", fig.width=7, fig.height=3, fig.align="center", fig.cap="Figure: Distribution of model residuals when the training data were preprocessed by scaling & centering or by tapered ranking."----
 # Plot frequencies of data points at different quality levels.
@@ -347,12 +318,12 @@ hist(x = qc.discov$layout[,"RESIDUAL.z"], breaks = rz.breaks,
 
 ## ------------------------------------------------------------------------
 # Comparison of maximum residuals across examples.
-r <- c(max(qc.basic$layout[,"RESIDUAL.z"], na.rm=TRUE),
-       max(qc.adj$layout[,"RESIDUAL.z"], na.rm=TRUE),
-       max(qc.discov$layout[,"RESIDUAL.z"], na.rm=TRUE),
-       max(qc.replicA$layout[,"RESIDUAL.z"], na.rm=TRUE),
-       max(qc.replicB$layout[,"RESIDUAL.z"], na.rm=TRUE),
-       max(qc.mets$layout[,"RESIDUAL.z"], na.rm=TRUE))
+r <- c(max(qc.basic$layout[,"RESIDUAL.z"], na.rm = TRUE),
+       max(qc.adj$layout[,"RESIDUAL.z"], na.rm = TRUE),
+       max(qc.discov$layout[,"RESIDUAL.z"], na.rm = TRUE),
+       max(qc.replicA$layout[,"RESIDUAL.z"], na.rm = TRUE),
+       max(qc.replicB$layout[,"RESIDUAL.z"], na.rm = TRUE),
+       max(qc.mets$layout[,"RESIDUAL.z"], na.rm = TRUE))
 names(r) <- c("basic", "adj", "discov", "replicA", "replicB", "mets")
 print(r)
 
@@ -400,29 +371,10 @@ numero.plot(results = stats.mets, variables = trvars,
 clinvars <- c("uALB", "AGE", "DIAB_KIDNEY", "DIAB_RETINO",
               "MACROVASC", "DECEASED")
 
-## ----eval=FALSE----------------------------------------------------------
-#  # Interactive subgrouping based on the training set.
-#  subgr.discov <- numero.subgroup(results = stats.discov, variables = clinvars)
-
-## ----echo=FALSE, results=FALSE-------------------------------------------
-# Workaround for the vignette document, DO NOT USE IN REAL STUDIES!
-x <- (stats.discov$planes[,"DIAB_KIDNEY"])*(stats.discov$planes[,"uALB"])
-tops <- which(x >= quantile(x, 0.75, na.rm=TRUE))
-bottoms <- which(x <= quantile(x, 0.25, na.rm=TRUE))
-workaround <- as.data.frame(stats.discov$map$topology)
-workaround$REGION.label <- " "
-workaround$REGION.color <- ""
-workaround$REGION <- "not_selected"
-workaround$REGION.label[tops] <- "A"
-workaround$REGION.color[tops] <- "#FF000050"
-workaround$REGION[tops] <- "HighDiabKD"
-workaround$REGION.label[bottoms] <- "B"
-workaround$REGION.color[bottoms] <- "#89AB0070"
-workaround$REGION[bottoms] <- "LowDiabKD"
-
 ## ------------------------------------------------------------------------
-# Interactive selection not available in vignette.
-if(!exists("subgr.discov")) subgr.discov <- workaround
+# Automatic subgrouping based on the training set.
+subgr.discov <- numero.subgroup(results = stats.discov,
+                                variables = clinvars, automatic = TRUE)
 
 ## ----results="hide", fig.width=6, fig.height=4, fig.align="center", fig.cap="Figure: Statistically normalized colorings of the training variables in the kidney disease dataset. The labels show the results from the subgrouping procedure."----
 # Plot results from subgrouping procedure.

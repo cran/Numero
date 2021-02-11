@@ -11,7 +11,7 @@
 static string
 nro_permute_exec(vector<mdreal>& output, const vector<mdreal>& values,
 		 const vector<mdsize>& bmus, const Topology& topo,
-		 const mdsize ncycl) {
+		 const mdsize ncycl, const mdreal seedval) {
   output.clear();
   if(values.size() != bmus.size())
     medusa::panic("Incompatible inputs.", __FILE__, __LINE__);
@@ -23,6 +23,9 @@ nro_permute_exec(vector<mdreal>& output, const vector<mdreal>& values,
     string e = eng.insert(long2string(i), (bmus[i] - 1), values[i]);
     ndata += (e.size() < 1); /* excluded if any missing value */
   }
+
+  /* Reset random number generator. */
+  eng.seed(seedval);
   
   /* Observed component plane. */
   vector<vector<mdreal> > observed = eng.average();
@@ -72,12 +75,12 @@ nro_permute_exec(vector<mdreal>& output, const vector<mdreal>& values,
  */
 RcppExport SEXP
 nro_permute(SEXP topo_R, SEXP sigma_R, SEXP bmus_R, SEXP data_R,
-	    SEXP numcycl_R, SEXP lag_R) {
+	    SEXP numcycl_R, SEXP lagseed_R) {
   vector<mdsize> numcycl = nro::vector2sizes(numcycl_R);
+  vector<mdreal> lagseed = nro::vector2reals(lagseed_R);
   mdreal sigma = as<mdreal>(sigma_R);
-  mdreal lag = as<mdreal>(lag_R);
   time_t stamp = time(NULL);
-  
+
   /* Check inputs. */
   vector<mdsize> bmus = nro::vector2sizes(bmus_R);
   vector<vector<mdreal> > vectors = nro::matrix2reals(data_R, 0.0);
@@ -86,7 +89,11 @@ nro_permute(SEXP topo_R, SEXP sigma_R, SEXP bmus_R, SEXP data_R,
     return CharacterVector("Incompatible inputs.");
   if(vectors[0].size() != numcycl.size())
     return CharacterVector("Incompatible inputs.");
-  
+  if(lagseed.size() < 2)
+    return CharacterVector("Unusable input.");
+  mdreal lag = lagseed[0];
+  mdreal seedval = lagseed[1];
+    
   /* Get map topology. */
   vector<vector<mdreal> > topodata = nro::matrix2reals(topo_R, 0.0);
   punos::Topology topo = reals2topology(topodata, sigma);
@@ -106,7 +113,8 @@ nro_permute(SEXP topo_R, SEXP sigma_R, SEXP bmus_R, SEXP data_R,
     
     /* Estimate statistics. */
     vector<mdreal> batch;
-    string err = nro_permute_exec(batch, column, bmus, topo, numcycl[j]);
+    string err = nro_permute_exec(batch, column, bmus, topo,
+				  numcycl[j], (seedval + j));
     if(err.size() > 0) return CharacterVector(err);
     
     /* Update results. */

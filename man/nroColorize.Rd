@@ -51,8 +51,9 @@ or "tan". Any other word will revert to a rainbow colormap.
 \value{
 A matrix of hexadecimal color codes as strings. The output also includes
 the attribute 'contrast' that indicates which colors have a good contrast with
-black as opposed to white, and the attribute 'ranges' that contains a copy
-of the dynamic ranges across districts.
+black as opposed to white, the attribute 'ranges' that contains a copy
+of the dynamic ranges across districts, and the attribute 'palette' that
+indicates the color scheme.
 }
 
 \examples{

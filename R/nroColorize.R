@@ -31,6 +31,7 @@ nroColorize <- function(
     }
 
     # Check palette.
+    palette <- c(palette, "")
     palette <- as.character(palette[[1]])
 
     # Check if amplitudes is a data frame or a matrix.
@@ -56,7 +57,7 @@ nroColorize <- function(
     # Amplification factors.
     z <- sweep(z, 2, amplitudes[1:ncol(z)], `*`)
     z <- 0.5*(z + 1.0) # centered at 0.5
-    
+
     # Set colors.
     res <- .Call("nro_colorize",
         as.matrix(z),
@@ -85,5 +86,6 @@ nroColorize <- function(
     # Return results.
     attr(res$colors, "contrast") <- res$contrast
     attr(res$colors, "ranges") <- ranges
+    attr(res$colors, "palette") <- palette
     return(res$colors)
 }

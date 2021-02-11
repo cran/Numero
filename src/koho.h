@@ -125,7 +125,10 @@ namespace koho {
        contains the data values. Returns an error if failed. */
     std::string insert(const std::string&, const medusa::mdsize,
 		       const std::vector<medusa::mdreal>&);
- 
+
+    /* Configure random number generator. */
+    void seed(const medusa::mdreal);
+    
     /* Shuffle values randomly. If the second input is true, shuffle with
        replacement. Returns true if values were shuffled. */
     bool shuffle(const bool);

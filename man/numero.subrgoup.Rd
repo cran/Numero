@@ -8,7 +8,7 @@ multi-district regions as subgroups}
 
 \usage{
 numero.subgroup(results, variables, topology = NULL, reference = NULL,
-                gain = 1, detach = FALSE, capacity = 9)
+                gain = 1, detach = FALSE, capacity = 9, automatic = FALSE)
 }
 
 \arguments{
@@ -34,11 +34,15 @@ Use a detached window.
 \item{capacity}{
 Maximum number of subplots to show on screen.
 }
+\item{automatic}{
+If greater than zero, automatic segmentation of the map is triggered,
+the value sets the number of subgroups.
+}
 }
 
 \details{
 The input \code{results} must contain the output from
-code{\link{numero.evaluate}()} or similar.
+\code{\link{numero.evaluate}()} or similar.
 
 The input argument \code{topology} can be the structure of a SOM or with
 additional columns as in the output from \code{\link{nroPlot}()}.
@@ -49,10 +53,11 @@ The input argument \code{reference} follows the output format from
 Setting detach to FALSE will also clear all devices whenever the figure is
 refreshed. This may be inconvenient when using R from the terminal,
 for example; please see the help page of \code{\link{numero.plot}()} for
-using detached window device instead.
+using a detached window device instead.
 
 If any districts are left unmarked, they are automatically collected
-into a subgroup of their own.
+into a subgroup of their own. If \code{automatic} is set, user input
+is skipped.
 }
 
 \value{

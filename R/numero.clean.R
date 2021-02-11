@@ -28,7 +28,7 @@ numero.clean <- function(
     }
 
     # Check that names do not clash with inputs.
-    reserv <- c("identity", "na.freq", "select")
+    reserv <- c("identity", "na.freq", "num.only", "select")
     if(anyDuplicated(c(names(datasets), reserv)) > 0)
         stop("Dataset name overlaps with input argument.")
 
@@ -287,7 +287,7 @@ numero.clean.filter <- function(ds, rnames, na.freq, num.only) {
     flags <- apply(ds, 1, numero.clean.check, flimit=na.freq)
     if(sum(flags) > 0) {
         ds <- ds[which(!flags),]
-        cat(sum(flags), " unusable rowss\n", sep="")
+        cat(sum(flags), " unusable rows\n", sep="")
 	if(nrow(ds) < 2) {
 	    cat("less than two usable rows")
 	    return(NULL)

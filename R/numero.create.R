@@ -21,7 +21,7 @@ numero.create <- function(
     if(ncol(trdata) < 3) stop("Not enough usable columns.")
 
     # Set map radius.
-    cat("\nSelf-organizing map:\n")
+    cat("\nModeling setup:\n")
     if(is.null(radius)) {
         radius <- floor(0.5*log(nrow(trdata) + 2000))
         cat("automatic radius set to ", radius, "\n", sep="")
@@ -47,6 +47,7 @@ numero.create <- function(
     if(!is.null(subsample)) {
         if(!is.finite(subsample[[1]])) stop("Unusable subsample.")
         if(subsample[[1]] < 10) stop("Unusable subsample.")
+	subsample <- as.integer(min(subsample[[1]], nrow(trdata)))
     }
 
     # Print report.
@@ -74,10 +75,26 @@ numero.create <- function(
     layout <- data.frame(BMC=matches, attr(matches, "quality"))
     rownames(layout) <- names(matches)
 
+    # Set permutation design.
+    r <- ((13*(1:ncol(trdata)) + 127)%%177)/177
+    cols <- unique(rep(order(r), length.out=100))
+    nperm <- round(20000/length(cols))
+
+    # Set base amplitude for colors.
+    cat("\nColor amplitude:\n")
+    suppressWarnings(
+        stats <- nroPermute(map=sm, districts=layout$BMC,
+            data=trdata[,cols], n=nperm, message=10))
+    if(nrow(stats) < ncol(trdata))
+        cat(nrow(stats), " / ", ncol(trdata), " columns sampled\n", sep="")
+    cat(sum(stats$N.cycles), " permutations\n", sep="")
+    cat("reference Z-score ", attr(stats, "zbase"), " \n", sep="")
+
     # Collect results.
     output$kmeans <- km
     output$map <- sm
     output$layout <- layout
     output$data <- data
+    output$zbase <- attr(stats, "zbase")
     return(output)
 }

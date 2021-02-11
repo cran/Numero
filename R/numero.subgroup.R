@@ -5,7 +5,8 @@ numero.subgroup <- function(
     reference=NULL,
     gain=1.0,
     detach=FALSE,
-    capacity=9) {
+    capacity=9,
+    automatic=FALSE) {
 
     # Start processing.
     cat("\n*** numero.subgroup ***\n", date(), "\n", sep="")
@@ -88,9 +89,34 @@ numero.subgroup <- function(
 	}
     }
 
-    # Interactive subgrouping.
-    try(topology <- nroPlot(topology=topology, colors=colrs, labels=labls,
-        interactive=TRUE, clear=(detach == "FALSE")), silent=TRUE)
+    # Automatic subgrouping.
+    if(automatic > 0) {
+
+        # K-means clustering with locality optimization.
+        z <- scale.default(results$map$centroids)
+        z <- cbind(z, topology[,c("X","Y")])
+        k <- min(automatic[[1]], nrow(topology)/3)
+        k <- max(k, 3, na.rm=TRUE)
+        km <- nroKmeans(data=z, k=k)
+
+        # Set colors for highlights.
+        cmap <- c("#ff0000", "#00a000", "#f08000", "#a000a0", "#0000ff")
+	cmap <- paste0(cmap, "60")
+        topology <- as.data.frame(topology, stringsAsFactors=FALSE)
+        topology$REGION <- paste0("Subgroup ", km$layout$BMC)
+        topology$REGION.label <- as.character(km$layout$BMC)
+        topology$REGION.color <- cmap[(km$layout$BMC)%%length(cmap)+1]
+
+        # Show subgroups on screen.
+	topology <- nroPlot(topology=topology, colors=colrs, labels=labls,
+            interactive=FALSE, clear=(detach == "FALSE"))
+    }
+    else {
+        # Interactive subgrouping.
+        try(topology <- nroPlot(topology=topology, colors=colrs,
+	    labels=labls, interactive=TRUE, clear=(detach == "FALSE")),
+	    silent=TRUE)
+    }
 
     # Convert to data frame.
     topology <- as.data.frame(topology, stringsAsFactors=FALSE)

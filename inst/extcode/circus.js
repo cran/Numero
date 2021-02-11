@@ -616,12 +616,12 @@ function pointerDownDistrict(evt) {
  	    nregs++;
 	}
 	if(nregs > 1) {
-	    window.alert("Please select a single region.");
+	    window.alert("Please activate a single subgroup.");
 	    return;
 	}
     }
     if(1 > nregs) {
-	window.alert("Please select a region first.");
+	window.alert("Please activate a subgroup first.");
 	return;
     }
     

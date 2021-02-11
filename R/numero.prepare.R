@@ -11,8 +11,8 @@ numero.prepare <- function(
     cat("\n*** numero.prepare ***\n", stamp, "\n", sep="")
 
     # Use all data columns.
-    datvars <- as.character(variables)
-    if(length(datvars) < 1) datvars <- colnames(data)
+    variables <- as.character(variables)
+    if(length(variables) < 1) variables <- colnames(data)
     if(length(batch) > 1) batch <- batch[[1]]
 
     # Create a new pipeline.
@@ -22,7 +22,7 @@ numero.prepare <- function(
 
         # Make sure variable groups are distinct.
         confounders <- setdiff(confounders, batch)
-        datvars <- setdiff(datvars, c(confounders, batch))
+        datvars <- setdiff(variables, c(confounders, batch))
 
         # Select variables.
         convars <- intersect(confounders, colnames(data))
@@ -131,14 +131,12 @@ numero.prepare.regress <- function(ds, convars) {
     if(length(ds) < 1) return(NULL)
     if(length(convars) < 1) return(ds)
 
-    # Impute missing values.
-    suppressWarnings(confs <- nroImpute(data=ds[,convars]))
-
     # Add intercept to confounder matrix.
+    confs <- ds[,convars,drop=FALSE]
     confs <- cbind(rep(1, nrow(ds)), confs)
     confs <- as.matrix(confs) # prevent stats::lm.fit() fail
     colnames(confs) <- c("_", convars)
-
+ 
     # Find target columns and usable rows.
     vars <- setdiff(colnames(ds), convars)
     rows <- which(is.finite(rowMeans(confs)))
