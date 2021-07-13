@@ -1,7 +1,7 @@
 nroPreprocess <- function(
     data,
     method="standard",
-    clip=3.0,
+    clip=5.0,
     resolution=100,
     trim=FALSE) {
 
@@ -33,14 +33,16 @@ nroPreprocess <- function(
     ds.in <- data
     ds.out <- NA*ds.in
     for(vn in colnames(ds.out))
-        ds.out[,vn] <- nroPreprocess.std(ds.in[,vn], method, clip)
+        ds.out[,vn] <- nroPreprocess.std(ds.in[,vn], method)
 
     # Downsample data model.
     model <- nroPreprocess.down(ds.in, ds.out, resolution, method)
 
     # Truncate extreme values.
-    for(vn in colnames(ds.out))
-        ds.out[,vn] <- nroPreprocess.clip(ds.out[,vn], method, clip)
+    if(length(clip) > 0) {
+        for(vn in colnames(ds.out))
+            ds.out[,vn] <- nroPreprocess.clip(ds.out[,vn], method, clip)
+    }
 
     # If no preprocessing, binary variables remain binary.
     if(method == "") {
@@ -55,7 +57,7 @@ nroPreprocess <- function(
 
 #---------------------------------------------------------------------------
 
-nroPreprocess.std <- function(x, method, clip=NA) {
+nroPreprocess.std <- function(x, method) {
 
     # Check variance.
     sigma <- stats::sd(x, na.rm=TRUE)
@@ -119,8 +121,9 @@ nroPreprocess.std <- function(x, method, clip=NA) {
 #---------------------------------------------------------------------------
 
 nroPreprocess.clip <- function(x, method, clip) {
-    if((method != "standard") && (method != "")) return(x)
+    if(length(clip) < 1) return(x)
     if(!is.finite(clip)) return(x)
+    if((method != "standard") && (method != "")) return(x)
     med <- stats::median(x, na.rm=TRUE)
     sigma <- stats::sd(x, na.rm=TRUE)
     xmin <- (med - clip*sigma)

@@ -1,4 +1,4 @@
-7991ef0e78068364028afb59ab22af1a *DESCRIPTION
+694806a24445458a3a25a1ad0b758fbb *DESCRIPTION
 67eac4f8901503aa6b17520f3b73dd16 *NAMESPACE
 3954168b03b05770dcae253419667f65 *R/nroAggregate.R
 348b5bd6a6f2189a20c5d236d5b4be29 *R/nroColorize.R
@@ -11,7 +11,7 @@ a534ce63eb5aa27d4c2086720641a225 *R/nroLabel.R
 6480cd98af7d3cb7ae311726b876b66d *R/nroPlot.R
 13d98bdf328fa5cd570af570c2fc3128 *R/nroPlot.save.R
 6edab91133ce5d7b5cdfd34eb7f31ce5 *R/nroPostprocess.R
-304d954ad8908a6067d1c3ed756d7a6b *R/nroPreprocess.R
+e128807e1deb65c3733485e58c7b67f3 *R/nroPreprocess.R
 4fb9cba994c001c50eb85a28ab218a59 *R/nroRcppMatrix.R
 9d1814c31f08ba9af23d69817383915a *R/nroRcppVector.R
 8a5a10544a075a62b2c92794fdbb9162 *R/nroSummary.R
@@ -20,14 +20,14 @@ a534ce63eb5aa27d4c2086720641a225 *R/nroLabel.R
 88be49843a19d8cffcea6ad6e13e54f3 *R/numero.create.R
 7202f8fa553d68264ec96473c7e0fd59 *R/numero.evaluate.R
 09a555c8e86220b1db48f651251e4fea *R/numero.plot.R
-a4cf599c8d9405ffa5c394a7e0b9aadc *R/numero.prepare.R
+5e6653c65a2a1a4488ef535c8220ba6b *R/numero.prepare.R
 2f54ffa5aee4786661f1b4ca2daa3533 *R/numero.quality.R
 284f83d793b973d160da179e6b1c2f47 *R/numero.subgroup.R
 e5f562c886ca663e02b13be5fefec4fa *R/numero.summary.R
-4c286e34f33c021adfdc3c2bac8aafa9 *build/vignette.rds
+e9c0d17f8addc171d3ffef697671ef07 *build/vignette.rds
 76c62387c98778aa08fc5ff33dcb6150 *inst/CITATION
-afd75de9792294d7bfbd50c991315f65 *inst/doc/intro.R
-2a3777208f7347d13a7098a070485485 *inst/doc/intro.html
+22e270294acf3c5e1cbbb0f1eec9dff8 *inst/doc/intro.R
+af6ad4308a116544ab10a2b89c24ec5e *inst/doc/intro.html
 60bc160dcb7699b27e150fff07260865 *inst/doc/intro.rmd
 2d364c97d2c8644de97170e8185e94d5 *inst/extcode/circus.head.html
 e23565bae27635f14cfb1633439f900a *inst/extcode/circus.js
@@ -45,7 +45,7 @@ e837a2ab51ace3f9d8971e7156974810 *man/nroLabel.Rd
 e60f7b0918692d56a84a6279df2cfc99 *man/nroPermute.Rd
 2e8a5bfac72ec33d7bd383370accb64a *man/nroPlot.Rd
 8e27c22b8ede236e2b1b4c4d6c4d1f00 *man/nroPostprocess.Rd
-916a8ac1ed92b7611ae3495fb89b2cc3 *man/nroPreprocess.Rd
+2b498b2287b143ef1b93fd7ee80a9b84 *man/nroPreprocess.Rd
 bdf91789eab3bf852780dedf2a7230cd *man/nroRcppMatrix.Rd
 063d9de1d752c79ac26ce82ab4557e27 *man/nroRcppVector.Rd
 ea9f91228eb3169971be0a2a9edc3c19 *man/nroSummary.Rd
@@ -54,7 +54,7 @@ d73cade001bb3685ac1fb1471d67b59d *man/nroTrain.Rd
 877c336c5e223ebcb420665a2f68d6ea *man/numero.create.Rd
 6a07111e422c7cb243ee95745283fa71 *man/numero.evaluate.Rd
 8409562bd1a31a408eef1d16c30123b4 *man/numero.plot.Rd
-27a91ba64c3533aa9083487a951e17e3 *man/numero.prepare.Rd
+268389463ea500476cea920986db381e *man/numero.prepare.Rd
 ce29d4633e3c9dc50eb3bcadbc805d33 *man/numero.quality.Rd
 13a0698d65c09d59cec21f161e599114 *man/numero.subrgoup.Rd
 520ad86b6472f6554fc0c616856631db *man/numero.summary.Rd

@@ -1,8 +1,8 @@
 Package: Numero
 Type: Package
 Title: Statistical Framework to Define Subgroups in Complex Datasets
-Version: 1.8.0
-Date: 2021-02-11
+Version: 1.8.1
+Date: 2021-07-12
 Author: Song Gao [aut],
   Stefan Mutter [aut],
   Aaron E. Casey [aut],
@@ -12,12 +12,11 @@ Description: High-dimensional datasets that do not exhibit a clear intrinsic clu
 License: GPL (>= 2)
 Imports: Rcpp (>= 0.11.4)
 LinkingTo: Rcpp
-VignetteBuilder: knitr
+VignetteBuilder: knitr, rmarkdown
 Suggests: knitr, rmarkdown
 NeedsCompilation: yes
 Repository: CRAN
 SystemRequirements: C++11
 Encoding: UTF-8
-LazyData: true
-Packaged: 2021-02-11 04:13:45 UTC; vipmak
-Date/Publication: 2021-02-11 07:30:03 UTC
+Packaged: 2021-07-12 08:11:45 UTC; vipmak
+Date/Publication: 2021-07-13 04:30:02 UTC

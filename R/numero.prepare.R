@@ -4,6 +4,7 @@ numero.prepare <- function(
     confounders=NULL,
     batch=NULL,
     method="standard",
+    clip=5.0,
     pipeline=NULL) {
 
     # Start processing.
@@ -50,7 +51,7 @@ numero.prepare <- function(
 
         # First round of preprocessing.
         suppressWarnings(dsT <- nroPreprocess(data=dsT,
-	    method=method, trim=TRUE))
+	    method=method, clip=clip, trim=TRUE))
         pipeline$mapping1 <- attr(dsT, "mapping")
 
         # Regression model of confounding.

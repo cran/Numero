@@ -11,7 +11,7 @@ standardize scale of each variable.
 }
 
 \usage{
-nroPreprocess(data, method = "standard", clip = 3.0,
+nroPreprocess(data, method = "standard", clip = 5.0,
     resolution = 100, trim = FALSE)
 }
 
@@ -44,7 +44,8 @@ normalized ranks between -1 and 1, "tapered" for a version of the
 rank-based method that puts more samples around zero and "normal"
 for quantile-based mapping to standard normal distribution.
 
-Clipping is not applied if the method is rank-based.
+Clipping is not applied if the method is rank-based or if the threshold
+is set to NULL.
 }
 
 \value{

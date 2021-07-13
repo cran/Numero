@@ -8,7 +8,7 @@ standardizing values.}
 
 \usage{
 numero.prepare(data, variables = NULL, confounders = NULL, batch = NULL,
-               method = "standard", pipeline = NULL)
+               method = "standard", clip = 5.0, pipeline = NULL)
 }
 
 \arguments{
@@ -27,6 +27,9 @@ The name of the column that contains batch labels.
 \item{method}{
 Method to standardize values, see \code{\link{nroPreprocess}()}.
 }
+\item{clip}{
+Range for clipping extreme values in multiples of standard deviations.
+}  
 \item{pipeline}{
 Processing parameters from a previous use of the function.
 }
@@ -43,6 +46,10 @@ parameters irrespective of other input arguments.
 
 Due to safeguards against numerical instability, the standardized values
 may deviate slightly from the expected range (<0.1 percent error is typical).
+
+Clipping of extreme values is applied only during the first round of
+standardization before adjustments for confounders. Therefore, the final
+output may contain values that exceed the threshold.
 }
 
 \value{
