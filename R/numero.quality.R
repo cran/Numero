@@ -154,11 +154,20 @@ numero.quality.control <- function(model, data, ranges, refranges) {
 
 numero.quality.stats <- function(model, layout, data) {
     if(length(data) < 1) data <- model$data
+
+    # Set permutation design.
+    r <- ((13*(1:ncol(data)) + 127)%%177)/177
+    cols <- unique(rep(order(r), length.out=100))
+    nperm <- round(20000/length(cols))
+
+    # Calculate reference Z-score.
     cat("\nMap statistics:\n")
-    ncycl <- max(10000/ncol(data), 20)
-    stats <- nroPermute(map=model$map, districts=layout$BMC,
-        data=data, n=ncycl, message=10)
-    cat("reference Z-score ", attr(stats, "zbase"), " \n", sep="")
+    suppressWarnings(
+        stats <- nroPermute(map=model$map, districts=layout$BMC,
+            data=data[,cols], n=nperm, message=10))
+    if(nrow(stats) < ncol(data))
+        cat(nrow(stats), " / ", ncol(data), " columns sampled\n", sep="")
     cat(sum(stats$N.cycles), " permutations\n", sep="")
+    cat("reference Z-score ", attr(stats, "zbase"), " \n", sep="")
     return(stats)
 }

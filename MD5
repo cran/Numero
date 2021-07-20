@@ -1,4 +1,4 @@
-694806a24445458a3a25a1ad0b758fbb *DESCRIPTION
+87a00eae626aa7a95ab622369419b1f6 *DESCRIPTION
 67eac4f8901503aa6b17520f3b73dd16 *NAMESPACE
 3954168b03b05770dcae253419667f65 *R/nroAggregate.R
 348b5bd6a6f2189a20c5d236d5b4be29 *R/nroColorize.R
@@ -21,13 +21,13 @@ e128807e1deb65c3733485e58c7b67f3 *R/nroPreprocess.R
 7202f8fa553d68264ec96473c7e0fd59 *R/numero.evaluate.R
 09a555c8e86220b1db48f651251e4fea *R/numero.plot.R
 5e6653c65a2a1a4488ef535c8220ba6b *R/numero.prepare.R
-2f54ffa5aee4786661f1b4ca2daa3533 *R/numero.quality.R
+41272c2988092ddc22ecfa2588975336 *R/numero.quality.R
 284f83d793b973d160da179e6b1c2f47 *R/numero.subgroup.R
 e5f562c886ca663e02b13be5fefec4fa *R/numero.summary.R
 e9c0d17f8addc171d3ffef697671ef07 *build/vignette.rds
 76c62387c98778aa08fc5ff33dcb6150 *inst/CITATION
 22e270294acf3c5e1cbbb0f1eec9dff8 *inst/doc/intro.R
-af6ad4308a116544ab10a2b89c24ec5e *inst/doc/intro.html
+ff6e28c7a4f11626a28aad0007993ce3 *inst/doc/intro.html
 60bc160dcb7699b27e150fff07260865 *inst/doc/intro.rmd
 2d364c97d2c8644de97170e8185e94d5 *inst/extcode/circus.head.html
 e23565bae27635f14cfb1633439f900a *inst/extcode/circus.js
