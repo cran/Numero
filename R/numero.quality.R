@@ -22,10 +22,6 @@ numero.quality <- function(
     # Estimate quality statistics.
     stats.qc <- numero.quality.control(model, layout, ranges)
 
-    # Quality statistics.
-    stats.map <- numero.quality.stats(model, layout, data)
-    model$map$statistics <- stats.map
-
     # Collect results.
     output$map <- model$map
     output$layout <- layout
@@ -147,27 +143,5 @@ numero.quality.control <- function(model, data, ranges, refranges) {
     # Show report.
     cat(nrow(stats), " quality measures\n", sep="")
     cat(sum(stats[,"N.cycles"]), " permutations\n", sep="")
-    return(stats)
-}
-
-#-------------------------------------------------------------------------
-
-numero.quality.stats <- function(model, layout, data) {
-    if(length(data) < 1) data <- model$data
-
-    # Set permutation design.
-    r <- ((13*(1:ncol(data)) + 127)%%177)/177
-    cols <- unique(rep(order(r), length.out=100))
-    nperm <- round(20000/length(cols))
-
-    # Calculate reference Z-score.
-    cat("\nMap statistics:\n")
-    suppressWarnings(
-        stats <- nroPermute(map=model$map, districts=layout$BMC,
-            data=data[,cols], n=nperm, message=10))
-    if(nrow(stats) < ncol(data))
-        cat(nrow(stats), " / ", ncol(data), " columns sampled\n", sep="")
-    cat(sum(stats$N.cycles), " permutations\n", sep="")
-    cat("reference Z-score ", attr(stats, "zbase"), " \n", sep="")
     return(stats)
 }

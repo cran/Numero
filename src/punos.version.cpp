@@ -1,5 +1,5 @@
 /* Created by Ville-Petteri Makinen
-   email: ville.makinen@vipmak.net */
+   email: vpmakine@gmail.com */
 
 #include "punos.h"
 

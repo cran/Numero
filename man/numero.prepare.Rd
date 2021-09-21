@@ -7,8 +7,9 @@
 standardizing values.}
 
 \usage{
-numero.prepare(data, variables = NULL, confounders = NULL, batch = NULL,
-               method = "standard", clip = 5.0, pipeline = NULL)
+numero.prepare(data, variables = NULL, confounders = NULL,
+               batch = NULL, method = "standard", clip = 5.0,
+	       pipeline = NULL, undo = FALSE)
 }
 
 \arguments{
@@ -32,6 +33,10 @@ Range for clipping extreme values in multiples of standard deviations.
 }  
 \item{pipeline}{
 Processing parameters from a previous use of the function.
+}
+\item{undo}{
+If true, standardization is reversed after adjusting for
+batches and confounders.
 }
 }
 

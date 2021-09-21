@@ -28,7 +28,7 @@ nroSummary <- function(
     keys <- intersect(names(districts), rownames(data))
     if(length(keys) < 1) stop("Incompatible inputs.")
     districts <- districts[keys]
-    data <- data[keys,]
+    data <- data[keys,,drop=FALSE]
 
     # Check if regions are available.
     if(is.null(regions)) regions <- sort(unique(districts))
@@ -50,7 +50,7 @@ nroSummary <- function(
         warning("Unusable districts or regions excluded.")
     g <- regions[pos[mask],"REGION"]
     g.label <- regions[pos[mask],"REGION.label"]
-    data <- data[mask,]
+    data <- data[mask,,drop=FALSE]
 
     # Check subgroups.
     t <- table(g)
@@ -146,11 +146,6 @@ nroSummary.categ <- function(x, g) {
         return(sum(is.na(v) == FALSE))
     })
 
-    # Add extra class labels to every subgroup to ensure tests
-    # work (this will slightly dilute the results).
-    for(j in 1:length(xsets))
-        xsets[[j]] <- c(xsets[[j]], xlevs)
-
     # Estimate basic subgroup stats.
     stats$MEAN <- rep(NA, length(xsets))
     stats$SD <- rep(NA, length(xsets))
@@ -161,6 +156,11 @@ nroSummary.categ <- function(x, g) {
     stats$Q750 <- rep(NA, length(xsets))
     stats$Q975 <- rep(NA, length(xsets))
     if(nlevs == 2) stats$MEAN <- lapply(xsets, mean, na.rm=TRUE)
+
+    # Add extra class labels to every subgroup to ensure tests
+    # work (this will slightly dilute the results).
+    for(j in 1:length(xsets))
+        xsets[[j]] <- c(xsets[[j]], xlevs)
 
     # Convert to data frame.
     stats <- lapply(stats, as.double)

@@ -1,5 +1,5 @@
 /* Created by Ville-Petteri Makinen
-   email: ville.makinen@vipmak.net */
+   email: vpmakine@gmail.com */
 
 #include "koho.local.h"
 
@@ -7,10 +7,12 @@
  *
  */
 void
-Trainer::update(const Topology& topo) {
+Trainer::update(Topology& topo, const mdreal inertia) {
   mdreal rlnan = medusa::rnan();
   mdreal sigma = topo.sigma();
- 
+  if(inertia < 0.0) panic("Unusable inertia.", __FILE__, __LINE__);
+  if(inertia >= 1.0) panic("Unusable inertia.", __FILE__, __LINE__);
+  
   /* Estimate centroids. */
   Matrix sums;
   Matrix numbers;
@@ -56,7 +58,11 @@ Trainer::update(const Topology& topo) {
     vector<mdreal> mu = centroids.row(i);
     vector<mdreal>& proto = this->prototypes[i];
     if(proto.size() < mu.size()) proto.resize(mu.size(), rlnan);
-    for(mdsize j = 0; j < mu.size(); j++)
-      if(mu[j] != rlnan) proto[j] = mu[j];
+    for(mdsize j = 0; j < mu.size(); j++) {
+      if(mu[j] != rlnan) {
+	if(proto[j] == rlnan) proto[j] = mu[j];
+	else proto[j] = (inertia*(proto[j]) + (1 - inertia)*(mu[j]));
+      }
+    }
   }
 }

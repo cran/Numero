@@ -30,8 +30,8 @@ nroKmeans <- function(
         nsub <- max(sqrt(nsub), 5)
 	subsample <- (nsub*k + 500)
 	subsample <- min(subsample, 0.95*nrow(data))
-        if(subsample/nrow(data) < balance)
-            subsample <- balance*nrow(data)
+        if(subsample/nrow(data) < 0.95*balance)
+            subsample <- 0.95*balance*nrow(data)
 	subsample <- round(subsample)
     }
 

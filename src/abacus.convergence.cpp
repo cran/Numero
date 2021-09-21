@@ -1,5 +1,5 @@
 /* Created by Ville-Petteri Makinen
-   email: ville.makinen@vipmak.net */
+   email: vpmakine@gmail.com */
 
 #include "abacus.local.h"
 
@@ -38,7 +38,7 @@ abacus::convergence(const vector<mdreal>& history, const mdreal limit) {
     dsum += (y - x);
     nvalid++;
   }
-
+ 
   /* Convergence score. */
   if(nvalid < 1) return false;
   mdreal delta = fabs(dsum)/(asum + 1e-9);

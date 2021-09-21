@@ -1,5 +1,5 @@
 /* Created by Ville-Petteri Makinen
-   email: ville.makinen@vipmak.net */
+   email: vpmakine@gmail.com */
 
 #include "koho.local.h"
 
@@ -20,6 +20,7 @@ Model::insert(const string& key, const vector<mdreal>& values) {
   p->points[key] = Point(rank, values, medusa::snan());
 
   /* Reset training state. */
+  (p->trace).clear();
   (p->state).clear();
   return "";
 }

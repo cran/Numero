@@ -1,5 +1,5 @@
 /* Created by Ville-Petteri Makinen
-   email: ville.makinen@vipmak.net */
+   email: vpmakine@gmail.com */
 
 #ifndef koho_local_INCLUDED
 #define koho_local_INCLUDED
@@ -87,7 +87,7 @@ namespace koho_local {
     mdsize size() const;
     static Point* match(vector<Subset>&, const vector<mdreal>&, Point*);
   };
-  
+
   /*
    *
    */
@@ -97,46 +97,48 @@ namespace koho_local {
     vector<vector<mdreal> > prototypes;
   private:
     void allocate(const mdsize, const mdsize);
-    mdreal match(vector<Point*>&, const Topology&);
-    void update(const Topology&);
   public:
     Trainer();
     Trainer(const Matrix&, const Topology&, const mdsize, const mdreal);
     ~Trainer();
-    mdreal cycle(vector<Point*>&, const Topology&);
     Matrix codebook() const;
     vector<mdreal> distance(const Point&) const;
     mdreal distance(const Point&, const mdsize) const;
+    mdreal match(vector<Point*>&, const Topology&);
     mdsize size() const;
+    void update(Topology&, const mdreal);
   };
-  
+
   /*
    *
    */
-  class ModelBuffer : public Buffer {
+  class ModelBuffer {
   public:
     mdsize ntrain;
     mdreal equality;
-    mdreal proximity;
     mt19937 twister;
     Matrix codebook;
     Trainer trainer;
-    vector<mdreal> history;
+    Topology topology;
+    vector<mdreal> trace;
     map<string, mdreal> state;
+    map<string, Point> points; /* data as rows */
   public:
-    ModelBuffer() : Buffer() {
+    ModelBuffer() {
       this->ntrain = medusa::snan();
       this->equality = 0.0;
     };
-    ModelBuffer(const void* ptr) : Buffer(ptr) {
+    ModelBuffer(const void* ptr) {
       ModelBuffer* p = (ModelBuffer*)ptr;
       this->ntrain = p->ntrain;
       this->equality = p->equality;
       this->twister = p->twister;
       this->codebook = p->codebook;
       this->trainer = p->trainer;
-      this->history = p->history;
+      this->topology = p->topology;
+      this->trace = p->trace;
       this->state = p->state;
+      this->points = p->points;
     };
     ~ModelBuffer() {};
   };

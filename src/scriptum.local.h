@@ -1,5 +1,5 @@
 /* Created by Ville-Petteri Makinen
-   email: ville.makinen@vipmak.net */
+   email: vpmakine@gmail.com */
 
 #ifndef scriptum_local_INCLUDED
 #define scriptum_local_INCLUDED

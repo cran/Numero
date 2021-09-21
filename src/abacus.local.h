@@ -1,5 +1,5 @@
 /* Created by Ville-Petteri Makinen
-   email: ville.makinen@vipmak.net */
+   email: vpmakine@gmail.com */
 
 #ifndef abacus_local_INCLUDED
 #define abacus_local_INCLUDED

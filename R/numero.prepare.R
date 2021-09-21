@@ -5,7 +5,8 @@ numero.prepare <- function(
     batch=NULL,
     method="standard",
     clip=5.0,
-    pipeline=NULL) {
+    pipeline=NULL,
+    undo=FALSE) {
 
     # Start processing.
     stamp <- date()
@@ -111,9 +112,17 @@ numero.prepare <- function(
         ds <- ds[,vars]
     }
 
-    # Convert to matrix.
-    if(is.null(ds)) ds <- matrix(nrow=0, ncol=0)
-    else ds <- as.matrix(ds)
+    # Convert to matrix and undo transformation.
+    if(is.null(ds)) {
+        ds <- matrix(nrow=0, ncol=0)
+    }
+    else {
+        if(undo) {
+	    ds <- nroPostprocess(ds, reverse=TRUE,
+	        mapping=pipeline$mapping1)
+        }
+        ds <- as.matrix(ds)
+    }
 
     # Final report.
     cat("\nSummary:\n", sep="")

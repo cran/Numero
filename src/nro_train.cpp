@@ -1,5 +1,5 @@
 /* Created by Ville-Petteri Makinen
-   email: ville.makinen@vipmak.net */
+   email: vpmakine@gmail.com */
 
 #include "nro.h"
 
@@ -18,7 +18,7 @@ nro_train(SEXP topo_R, SEXP sigma_R, SEXP codebook_R, SEXP data_R,
   mdsize nsub = as<mdsize>(nsub_R);
   mdreal eq = as<mdreal>(eq_R);
   mdreal lag = as<mdreal>(lag_R);
-  
+ 
   /* Determine map topology. */
   vector<vector<mdreal> > topodata = nro::matrix2reals(topo_R, 0.0);
   punos::Topology topo = nro::reals2topology(topodata, sigma);
@@ -36,7 +36,7 @@ nro_train(SEXP topo_R, SEXP sigma_R, SEXP codebook_R, SEXP data_R,
     topodata.clear();
     protos.clear();
   }
-  
+ 
   /* Add pseudo-random jitter to ensure convergence. */
   vector<vector<mdreal> > vectors = nro::matrix2reals(data_R, 0.001);
   if(vectors.size() < 1) return CharacterVector("Too few data.");
@@ -86,7 +86,7 @@ nro_train(SEXP topo_R, SEXP sigma_R, SEXP codebook_R, SEXP data_R,
     protos[i] = model.prototype(i);
     protos[i].resize(ncols, rlnan);
   }
-  
+
   /* Recode centroid labels. */
   vector<mdsize> labels(layout.size(), 0);
   vector<mdreal> residuals(layout.size(), 0.0);

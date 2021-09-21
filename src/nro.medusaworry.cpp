@@ -1,6 +1,5 @@
-/* Created by Ville-Petteri Makinen 2003-2010
-   Copyright (C) V-P Makinen
-   All rights reserved */
+/* Created by Ville-Petteri Makinen
+   email: vpmakine@gmail.com */
 
 #include "medusa.local.h"
 #include <Rcpp.h>
