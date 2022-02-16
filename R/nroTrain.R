@@ -2,6 +2,7 @@ nroTrain <- function(
     map,
     data,
     subsample=NULL,
+    balance=0,
     message=NULL) {
 
     # Convert data to numeric matrix.
@@ -38,6 +39,7 @@ nroTrain <- function(
     # Check parameters.
     message <- nroRcppVector(message[[1]], default=-1)
     subsample <- as.integer(nroRcppVector(subsample[[1]], default=NA))
+    balance <- as.double(nroRcppVector(balance[[1]], default=NA))
 
     # Automatic subsample.
     if(!is.finite(subsample)) {
@@ -52,6 +54,11 @@ nroTrain <- function(
     subsample <- max(subsample, (nrow(centroids) + 10))
     subsample <- min(subsample, nrow(data))
     
+    # Check balance parameter.
+    if(!is.finite(balance)) stop("Unusable balance parameter.")
+    if(balance < 0.0) stop("Unusable balance parameter.")
+    if(balance > 1.0) stop("Unusable balance parameter.")
+    
     # Check message interval.
     if(!is.finite(message)) message <- -1.0
 
@@ -62,7 +69,7 @@ nroTrain <- function(
         as.matrix(centroids[,vars]),
         as.matrix(data[,vars]),
         as.integer(subsample),
-        0.0,
+        as.double(balance),
         as.double(message),
         PACKAGE="Numero")
     if(is.character(res)) stop(res)

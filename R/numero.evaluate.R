@@ -38,21 +38,22 @@ numero.evaluate <- function(
     names(bmc) <- rownames(layout)
 
     # Apply rank transform to protect from extreme values.
-    if(ranked) data <- nroPreprocess(data=data, method="uniform")
+    trdata <- data
+    if(ranked) trdata <- nroPreprocess(data=trdata, method="uniform")
 
     # Calculate component planes.
-    comps <- nroAggregate(topology=model$map, districts=bmc, data=data)
+    comps <- nroAggregate(topology=model$map, districts=bmc, data=trdata)
 
     # Estimate statistics in chunks.
     cat("\nMap statistics:\n")
     suppressWarnings(
         stats <- nroPermute(map=model$map, districts=bmc,
-            data=data, n=n, message=10, zbase=model$zbase))
+            data=trdata, n=n, message=10, zbase=model$zbase))
     cat(nrow(stats), " usable variables\n", sep="")
     cat(sum(stats$N.cycles), " permutations\n", sep="")
 
     # Make sure all variables are included.
-    missed <- setdiff(colnames(data), rownames(stats))
+    missed <- setdiff(colnames(trdata), rownames(stats))
     if(length(missed) > 0) {
         x <- list()
         for(v in colnames(stats))
@@ -60,12 +61,12 @@ numero.evaluate <- function(
         x <- data.frame(x, stringsAsFactors=FALSE)
 	rownames(x) <- missed
 	stats <- rbind(stats, x)
-	stats <- stats[colnames(data),,drop=FALSE]
+	stats <- stats[colnames(trdata),,drop=FALSE]
     }
 
     # Revert transform.
     if(ranked) comps <- nroPostprocess(data=comps,
-        mapping=attr(data,"mapping"), reverse=TRUE)
+        mapping=attr(trdata,"mapping"), reverse=TRUE)
 
     # Determine district ranges.
     colrs <- nroColorize(comps)

@@ -56,7 +56,7 @@ numero.create <- function(
 
     # K-means clustering.
     cat("\nK-means clustering:\n")
-    km <- nroKmeans(data=trdata, subsample=subsample, message=10)
+    km <- nroKmeans(data=trdata, subsample=subsample, balance=1, message=10)
     cat(km$subsample, " subsamples\n", sep="")
     cat(length(km$history), " training cycles\n", sep="")
 

@@ -8,7 +8,7 @@ Iterative algorithm to adapt a self-organizing map (SOM) to a set of
 multivariable data.
 }
 \usage{
-nroTrain(map, data, subsample = NULL, message = NULL)
+nroTrain(map, data, subsample = NULL, balance = 0, message = NULL)
 }
 \arguments{
   \item{map}{
@@ -19,6 +19,10 @@ A matrix or a data frame.
   }
   \item{subsample}{
 Number of rows used during a single training cycle.
+  }
+  \item{balance}{
+Penalty parameter for variation in the numbers of resident
+samples across disctricts, see \code{\link{nroKmeans}()}.
   }
   \item{message}{
 If positive, progress information is printed at the specified

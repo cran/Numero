@@ -44,6 +44,9 @@ normalized ranks between -1 and 1, "tapered" for a version of the
 rank-based method that puts more samples around zero and "normal"
 for quantile-based mapping to standard normal distribution.
 
+The standard method also checks if the distribution is skewed and
+applies logarithm if it makes the distribution closer to the normal curve.
+
 Clipping is not applied if the method is rank-based or if the threshold
 is set to NULL.
 }
