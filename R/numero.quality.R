@@ -39,10 +39,11 @@ numero.quality.layout <- function(model, data) {
     if(length(data) < 1) return(model$layout)
 
     # Check dataset compatibility.
-    vars <- intersect(colnames(model$data), colnames(data))
-    missed <- setdiff(colnames(model$data), vars)
+    cnames <- colnames(model$map$centroids)
+    vars <- intersect(cnames, colnames(data))
+    missed <- setdiff(cnames, vars)
     if(length(vars) < 2) stop("Too few training variables in data.")
-    if(length(vars) < ncol(model$data))
+    if(length(vars) < ncol(model$map$centroids))
         warning("Dataset does not contain all training variables.")
 
     # Check for missing data points.
@@ -54,7 +55,6 @@ numero.quality.layout <- function(model, data) {
     # Assign district locations.
     suppressWarnings(matches <- nroMatch(centroids=model$map,
         data=data[valid,]))
-
     layout <- data.frame(BMC=matches, attr(matches, "quality"))
     rownames(layout) <- names(matches)
     return(layout)
@@ -64,6 +64,7 @@ numero.quality.layout <- function(model, data) {
 
 numero.quality.planes <- function(model, data, layout) {
     if(length(data) < 1) data <- model$data
+    if(length(data) < 1) stop("No data.")
 
     # Component planes.
     h <- nroAggregate(topology=model$map, districts=layout[,"BMC"])
@@ -73,8 +74,8 @@ numero.quality.planes <- function(model, data, layout) {
     comps <- cbind(comps, HISTOGRAM=h)
 
     # Adjust coverage for missing training variables.
-    pos <- match(colnames(model$data), colnames(data))
-    r <- sum(is.finite(pos))/ncol(model$data)
+    pos <- match(colnames(model$map$centroids), colnames(data))
+    r <- sum(is.finite(pos))/ncol(model$map$centroids)
     comps[,"COVERAGE"] <- r*(comps[,"COVERAGE"])
     attr(comps, "binary") <- "COVERAGE"
     return(comps)
@@ -82,21 +83,21 @@ numero.quality.planes <- function(model, data, layout) {
 
 #-------------------------------------------------------------------------
 
-numero.quality.control <- function(model, data, ranges, refranges) {
+numero.quality.control <- function(model, dat, ranges, refranges) {
     cat("\nQuality statistics:\n")
 
     # Separate district labels from quality measures.
-    bmc <- data[,"BMC"]
-    names(bmc) <- rownames(data)
-    data[,"BMC"] <- NULL
+    bmc <- dat[,"BMC"]
+    names(bmc) <- rownames(dat)
+    dat[,"BMC"] <- NULL
 
     # Add jitter to coverage to prevent numerical artefacts.
-    r <- ((13*(1:nrow(data)) + 127)%%177)/177
-    data[,"COVERAGE"] <- (data[,"COVERAGE"] + 0.001*r)
+    r <- ((13*(1:nrow(dat)) + 127)%%177)/177
+    dat[,"COVERAGE"] <- (dat[,"COVERAGE"] + 0.001*r)
 
     # Permutation analysis.
     stats <- nroPermute(map=model$map, districts=bmc,
-                        data=data, n=1000)
+                        data=dat, n=1000)
     attr(stats, "zbase") <- NULL
 
     # Observed variation in sample density.
@@ -130,7 +131,7 @@ numero.quality.control <- function(model, data, ranges, refranges) {
     stats[ind,"N.cycles"] <- length(nulls)
     stats[ind,"TRAINING"] <- "no"
     stats[ind,"AMPLITUDE"] <- NA
-    rownames(stats) <- c(colnames(data), "HISTOGRAM")
+    rownames(stats) <- c(colnames(dat), "HISTOGRAM")
 
     # Set amplitudes.
     stats["COVERAGE","AMPLITUDE"] <- (ranges["COVERAGE","MAX"] -

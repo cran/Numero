@@ -367,7 +367,8 @@ nroPlot.multi <- function(elements, param, targets=c()) {
     # Create a new plot.
     if(resetflag) {
         if(param$clear) grDevices::graphics.off()
-        graphics::par(pty="m", mar=c(0,0,0,0))
+        prev <- graphics::par(pty="m", mar=c(0,0,0,0))
+	on.exit(graphics::par(prev))
         graphics::plot(x=NA, y=NA, asp=1, xlab=NA, ylab=NA,
              axes=FALSE, xlim=xbounds, ylim=ybounds)
 	param$trigger <- 20

@@ -151,8 +151,8 @@ numero.clean <- function(
         cat(length(rnames), " unique row names\n", sep="")
         cat(length(cnames), " unique column names\n", sep="")
     }
-    cat(nrows, " usable rows\n", sep="")
-    cat(ncols, " usable columns\n", sep="")
+    cat(round(nrows), " usable rows\n", sep="")
+    cat(round(ncols), " usable columns\n", sep="")
 
     # Return results.
     if(length(processed) > 1) return(output)
@@ -272,6 +272,16 @@ numero.clean.filter <- function(ds, rnames, na.freq, num.only) {
         return(NULL)
     }
 
+    # Check that every column is a vector.
+    if(is.data.frame(ds)) {
+        for(x in ds) {
+            if(!is.vector(x)) {
+                cat("non-vector column detected")
+	        return(NULL)
+	    }
+        }
+    }
+ 
     # Remove empty columns.
     flags <- apply(ds, 2, numero.clean.check, flimit=na.freq)
     if(sum(flags) > 0) {

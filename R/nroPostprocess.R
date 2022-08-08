@@ -23,8 +23,11 @@ nroPostprocess <- function(
     }
 
     # Check if input is a vector.
-    if(is.vector(data)) data <- as.matrix(data)
-    if(ncol(data) == 1) colnames(data) <- colnames(model.in)
+    if(is.vector(data)) {
+	if(ncol(model.in) != 1) stop("Vector input.")
+        data <- as.matrix(data)
+	colnames(data) <- colnames(model.in)
+    }
 
     # Check model data.
     if(nrow(model.in) != nrow(model.out))
