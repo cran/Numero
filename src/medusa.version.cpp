@@ -8,5 +8,5 @@
  */
 string
 medusa::version() {
-  return ("532.200701");
+  return ("532.numero.20210105");
 }

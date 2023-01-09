@@ -54,9 +54,9 @@ make_path(const mdreal x, const mdreal y, const mdreal r,
 
   /* Create a circle. */
   if(name.substr(0, 6) == "circle") {
-    ptr += sprintf(ptr, "\n<circle ");
-    ptr += sprintf(ptr, "cx=\"%.2f\" cy=\"%.2f\" ", x, y);
-    ptr += sprintf(ptr, "r=\"%.3f\"\n", r);
+    ptr += snprintf(ptr, 64, "\n<circle ");
+    ptr += snprintf(ptr, 64, "cx=\"%.2f\" cy=\"%.2f\" ", x, y);
+    ptr += snprintf(ptr, 64, "r=\"%.3f\"\n", r);
     return string(buf);
   }
 
@@ -160,11 +160,11 @@ make_path(const mdreal x, const mdreal y, const mdreal r,
   }
 
   /* Draw polygon. */
-  ptr += sprintf(ptr, "\n<polygon points=\"");
+  ptr += snprintf(ptr, 64, "\n<polygon points=\"");
   for(mdsize i = 0; i < px.size(); i++) {
-    ptr += sprintf(ptr, "\n\t%.2f,", (x + r*px[i]));
-    ptr += sprintf(ptr, "%.2f", (y + r*py[i]));
+    ptr += snprintf(ptr, 64, "\n\t%.2f,", (x + r*px[i]));
+    ptr += snprintf(ptr, 64, "%.2f", (y + r*py[i]));
   }
-  ptr += sprintf(ptr, "\"\n");
+  ptr += snprintf(ptr, 64, "\"\n");
   return string(buf);
 }

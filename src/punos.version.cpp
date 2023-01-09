@@ -10,5 +10,5 @@ using namespace std;
  */
 string
 punos::version() {
-  return ("427.200525");
+  return ("427.numero.20210105");
 }

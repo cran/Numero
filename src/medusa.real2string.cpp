@@ -16,13 +16,13 @@ medusa::real2string(const mdreal x) {
   double integer = 0.0;
   double fraction = modf(x, &integer);
   if((fraction == 0.0) && (fabs(integer) < 1e24)) {
-    sprintf(buf, "%.0f", x);
+    snprintf(buf, sizeof(buf), "%.0f", x);
     return string(buf);
   }
 
   /* Exponential form. */
-  if(sizeof(mdreal) < sizeof(double)) sprintf(buf, "%.6e", x);
-  else sprintf(buf, "%.14e", x);
+  if(sizeof(mdreal) < sizeof(double)) snprintf(buf, sizeof(buf), "%.6e", x);
+  else snprintf(buf, sizeof(buf), "%.14e", x);
   
   /* Find excess zeros. */
   char* pos = strchr(buf, 'e');

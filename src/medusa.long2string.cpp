@@ -9,6 +9,6 @@
 string
 medusa::long2string(const long value) {
   char buf[128];
-  sprintf(buf, "%ld", value);
+  snprintf(buf, sizeof(buf), "%ld", value);
   return string(buf);
 }

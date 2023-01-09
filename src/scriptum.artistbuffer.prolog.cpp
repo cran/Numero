@@ -10,15 +10,14 @@
 string
 ArtistBuffer::prolog() const {
   mdreal rlnan = medusa::rnan();
-  char bytes[4090];
-  char* p = bytes;
-
+  string output;
+  
   /* Document declaration. */
-  p += sprintf(p, "<?xml version=\"1.0\" standalone=\"yes\"?>\n");
-  p += sprintf(p, "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n");
-  p += sprintf(p, "\"http://www.w3.org/Graphics/");
-  p += sprintf(p, "SVG/1.1/DTD/svg11.dtd\">\n");
-
+  output += "<?xml version=\"1.0\" standalone=\"yes\"?>\n";
+  output += "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n";
+  output += "\"http://www.w3.org/Graphics/";
+  output += "SVG/1.1/DTD/svg11.dtd\">\n";
+  
   /* Check limits. */
   mdreal xmin = limits.first.alpha;
   mdreal xmax = limits.first.omega;
@@ -32,41 +31,47 @@ ArtistBuffer::prolog() const {
   /* Extract canvas size. */
   long width = (long)(xmax - xmin + 0.5);
   long height = (long)(ymax - ymin + 0.5);
-
-  /* Set main element. */
-  p += sprintf(p, "\n<svg id=\"plot\"");
-  p += sprintf(p, "\ndraggable=\"false\"");
-  p += sprintf(p, "\nonload=\"initPage('plot', false)\"");
-  p += sprintf(p, "\nxmlns=\"http://www.w3.org/2000/svg\"");
-  p += sprintf(p, "\nstyle=\"user-select: none;\"");
-  p += sprintf(p, "\nx=\"0\" y=\"0\" ");
-  p += sprintf(p, "width=\"%06ld\" ", width); /* fixed byte count  */
-  p += sprintf(p, "height=\"%06ld\">\n", height);
-  
-  /* Add background. */
-  p += sprintf(p, "\n<polygon points=\"");
-  p += sprintf(p, "\n\t0,0\n\t%06ld,0", width);
-  p += sprintf(p, "\n\t%06ld,%06ld", width, height);
-  p += sprintf(p, "\n\t0,%06ld\"", height);
-  p += sprintf(p, "\nstyle=\"");
-  p += sprintf(p, "\nfill: #%s;", bgcolor.hex().substr(0,6).c_str());
-  p += sprintf(p, "\nfill-opacity: %.4f;", bgcolor.opacity);
-  p += sprintf(p, "\npointer-events: none;");
-  p += sprintf(p, "\"\nid=\"plot_background\"/>\n");
   
   /* Determine offset. */
   long dx = (long)(fabs(xmin) + 0.5);
   long dy = (long)(fabs(ymin) + 0.5);
-  if(xmin > 0.0) dx *= -1;
-  if(ymin > 0.0) dy *= -1;
 
+  /* Standard length strings to make sure prolog size is stable. */
+  char buf[128];
+  snprintf(buf, sizeof(buf), "%.4f", bgcolor.opacity); string opac_s(buf);
+  snprintf(buf, sizeof(buf), "%06ld", width); string width_s(buf);
+  snprintf(buf, sizeof(buf), "%06ld", height); string height_s(buf);
+  snprintf(buf, sizeof(buf), "+%06ld", dx); string dx_s(buf);
+  snprintf(buf, sizeof(buf), "+%06ld", dy); string dy_s(buf);
+  if(xmin > 0.0) dx_s[0] = '-';
+  if(ymin > 0.0) dy_s[0] = '-';
+  
+  /* Set main element. */
+  output += "\n<svg id=\"plot\"";
+  output += "\ndraggable=\"false\"";
+  output += "\nonload=\"initPage('plot', false)\"";
+  output += "\nxmlns=\"http://www.w3.org/2000/svg\"";
+  output += "\nstyle=\"user-select: none;\"";
+  output += "\nx=\"0\" y=\"0\" ";
+  output += ("width=\"" + width_s + "\" ");
+  output += ("height=\"" + height_s + "\">\n");
+    
+  /* Add background. */
+  output += ("\n<polygon points=\"");
+  output += ("\n\t0,0\n\t" + width_s + ",0");
+  output += ("\n\t" + width_s + "," + height_s);
+  output += ("\n\t0," + height_s + "\"");
+  output += ("\nstyle=\"");
+  output += ("\nfill: #" + bgcolor.hex().substr(0,6) + ";");
+  output += ("\nfill-opacity: " + opac_s + ";");
+  output += ("\npointer-events: none;");
+  output += ("\"\nid=\"plot_background\"/>\n");
+  
   /* Set origin to zero. */
-  p += sprintf(p, "\n<g transform=\"translate(");
-  p += sprintf(p, "%06ld, %06ld)\"", dx, dy);
-  p += sprintf(p, "\ntfx=\"%06ld\"", dx);
-  p += sprintf(p, "\ntfy=\"%06ld\"", dy);
-  p += sprintf(p, "\nid=\"plot_contents\">\n");
- 
-  /* Return full prolog. */
-  return string(bytes);
+  output += ("\n<g transform=\"translate(");
+  output += (dx_s + "," + dy_s + "\"");
+  output += ("\ntfx=\"" + dx_s + "\"");
+  output += ("\ntfy=\"" + dy_s + "\"");
+  output += ("\nid=\"plot_contents\">\n");
+  return output;
 }

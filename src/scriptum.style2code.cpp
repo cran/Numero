@@ -13,15 +13,15 @@ scriptum_local::style2code(string& linecode, string& textcode,
   textcode.clear();
 
   /* Reserve memory for code. */
-  char buf[2048]; buf[0] = '\0';
+  char buf[256]; buf[0] = '\0';
   char* p = buf;
 
   /* Rotation. */
   if(sty.angle != 0.0) {
     vector<mdreal> origin = sty.origin;
     if(origin.size() < 2) origin = vector<mdreal>(2, 0.0);
-    p += sprintf(p, "\nrotate(%.2f, ", sty.angle);
-    p += sprintf(p, "%.2f, %.2f)", origin[0], origin[1]);
+    p += snprintf(p, 64, "\nrotate(%.2f, ", sty.angle);
+    p += snprintf(p, 64, "%.2f, %.2f)", origin[0], origin[1]);
   }
 
   /* Collect transforms. */
@@ -33,51 +33,53 @@ scriptum_local::style2code(string& linecode, string& textcode,
 
   /* Font. */
   if(sty.fontfamily.size() > 0)
-    p += sprintf(p, "\nfont-family: %s;", sty.fontfamily.c_str());
+    p += snprintf(p, 64, "\nfont-family: %s;",
+		  sty.fontfamily.substr(0, 63).c_str());
   if(sty.fontsize > 0.0)
-    p += sprintf(p, "\nfont-size: %.2fpx;", sty.fontsize);
+    p += snprintf(p, 64, "\nfont-size: %.2fpx;", sty.fontsize);
   if((sty.fontweight >= 100) && (sty.fontweight <= 900)) {
     int fw = (int)((sty.fontweight)/100 + 0.5);
-    p += sprintf(p, "\nfont-weight: %d;", 100*fw);
+    p += snprintf(p, 64, "\nfont-weight: %d;", 100*fw);
   }
 
   /* Text-anchor. */
   if(sty.anchor != "")
-    p += sprintf(p, "\ntext-anchor: %s;", sty.anchor.c_str());
+    p += snprintf(p, 64, "\ntext-anchor: %s;",
+		  sty.anchor.substr(0, 63).c_str());
 
   /* Collect text properties. */
   string textprop(buf); p = buf; buf[0] = '\0';
 
   /* Check if pointable. */
   if(!sty.pointable)
-    p += sprintf(p, "\npointer-events: none;");
+    p += snprintf(p, 64, "\npointer-events: none;");
   
   /* Fill color. */
   if(sty.fillcolor.opacity > 0.0) {
     string tmp = sty.fillcolor.hex();
-    p += sprintf(p, "\nfill: #%s;", tmp.substr(0, 6).c_str());
+    p += snprintf(p, 64, "\nfill: #%s;", tmp.substr(0, 6).c_str());
     if(sty.fillcolor.opacity < 1.0)
-      p += sprintf(p, "\nfill-opacity: %.4f;", sty.fillcolor.opacity);
+      p += snprintf(p, 64, "\nfill-opacity: %.4f;", sty.fillcolor.opacity);
   }
   else
-    p += sprintf(p, "\nfill: none;");
+    p += snprintf(p, 64, "\nfill: none;");
   
   /* Stroke color and width. */
   mdreal opacity = sty.strokecolor.opacity;
   if((opacity > 0.0) && (sty.strokewidth > 0.0)) {
     string tmp = sty.strokecolor.hex();
-    p += sprintf(p, "\nstroke: #%s;", tmp.substr(0, 6).c_str());
-    p += sprintf(p, "\nstroke-linecap: round;");
-    p += sprintf(p, "\nstroke-width: %.2fpx;", sty.strokewidth);
+    p += snprintf(p, 64, "\nstroke: #%s;", tmp.substr(0, 6).c_str());
+    p += snprintf(p, 64, "\nstroke-linecap: round;");
+    p += snprintf(p, 64, "\nstroke-width: %.2fpx;", sty.strokewidth);
     if(opacity < 1.0)
-      p += sprintf(p, "\nstroke-opacity: %.4f;", opacity);
+      p += snprintf(p, 64, "\nstroke-opacity: %.4f;", opacity);
   }
   else
-    p += sprintf(p, "\nstroke: none;");
+    p += snprintf(p, 64, "\nstroke: none;");
   
   /* Collect line properties. */
   string lineprop(buf); p = buf; buf[0] = '\0';
-
+  
   /* Finish style results. */
   if(tform.size() > 0) {
     linecode.append("\nstyle=\"" + lineprop + "\"");

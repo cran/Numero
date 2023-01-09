@@ -106,7 +106,7 @@ Color::hex() const {
   if(g > 255) g = 255;
   if(b > 255) b = 255;
   if(a > 255) a = 255;
-  if(a >= 255) sprintf(buf, "%02x%02x%02x", r, g, b);
-  else sprintf(buf, "%02x%02x%02x%02x", r, g, b, a);
+  if(a >= 255) snprintf(buf, sizeof(buf), "%02x%02x%02x", r, g, b);
+  else snprintf(buf, sizeof(buf), "%02x%02x%02x%02x", r, g, b, a);
   return string(buf);
 }

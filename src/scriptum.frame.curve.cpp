@@ -28,10 +28,10 @@ Frame::curve(const vector<mdreal>& vx, const vector<mdreal>& vy) {
   }
 
   /* Create polyline. */
-  sprintf(p->f(), "\n<path d=\"\n");
-  sprintf(p->f(), "M\t%.2f\t%.2f", vx[0], vy[0]);
+  snprintf(p->f(), 64, "\n<path d=\"\n");
+  snprintf(p->f(), 64, "M\t%.2f\t%.2f", vx[0], vy[0]);
   for(mdsize i = 1; i < nv; i++)
-    sprintf(p->f(), "\nL\t%.2f\t%.2f", vx[i], vy[i]);
+    snprintf(p->f(), 64, "\nL\t%.2f\t%.2f", vx[i], vy[i]);
   
   /* Set closing flag. */
   if(closeflag) p->append("\nZ");
@@ -66,10 +66,10 @@ Frame::curve(const medusa::mdreal& xA, const medusa::mdreal& yA,
   if(yB == rlnan) return false;
 
   /* Create polyline. */
-  sprintf(p->f(), "\n<path d=\"\n");
-  sprintf(p->f(), "M\t%.2f\t%.2f", xA, yA);
-  sprintf(p->f(), "\nQ\t%.2f\t%.2f", x0, y0);
-  sprintf(p->f(), "\n\t%.2f\t%.2f\"\n", xB, yB);
+  snprintf(p->f(), 64, "\n<path d=\"\n");
+  snprintf(p->f(), 64, "M\t%.2f\t%.2f", xA, yA);
+  snprintf(p->f(), 64, "\nQ\t%.2f\t%.2f", x0, y0);
+  snprintf(p->f(), 64, "\n\t%.2f\t%.2f\"\n", xB, yB);
   
   /* Apply style. */
   p->append(p->linestycode);

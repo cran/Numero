@@ -10,7 +10,6 @@ Frame
 Topology::paint(const mdreal xorig, const mdreal yorig,
 		const vector<Color>& colors, const Style& base) const {
   TopologyBuffer* p = (TopologyBuffer*)buffer;
-  char textbuf[256];
   
   /* Check input. */
   const vector<District>& districts = p->coord;
@@ -58,6 +57,7 @@ Topology::paint(const mdreal xorig, const mdreal yorig,
 
   /* Draw slices. */
   mdreal rmax = 0.0;
+  char textbuf[256];
   for(mdsize i = 0; i < districts.size(); i++) {
     if(colors[i].opacity <= 0.0) continue;
 
@@ -87,9 +87,9 @@ Topology::paint(const mdreal xorig, const mdreal yorig,
     sty.values.resize(4);
     sty.values[0] = base.identity;
     sty.values[1] = key;
-    sprintf(textbuf, "%.4f", rho*(u.x));
+    snprintf(textbuf, sizeof(textbuf), "%.4f", rho*(u.x));
     sty.values[2] = string(textbuf);
-    sprintf(textbuf, "%.4f", rho*(u.y));
+    snprintf(textbuf, sizeof(textbuf), "%.4f", rho*(u.y));
     sty.values[3] = string(textbuf);
     
     /* Set slice attributes. */

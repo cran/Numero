@@ -18,8 +18,8 @@ Frame::text(const mdreal x, const mdreal y, const string& s) {
 
   /* Create element. */
   mdreal fs = sty.fontsize;
-  sprintf(p->f(), "\n<text x=\"%.3f\" ", x);
-  sprintf(p->f(), "y=\"%.3f\"\n", (y + 0.34*fs));
+  snprintf(p->f(), 64, "\n<text x=\"%.3f\" ", x);
+  snprintf(p->f(), 64, "y=\"%.3f\"\n", (y + 0.34*fs));
   p->append(p->textstycode);
   p->append(">\n"); p->append(s); 
   p->append("\n</text>\n");

@@ -27,11 +27,12 @@ Frame::slice(const mdreal x, const mdreal y, const mdreal rA,
   double delta = fabs(phiB - phi0);
   delta = modf(delta/360.0, &rotat);
   if(delta < 1e-6) {
-    sprintf(p->f(), "\n<circle ");
-    sprintf(p->f(), "cx=\"%.2f\" cy=\"%.2f\" ", x, y);
-    sprintf(p->f(), "r=\"%.3f\"\n", rB);
-    sprintf(p->f(), "%s", (p->linestycode).c_str());
-    sprintf(p->f(), "/>\n");
+    snprintf(p->f(), 64, "\n<circle ");
+    snprintf(p->f(), 64, "cx=\"%.2f\" cy=\"%.2f\" ", x, y);
+    snprintf(p->f(), 64, "r=\"%.3f\"\n", rB);
+    snprintf(p->f(), ((p->linestycode).size() + 1),
+	    "%s", (p->linestycode).c_str());
+    snprintf(p->f(), 64, "/>\n");
     return true;
   }
 
@@ -53,19 +54,20 @@ Frame::slice(const mdreal x, const mdreal y, const mdreal rA,
 
   /* Set position. */
   if((x != 0.0) || (y != 0.0))
-    sprintf(p->f(), "\n<path transform=\"translate(%.2f,%.2f)\"\n", x, y);
+    snprintf(p->f(), 64, "\n<path transform=\"translate(%.2f,%.2f)\"\n", x, y);
   else
-    sprintf(p->f(), "\n<path\n");
+    snprintf(p->f(), 64, "\n<path\n");
 
   /* Draw slice. */
-  sprintf(p->f(), "d=\"M %.4f %.4f\n", xp[0], yp[0]);
-  sprintf(p->f(), "A %.4f %.4f 0 0 0\n", rA, rA);
-  sprintf(p->f(), "%.4f %.4f\n", xp[1], yp[1]);
-  sprintf(p->f(), "L %.4f %.4f\n", xp[2], yp[2]);
-  sprintf(p->f(), "A %.4f %.4f 0 0 1\n", rB, rB);
-  sprintf(p->f(), "%.4f %.4f Z\"\n", xp[3], yp[3]);
-  sprintf(p->f(), "%s", (p->linestycode).c_str());
-  sprintf(p->f(), "/>\n");
+  snprintf(p->f(), 64, "d=\"M %.4f %.4f\n", xp[0], yp[0]);
+  snprintf(p->f(), 64, "A %.4f %.4f 0 0 0\n", rA, rA);
+  snprintf(p->f(), 64, "%.4f %.4f\n", xp[1], yp[1]);
+  snprintf(p->f(), 64, "L %.4f %.4f\n", xp[2], yp[2]);
+  snprintf(p->f(), 64, "A %.4f %.4f 0 0 1\n", rB, rB);
+  snprintf(p->f(), 64, "%.4f %.4f Z\"\n", xp[3], yp[3]);
+  snprintf(p->f(), ((p->linestycode).size() + 1),
+	  "%s", (p->linestycode).c_str());
+  snprintf(p->f(), 64, "/>\n");
 
   /* Update limits. */
   for(mdsize i = 0; i < xp.size(); i++) {

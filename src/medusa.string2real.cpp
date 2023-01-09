@@ -56,6 +56,6 @@ convert_date(const string& x) {
   if((day < 1) || (day > 31)) return "";
   char buffer[32];
   double stamp = (year + (month - 1.0)/12.0 + (day - 1.0)/365.25);
-  sprintf(buffer, "%.10e", stamp);
+  snprintf(buffer, sizeof(buffer), "%.10e", stamp);
   return string(buffer);
 }
