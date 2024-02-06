@@ -35,7 +35,7 @@ If multiple identity columns are provided, composite identity keys
 are constructed by concatenating elements from each column with
 "_" added as a separator.
 
-The frequency of missing values (against /code{na.freq}) is tested first
+The frequency of missing values (against \code{na.freq}) is tested first
 by column then by row.
 
 Selection can take three values: "" for no selection, "union" for all

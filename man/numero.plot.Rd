@@ -52,7 +52,7 @@ see \code{\link{nroPlot.save}()}.
 
 \details{
 The input \code{results} must contain the output from
-code{\link{numero.evaluate}()} or similar.
+\code{\link{numero.evaluate}()} or similar.
 
 The input argument \code{topology} can be the topology of a SOM or with
 additional columns as in the output from \code{\link{numero.subgroup}()}.

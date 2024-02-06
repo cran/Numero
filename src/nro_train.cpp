@@ -76,7 +76,8 @@ nro_train(SEXP topo_R, SEXP sigma_R, SEXP codebook_R, SEXP data_R,
     if(lag < 0.0) continue;
     if(difftime(time(NULL), reset) < lag) continue;
     string dt = medusa::time2text(difftime(time(NULL), stamp));
-    Rprintf("%d cycles in %s\n", history.size(), dt.c_str());
+    Rprintf("%s cycles in %s\n",
+	    medusa::long2text(history.size()).c_str(), dt.c_str());
     reset = time(NULL);
   }
   

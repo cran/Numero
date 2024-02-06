@@ -1,4 +1,4 @@
-0b2cd1a47c5c8231835b10af46cb21db *DESCRIPTION
+9365cd0dfac790c1ea09d5cecd92baa9 *DESCRIPTION
 ec7f026ad952adf5b90f46cd167f342d *NAMESPACE
 3954168b03b05770dcae253419667f65 *R/nroAggregate.R
 348b5bd6a6f2189a20c5d236d5b4be29 *R/nroColorize.R
@@ -24,10 +24,10 @@ eebd345dbf23faf8f6a6348c47c9385d *R/numero.prepare.R
 f7a4d296e4617783ae300ef79485c06e *R/numero.quality.R
 284f83d793b973d160da179e6b1c2f47 *R/numero.subgroup.R
 e5f562c886ca663e02b13be5fefec4fa *R/numero.summary.R
-a02f5ad8bf16fe73712d6955796dc09b *build/vignette.rds
+e46633c0ed28e682a8118b1a88bd9b31 *build/vignette.rds
 76c62387c98778aa08fc5ff33dcb6150 *inst/CITATION
 22e270294acf3c5e1cbbb0f1eec9dff8 *inst/doc/intro.R
-bb25b7532279e1545facb5ce482709db *inst/doc/intro.html
+95c15f945bd97ee68153846bcee40b21 *inst/doc/intro.html
 60bc160dcb7699b27e150fff07260865 *inst/doc/intro.rmd
 2d364c97d2c8644de97170e8185e94d5 *inst/extcode/circus.head.html
 e23565bae27635f14cfb1633439f900a *inst/extcode/circus.js
@@ -47,10 +47,10 @@ e60f7b0918692d56a84a6279df2cfc99 *man/nroPermute.Rd
 11be3f57be21b9aadb4bbc1379e073c0 *man/nroPreprocess.Rd
 ea9f91228eb3169971be0a2a9edc3c19 *man/nroSummary.Rd
 2d1c06d1362d32165ad13347f6027ba3 *man/nroTrain.Rd
-5cdf32649007f89c86c09a1872c7bfe0 *man/numero.clean.Rd
+10ce6a36b48c1eb7dd6fb4b5d019998b *man/numero.clean.Rd
 877c336c5e223ebcb420665a2f68d6ea *man/numero.create.Rd
 6a07111e422c7cb243ee95745283fa71 *man/numero.evaluate.Rd
-8409562bd1a31a408eef1d16c30123b4 *man/numero.plot.Rd
+13222e1d3902e5e9c77ba78e10431aad *man/numero.plot.Rd
 41e07db6b8a64d07c2d5f26229d1d84f *man/numero.prepare.Rd
 ce29d4633e3c9dc50eb3bcadbc805d33 *man/numero.quality.Rd
 13a0698d65c09d59cec21f161e599114 *man/numero.subrgoup.Rd
@@ -199,7 +199,7 @@ f9bfd3e387862303e74fdc010b3034d8 *src/nro_diffuse.cpp
 444a45485cb20adbfddbc9556e63a675 *src/nro_label.cpp
 33c289357666ba6189143efad01f1301 *src/nro_match.cpp
 67fed474506edd74a2b619787fd9e1fb *src/nro_permute.cpp
-580cbe314da0543ed0c1ec80b19af439 *src/nro_train.cpp
+1be66fd29f1a552a1ff857fb5c5df0ad *src/nro_train.cpp
 798901e6aa378e733d66a10bfd377fd5 *src/nro_webpage.cpp
 bce2ff49dd125f1d2e252645259857ae *src/punos.h
 92c4ef2959560256f139a33c11441ccc *src/punos.local.h
