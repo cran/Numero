@@ -1,4 +1,4 @@
-9365cd0dfac790c1ea09d5cecd92baa9 *DESCRIPTION
+30dc8563a57ba69aaec4726bc98a9295 *DESCRIPTION
 ec7f026ad952adf5b90f46cd167f342d *NAMESPACE
 3954168b03b05770dcae253419667f65 *R/nroAggregate.R
 348b5bd6a6f2189a20c5d236d5b4be29 *R/nroColorize.R
@@ -27,7 +27,7 @@ e5f562c886ca663e02b13be5fefec4fa *R/numero.summary.R
 e46633c0ed28e682a8118b1a88bd9b31 *build/vignette.rds
 76c62387c98778aa08fc5ff33dcb6150 *inst/CITATION
 22e270294acf3c5e1cbbb0f1eec9dff8 *inst/doc/intro.R
-95c15f945bd97ee68153846bcee40b21 *inst/doc/intro.html
+d94af7063664172d3b7e45c987c68aa1 *inst/doc/intro.html
 60bc160dcb7699b27e150fff07260865 *inst/doc/intro.rmd
 2d364c97d2c8644de97170e8185e94d5 *inst/extcode/circus.head.html
 e23565bae27635f14cfb1633439f900a *inst/extcode/circus.js
@@ -149,7 +149,7 @@ c138a4918e486283d77042681fe1db23 *src/koho.trainer.update.cpp
 e595b38a11e982296e7aec36d5fa407f *src/medusa.bmax.cpp
 40c83639399ea6a70b957578f8630c7f *src/medusa.bmin.cpp
 473dd028f88ca0905505c34643760dd6 *src/medusa.bnan.cpp
-bf94940a796c01f0fe60a0d60b747cc6 *src/medusa.closefile.cpp
+6ccf85f4a4479d678e798d867f4993cf *src/medusa.closefile.cpp
 65a2311528056b448e62ac34948ccc9e *src/medusa.combine.cpp
 4f6a185f7fb8d94d3cf98b31755d79dc *src/medusa.currtime.cpp
 d4b2443d2909acaed5ad591098029d15 *src/medusa.file.cpp
