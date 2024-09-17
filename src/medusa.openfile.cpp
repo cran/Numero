@@ -3,7 +3,7 @@
 
 #include "medusa.local.h"
 
-unordered_map<FILE*, char*> FileBuffer::handles;
+unordered_map<void*, char*> FileBuffer::handles;
 
 /*
  *

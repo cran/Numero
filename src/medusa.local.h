@@ -43,7 +43,7 @@ namespace medusa_local {
     unsigned long nwritten;
     char iobuf[IOBUFCAP_medusa];
     char bytes[IOBUFCAP_medusa];
-    static unordered_map<FILE*, char*> handles;
+    static unordered_map<void*, char*> handles;
   public:
     FileBuffer() {
       this->fid = NULL;

@@ -34,17 +34,22 @@ Gaussian::configure(const vector<mdreal>& x, const vector<mdreal>& w) {
     wsum += weights[i];
 
   /* Reference z-scores. */
-  for(mdreal t = -10.0; t <= 10.0; t += 0.2)
+  mdreal tdev = 3.0;
+  if(nelem > 741) tdev = 4.0;
+  if(nelem > 31574) tdev = 5.0;
+  if(nelem > 3488556) tdev = 6.0;
+  for(mdreal t = -tdev; t <= tdev; t += 0.2)
     (this->zscores).push_back(t);
-
+  
   /* Reference quantiles from normal distribution. */
   vector<mdreal> qref;
-  mdreal qmin = weights[0]/wsum;
+  mdreal qmin = 5.0/(nelem + 10.0);
+  mdreal qmax = (1.0 - qmin);
   for(mdsize i = 0; i < zscores.size(); i++) {
     mdreal z = zscores[i]/sqrt(2.0);
     mdreal q = 0.5*erfc(-z);
     if(q < qmin) q = rlnan;
-    if(q >= 1.0) q = rlnan;
+    if(q > qmax) q = rlnan;
     qref.push_back(q);
   }
 

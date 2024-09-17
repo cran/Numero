@@ -37,7 +37,6 @@ nro_permute_exec(vector<mdreal>& output, const vector<mdreal>& values,
 
   /* Simulate null distributions. */    
   mdsize nfalse = 0;
-  mdsize ntotal = 0;
   abacus::Empirical fnull;  
   for(mdsize n = 0; n < ncycl; n++) {
     if(nfalse/nvars >= nro_NMAX_FALSE) break;
@@ -58,7 +57,6 @@ nro_permute_exec(vector<mdreal>& output, const vector<mdreal>& values,
     
     /* Update null distributions. */
     fnull.add(x, 1.0);
-    ntotal++;
   }
 
   /* Estimate statistics. */

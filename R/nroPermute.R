@@ -127,10 +127,10 @@ nroPermute <- function(
         z.tr[mask] <- (evbase + delta)
     }
 
-    # Mean Z-magnitude for color reference.
+    # Base Z-magnitude for color reference.
     z <- c(z.tr, z.ev)
     if(length(zbase) < 1) {
-        zbase <- stats::quantile(z, probs=0.95, na.rm=TRUE)
+        zbase <- stats::quantile(z, probs=0.98, na.rm=TRUE)
         zbase <- max(zbase, 3.0)
     }
     

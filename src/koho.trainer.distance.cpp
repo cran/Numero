@@ -25,11 +25,20 @@ calc_euclid(const vector<mdreal>& vals,
     dsum += d*d;
     wsum += 1.0;
   }
-  if(wsum <= 0.0) return rlnan;
 
-  /* The denominator is outside the square root to produce
-     smaller distances when more values are available. */
-  return sqrt(dsum)/(wsum + 1e-9);
+   /* Use difference in extremes if comparison failed. */
+  if(wsum < 1.0) {
+    vector<mdreal> xtrem;
+    xtrem.push_back(abacus::statistic(vals, "min")); 
+    xtrem.push_back(abacus::statistic(vals, "max"));   
+    xtrem.push_back(abacus::statistic(profile, "min"));    
+    xtrem.push_back(abacus::statistic(profile, "max"));
+    mdreal xmin = abacus::statistic(xtrem, "min");
+    mdreal xmax = abacus::statistic(xtrem, "max");
+    if(xmin != rlnan) return (xmax - xmin);
+    return rlnan;
+  }
+  return sqrt(dsum/(wsum - 0.5));
 }
 
 /*

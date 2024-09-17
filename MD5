@@ -1,4 +1,4 @@
-30dc8563a57ba69aaec4726bc98a9295 *DESCRIPTION
+aebe8078f4b6c1ef3df96f5262be6386 *DESCRIPTION
 ec7f026ad952adf5b90f46cd167f342d *NAMESPACE
 3954168b03b05770dcae253419667f65 *R/nroAggregate.R
 348b5bd6a6f2189a20c5d236d5b4be29 *R/nroColorize.R
@@ -7,7 +7,7 @@ f91de47de6bb247337bb29dd94028eac *R/nroDestratify.R
 04199122e2cdcc876035be2b89a3522e *R/nroKohonen.R
 a534ce63eb5aa27d4c2086720641a225 *R/nroLabel.R
 11d2d05106dd647bed5ad9f840e613d8 *R/nroMatch.R
-0ef2914a3217ce5bb16ff1c8f2469a98 *R/nroPermute.R
+40b34bf76c7d6d15205a74d75618ebad *R/nroPermute.R
 dabcd3e5509afc6b5abdac3e66b6faa6 *R/nroPlot.R
 13d98bdf328fa5cd570af570c2fc3128 *R/nroPlot.save.R
 23317c43ab62783130980375e8c886d5 *R/nroPostprocess.R
@@ -27,7 +27,7 @@ e5f562c886ca663e02b13be5fefec4fa *R/numero.summary.R
 e46633c0ed28e682a8118b1a88bd9b31 *build/vignette.rds
 76c62387c98778aa08fc5ff33dcb6150 *inst/CITATION
 22e270294acf3c5e1cbbb0f1eec9dff8 *inst/doc/intro.R
-d94af7063664172d3b7e45c987c68aa1 *inst/doc/intro.html
+9095171491ad5140d6d52999a600a257 *inst/doc/intro.html
 60bc160dcb7699b27e150fff07260865 *inst/doc/intro.rmd
 2d364c97d2c8644de97170e8185e94d5 *inst/extcode/circus.head.html
 e23565bae27635f14cfb1633439f900a *inst/extcode/circus.js
@@ -77,7 +77,7 @@ c471bbaae4448bc16196291d6eb13f82 *src/abacus.empirical.statistic.cpp
 21b9f149a0b96507d0d2a2bfad2192de *src/abacus.empirical.z.cpp
 2ff564d5538a19c5d885423a0aa80442 *src/abacus.empiricalbuffer.contents.cpp
 f21b7ce01fa1022b9ce0dc91201881cf *src/abacus.extrema.cpp
-970f61aba6366ad8465877de3e597899 *src/abacus.gaussian.configure.cpp
+4b32b09a3c99106998e06a71c1294ce0 *src/abacus.gaussian.configure.cpp
 ce96a714dd72dab1db22387ee394b5d2 *src/abacus.gaussian.distance.cpp
 292ed2db5583d7ed8565b4480f2b13dd *src/abacus.gaussian.optimize.cpp
 1530485eb599aa115db63b840484a6ef *src/abacus.gaussian.quality.cpp
@@ -116,7 +116,7 @@ a5b078ba1b70d1b6f60a9b930435d704 *src/abacus.minimizer.value.cpp
 2ae4f8a474849cfc5553314e8a3d7987 *src/abacus.statistic.cpp
 1c3b57bd3507a7a1bd81364a0f2d4b1c *src/abacus.transform.cpp
 5e7c1056379d2079525185b19947a584 *src/abacus.twowaymap.cpp
-502d1d7d6458c433fafd7ae4162ccf81 *src/abacus.version.cpp
+fbebf58025723cb6201e620847286196 *src/abacus.version.cpp
 a0791c8b66bc79221942e3eeb4443b7b *src/koho.engine.average.cpp
 2823bd13393ba092d034de3fadea9792 *src/koho.engine.cpp
 58ccf45f2ddd0d496a733974ab575d70 *src/koho.engine.histograms.cpp
@@ -141,7 +141,7 @@ aa0d2bb02c2445f861f3cd68ed5f08a7 *src/koho.model.topology.cpp
 47027fc539f5f4f00b04b59dfaae5f71 *src/koho.subset.moments.cpp
 5169c6de49da93b5d96acc651bbc9af7 *src/koho.trainer.codebook.cpp
 04eea2175de29b9cbfe19f33e3046e0d *src/koho.trainer.cpp
-19b15c4144823c003e3183035b79c3e2 *src/koho.trainer.distance.cpp
+26d473fad6ade5d3ffab344fec98b0bf *src/koho.trainer.distance.cpp
 b2b79750c8ed5063d17f6fc9ae3d6693 *src/koho.trainer.match.cpp
 c138a4918e486283d77042681fe1db23 *src/koho.trainer.update.cpp
 1c303ce011b595539c4b0ed65445e5bf *src/koho.version.cpp
@@ -155,11 +155,11 @@ e595b38a11e982296e7aec36d5fa407f *src/medusa.bmax.cpp
 d4b2443d2909acaed5ad591098029d15 *src/medusa.file.cpp
 34943d06c6f5683bad636baef8bfb3b9 *src/medusa.h
 c363ad71ab0a9991c4cf500544d90a79 *src/medusa.lnan.cpp
-924a591cc3b34ef2e3df61f795ca7aff *src/medusa.local.h
+3eb96e404f00a1bca111fc4cf9f4a2e8 *src/medusa.local.h
 78a49d92c2086627801997e1c2f958ae *src/medusa.long2string.cpp
 2103972e04b579164fc366679145902d *src/medusa.long2text.cpp
 06c51ad882f3e28032533db6e3eedb8a *src/medusa.match.cpp
-51c942a98efbfe74472c9f231195b54a *src/medusa.openfile.cpp
+8b311957426c149d60c080890fdacbee *src/medusa.openfile.cpp
 8989885339361e0d99c51bedf7e1ea9a *src/medusa.real2string.cpp
 7744c05d6fc167cef767bd407995f6c7 *src/medusa.real2text.cpp
 5d3d43088917c6e1ae5a2844b11be265 *src/medusa.rlim.cpp
@@ -198,7 +198,7 @@ f9bfd3e387862303e74fdc010b3034d8 *src/nro_diffuse.cpp
 2bde1808282197b8610b460b731f5e59 *src/nro_kohonen.cpp
 444a45485cb20adbfddbc9556e63a675 *src/nro_label.cpp
 33c289357666ba6189143efad01f1301 *src/nro_match.cpp
-67fed474506edd74a2b619787fd9e1fb *src/nro_permute.cpp
+270b9803f122e07f0ccfe32bc90ba17f *src/nro_permute.cpp
 1be66fd29f1a552a1ff857fb5c5df0ad *src/nro_train.cpp
 798901e6aa378e733d66a10bfd377fd5 *src/nro_webpage.cpp
 bce2ff49dd125f1d2e252645259857ae *src/punos.h

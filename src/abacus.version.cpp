@@ -8,5 +8,5 @@
  */
 string
 abacus::version() {
-  return ("1152.200904");
+  return ("1152.numero1");
 }
