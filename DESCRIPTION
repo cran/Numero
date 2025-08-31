@@ -1,8 +1,8 @@
 Package: Numero
 Type: Package
 Title: Statistical Framework to Define Subgroups in Complex Datasets
-Version: 1.9.8
-Date: 2024-09-16
+Version: 1.9.10
+Date: 2025-08-25
 Authors@R: c(person(given = "Song",
                     family = "Gao",
                     role = "aut"),
@@ -23,12 +23,12 @@ Imports: Rcpp (>= 1.0.0)
 LinkingTo: Rcpp
 VignetteBuilder: knitr, rmarkdown
 Suggests: knitr, rmarkdown
-NeedsCompilation: yes
 Repository: CRAN
 Encoding: UTF-8
-Packaged: 2024-09-17 10:02:47 UTC; vipmak
+NeedsCompilation: yes
+Packaged: 2025-08-31 12:55:06 UTC; vipmak
 Author: Song Gao [aut],
   Stefan Mutter [aut],
   Aaron E. Casey [aut],
   Ville-Petteri Makinen [aut, cre]
-Date/Publication: 2024-09-17 11:50:11 UTC
+Date/Publication: 2025-08-31 13:50:02 UTC

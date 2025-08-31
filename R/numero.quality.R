@@ -35,7 +35,7 @@ numero.quality <- function(
 
 #-------------------------------------------------------------------------
 
-numero.quality.layout <- function(model, data) {
+numero.quality.layout <- function(model, data, balance) {
     if(length(data) < 1) return(model$layout)
 
     # Check dataset compatibility.
@@ -54,7 +54,7 @@ numero.quality.layout <- function(model, data) {
 
     # Assign district locations.
     suppressWarnings(matches <- nroMatch(centroids=model$map,
-        data=data[valid,]))
+        data=data[valid,], balance=model$map$balance))
     layout <- data.frame(BMC=matches, attr(matches, "quality"))
     rownames(layout) <- names(matches)
     return(layout)

@@ -2,7 +2,8 @@ numero.create <- function(
     data,
     radius=NULL,
     smoothness=NULL,
-    subsample=NULL) {
+    subsample=NULL,
+    balance=0) {
 
     # Start processing.
     output <- list(stamp=date())
@@ -50,6 +51,14 @@ numero.create <- function(
 	subsample <- as.integer(min(subsample[[1]], nrow(trdata)))
     }
 
+    # Check balance.
+    if(!is.null(balance)) {
+        if(!is.finite(balance[[1]])) stop("Unusable balance.")
+        if(balance[[1]] < 0.0) stop("Unusable balance.")
+        if(balance[[1]] > 1.0) stop("Unusable balance.")
+	balance <- as.double(balance[[1]])
+    }
+
     # Print report.
     cat(nrow(trdata), " / ", nrow(data), " rows included\n", sep="")
     cat(ncol(trdata), " / ", ncol(data), " columns included\n", sep="")
@@ -66,12 +75,13 @@ numero.create <- function(
         radius=radius, smoothness=smoothness)
     
     # Fit the SOM to training data.
-    sm <- nroTrain(map=sm, data=trdata, subsample=subsample, message=10)
+    sm <- nroTrain(map=sm, data=trdata,
+        subsample=subsample, balance=balance, message=10)
     cat(sm$subsample, " subsamples\n", sep="")
     cat(length(sm$history), " training cycles\n", sep="")
 
     # Evaluate fit quality.
-    matches <- nroMatch(centroids=sm, data=trdata)
+    matches <- nroMatch(centroids=sm, data=trdata, balance=balance)
     layout <- data.frame(BMC=matches, attr(matches, "quality"))
     rownames(layout) <- names(matches)
 

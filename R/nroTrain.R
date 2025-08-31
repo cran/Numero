@@ -69,7 +69,7 @@ nroTrain <- function(
         as.matrix(centroids[,vars]),
         as.matrix(data[,vars]),
         as.integer(subsample),
-        as.double(balance),
+        as.double(balance[1]),
         as.double(message),
         PACKAGE="Numero")
     if(is.character(res)) stop(res)
@@ -83,6 +83,7 @@ nroTrain <- function(
     map$layout <- res$layout
     map$centroids[,vars] <- res$centroids
     map$subsample <- subsample
+    map$balance <- balance[1]
     map$history <- res$history
     return(map)
 }

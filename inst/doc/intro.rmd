@@ -934,9 +934,16 @@ using the sex-adjusted training variables:
 
 ``` {r}
 # Create a new self-organizing map based on sex-adjusted data.
-modl.adj <- numero.create(data = trdata.adj)
+modl.adj <- numero.create(data = trdata.adj, balance = 0)
 summary(modl.adj)
 ```
+
+Notice also the use of the balance parameter. Here, the value was kept at
+zero that means no balancing is applied. However, it is useful to try also
+setting it to 1 when running the example pipeline, as it will force the
+algorithm to put the same number of samples on each map district during the
+training cycles. To avoid repetition, the 100% balancing was not included
+in the vignette.
 
 Please use the tabs at the top to navigate to the next page.
 
@@ -967,7 +974,7 @@ hist(x = qc.adj$layout$RESIDUAL.z, breaks = 20,
 
 The preprocessing resulted in a substantial improvement of the residual
 distributions. Although the residuals are still skewed, the most extreme
-residuals have been removed:
+residuals have been attenuated:
 
 ``` {r}
 # Maximum residuals from unadjusted and adjusted analyses.

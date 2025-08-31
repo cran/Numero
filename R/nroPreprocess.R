@@ -23,7 +23,10 @@ nroPreprocess <- function(
 
     # Check method.
     method <- as.character(method[[1]])
- 
+    method <- intersect(method,
+        c("","standard","uniform","tapered","normal"))
+    if(length(method) < 1) stop("Unknown method.")
+
     # Check resolution.
     resolution <- as.integer(resolution[[1]])
     if(resolution < 20) # see downsampling
@@ -39,9 +42,14 @@ nroPreprocess <- function(
     model <- nroPreprocess.down(ds.in, ds.out, resolution, method)
 
     # Truncate extreme values.
-    if(length(clip) > 0) {
-        for(vn in colnames(ds.out))
-            ds.out[,vn] <- nroPreprocess.clip(ds.out[,vn], method, clip)
+    if((length(clip) > 0) && (method != "")) {
+        mu <- NULL; sigma <- NULL
+        if((method == "standard") || (method == "normal")) {
+	    mu <- 0; sigma <- 1}
+        for(vn in colnames(ds.out)) {
+            ds.out[,vn] <- nroPreprocess.clip(
+	        ds.out[,vn], clip, mu=mu, sigma=sigma)
+        }
     }
 
     # If no preprocessing, binary variables remain binary.
@@ -61,8 +69,8 @@ nroPreprocess.std <- function(x, method) {
 
     # Check variance.
     sigma <- stats::sd(x, na.rm=TRUE)
-    if(!is.finite(sigma)) return(x)
-    if(sigma <= .Machine$double.eps) return(x)
+    if(!is.finite(sigma)) return(0*x)
+    if(sigma <= .Machine$double.eps) return(0*x)
 
     # No standardization.
     if(length(method) < 1) return(x)
@@ -73,7 +81,7 @@ nroPreprocess.std <- function(x, method) {
         z <- rank(x, na.last="keep")
         z <- (z - min(z, na.rm=TRUE))
 	z <- (2*z/max(z, na.rm=TRUE) - 1)
-	if(method == "tapered") z <- (z + 2*z^3)/3
+	if(method == "tapered") z <- (z + 2*(z^3))/3
         return(z)
     }
     if(method == "normal") {
@@ -87,13 +95,19 @@ nroPreprocess.std <- function(x, method) {
     if(method != "standard") stop("Unknown method.")
 
     # Protect against extreme outliers.
-    t <- nroPreprocess.clip(x, method="standard", clip=5.0)
-    t <- stats::na.omit(t)
+    tx <- stats::na.omit(x)
+    nuniq <- length(unique(tx))
+    if(nuniq >= 10) {
+        q <- stats::pnorm(c(-1,0,1))
+        q <- stats::quantile(tx, q)
+        tx <- nroPreprocess.clip(tx, clip=8.0,
+	    mu=q[2], sigma=as.double(q[3] - q[1] + 1e-9))
+    }
 
     # Check if logarithm is useful.
-    tmin <- min(t, na.rm=TRUE)
-    if((tmin >= 0) && (sum(is.finite(t)) >= 10)) {
-         t.log <- log(t + 1e-20)
+    tmin <- min(tx, na.rm=TRUE)
+    if((tmin >= 0) && (sum(is.finite(tx)) >= 10)) {
+         t.log <- log(tx + 1e-20)
 
          # Downsample for Shapiro test.
          mask <- which(0*t.log == 0)
@@ -101,17 +115,17 @@ nroPreprocess.std <- function(x, method) {
 	     mask <- sample(mask, size=5000)    
 
          # Test for normality.
-         suppressWarnings(w <- stats::shapiro.test(t[mask]))
+         suppressWarnings(w <- stats::shapiro.test(tx[mask]))
          suppressWarnings(w.log <- stats::shapiro.test(t.log[mask]))
 	 if((w$p.value < 0.05) && (w$statistic < w.log$statistic)) {
              x <- log(x + 1e-20)
-             t <- t.log
+             tx <- t.log
 	 }	 
     }
 
     # Basic statistics.
-    mu <- mean(t, na.rm=TRUE)
-    sigma <- stats::sd(t, na.rm=TRUE)
+    mu <- mean(tx, na.rm=TRUE)
+    sigma <- stats::sd(tx, na.rm=TRUE)
 
     # Standardize scale and location.
     z <- (x - mu)/max(sigma, 1e-20)
@@ -120,14 +134,13 @@ nroPreprocess.std <- function(x, method) {
 
 #---------------------------------------------------------------------------
 
-nroPreprocess.clip <- function(x, method, clip) {
+nroPreprocess.clip <- function(x, clip, mu, sigma) {
     if(length(clip) < 1) return(x)
     if(!is.finite(clip)) return(x)
-    if((method != "standard") && (method != "")) return(x)
-    med <- stats::median(x, na.rm=TRUE)
-    sigma <- stats::sd(x, na.rm=TRUE)
-    xmin <- (med - clip*sigma)
-    xmax <- (med + clip*sigma)
+    if(length(mu) < 1) mu <- mean(x, na.rm=TRUE)
+    if(length(sigma) < 1) sigma <- stats::sd(x, na.rm=TRUE)
+    xmin <- (mu - clip*sigma)
+    xmax <- (mu + clip*sigma)
     x[which(x < xmin)] <- xmin
     x[which(x > xmax)] <- xmax
     return(x)

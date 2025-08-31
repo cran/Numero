@@ -146,7 +146,7 @@ c(length(men), length(women))
 
 ## -----------------------------------------------------------------------------
 # Create a new self-organizing map based on sex-adjusted data.
-modl.adj <- numero.create(data = trdata.adj)
+modl.adj <- numero.create(data = trdata.adj, balance = 0)
 summary(modl.adj)
 
 ## -----------------------------------------------------------------------------

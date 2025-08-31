@@ -1,6 +1,7 @@
 nroMatch <- function(
     centroids,
-    data) {
+    data,
+    balance=0) {
 
     # Check if input is a list.
     som <- list()
@@ -21,6 +22,9 @@ nroMatch <- function(
     if(length(vars) < ncol(centroids))
         warning("Incomplete coverage of variables.")
 
+    # Check parameters.
+    balance <- nroRcppVector(balance[[1]], default=0)
+
     # Convert inputs to numeric matrices.
     centroids <- nroRcppMatrix(centroids[,vars], trim=FALSE)
     data <- nroRcppMatrix(data[,vars], trim=FALSE)
@@ -29,6 +33,7 @@ nroMatch <- function(
     res <- .Call("nro_match",
         as.matrix(centroids),
         as.matrix(data),
+	as.double(balance),
         PACKAGE="Numero")
     if(is.character(res)) stop(res)
     

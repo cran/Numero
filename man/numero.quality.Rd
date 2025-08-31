@@ -53,4 +53,12 @@ modl <- numero.create(data = trdata)
 
 # Analyze map quality.
 qc <- numero.quality(model = modl)
+print(summary(qc$planes)) # wide histogram
+
+# Create a self-organizing map with balancing.
+modl <- numero.create(data = trdata, balance = 1)
+
+# Analyze map quality.
+qc <- numero.quality(model = modl)
+print(summary(qc$planes)) # narrow histogram
 }

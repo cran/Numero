@@ -6,7 +6,8 @@
 \description{Set up a self-organizing map and train it with data}
 
 \usage{
-numero.create(data, radius = NULL, smoothness = NULL, subsample = NULL)
+numero.create(data, radius = NULL, smoothness = NULL,
+              subsample = NULL, balance = 0)
 }
 
 \arguments{
@@ -21,6 +22,10 @@ Rigidity of the map to adapt to regional differences.
   }
   \item{subsample}{
 Number of data points used during a single training cycle.
+  }
+  \item{balance}{
+Penalty parameter for variation in the numbers of resident
+samples across disctricts, see \code{\link{nroKmeans}()}.
   }
 }
 

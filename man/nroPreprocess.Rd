@@ -25,7 +25,7 @@ Method for standardizing scale and location, see details below.
   }
 
   \item{clip}{
-Range for clipping extreme values in multiples of standard deviations.
+Range for truncating extreme values in multiples of standard deviations.
   }
   
   \item{resolution}{
@@ -46,9 +46,6 @@ for quantile-based mapping to standard normal distribution.
 
 The standard method also checks if the distribution is skewed and
 applies logarithm if it makes the distribution closer to the normal curve.
-
-Clipping is not applied if the method is rank-based or if the threshold
-is set to NULL.
 }
 
 \value{

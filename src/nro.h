@@ -14,6 +14,7 @@
 #include <random>
 #include <string>
 #include <vector>
+#include <map>
 #include <algorithm>
 #include <Rcpp.h>
 #include "medusa.h"

@@ -11,7 +11,7 @@ profiles of a self-organizing map (SOM).
 }
 
 \usage{
-nroMatch(centroids, data)
+nroMatch(centroids, data, balance = 0)
 }
 
 \arguments{
@@ -19,9 +19,12 @@ nroMatch(centroids, data)
 Either a matrix, a data frame or a list that contains the element
 \code{centroids}.
   }
-  
   \item{data}{
 A data matrix with identical column names to the centroid matrix.
+  }
+  \item{balance}{
+Penalty parameter for variation in the numbers of resident
+samples across disctricts, see \code{\link{nroKmeans}()}.
   }
 }
 
