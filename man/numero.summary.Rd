@@ -7,7 +7,7 @@
 analysis}
 
 \usage{
-numero.summary(results, topology, data = NULL, capacity = 10)
+numero.summary(results, topology, data, capacity = 10)
 }
 
 \arguments{
@@ -71,7 +71,7 @@ trdata <- numero.prepare(data = dataset, variables = trvars)
 
 # Create a self-organizing map.
 sm <- numero.create(data = trdata)
-qc <- numero.quality(model = sm)
+qc <- numero.quality(model = sm, data = trdata)
 
 # Evaluate map statistics for all variables.
 stats <- numero.evaluate(model = qc, data = dataset)

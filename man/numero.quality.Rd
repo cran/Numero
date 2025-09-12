@@ -7,7 +7,7 @@
 calculate quality measures}
 
 \usage{
-numero.quality(model, data = NULL)
+numero.quality(model, data)
 }
 
 \arguments{
@@ -52,13 +52,13 @@ trdata <- numero.prepare(data = dataset, variables = trvars)
 modl <- numero.create(data = trdata)
 
 # Analyze map quality.
-qc <- numero.quality(model = modl)
+qc <- numero.quality(model = modl, data = trdata)
 print(summary(qc$planes)) # wide histogram
 
 # Create a self-organizing map with balancing.
 modl <- numero.create(data = trdata, balance = 1)
 
 # Analyze map quality.
-qc <- numero.quality(model = modl)
+qc <- numero.quality(model = modl, data = trdata)
 print(summary(qc$planes)) # narrow histogram
 }

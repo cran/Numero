@@ -1,15 +1,12 @@
 numero.summary <- function(
     results,
     topology,
-    data=NULL,
+    data,
     capacity=10) {
 
     # Start processing.
     stamp <- date()
     cat("\n*** numero.summary ***\n", stamp, "\n", sep="")
-    
-    # Default dataset.
-    if(is.null(data)) data <- results$data
 
     # Match results with original data.
     cat("\nResources:\n")

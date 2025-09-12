@@ -1,6 +1,6 @@
 numero.quality <- function(
     model,
-    data=NULL) {
+    data) {
 
     # Continue analyses.
     output <- list(stamp=date())
@@ -63,7 +63,6 @@ numero.quality.layout <- function(model, data, balance) {
 #-------------------------------------------------------------------------
 
 numero.quality.planes <- function(model, data, layout) {
-    if(length(data) < 1) data <- model$data
     if(length(data) < 1) stop("No data.")
 
     # Component planes.

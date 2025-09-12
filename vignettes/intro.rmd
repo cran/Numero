@@ -626,7 +626,7 @@ residual and standard deviation of residuals in the training set.
 
 ``` {r}
 # Calculate map quality measures for the training data.
-qc.basic <- numero.quality(model = modl.basic)
+qc.basic <- numero.quality(model = modl.basic, data = trdat.basic)
 ```
 
 Outliers can be detected by plotting the distribution of quality measures:
@@ -850,7 +850,8 @@ that combines the visual subgroupings with the original data:
 
 ``` {r}
 # Compare subgroups.
-report.basic <- numero.summary(results = stats.basic, topology = subgr.basic)
+report.basic <- numero.summary(results = stats.basic, topology = subgr.basic,
+                               data = dataset)
 colnames(report.basic)
 ```
 
@@ -939,11 +940,8 @@ summary(modl.adj)
 ```
 
 Notice also the use of the balance parameter. Here, the value was kept at
-zero that means no balancing is applied. However, it is useful to try also
-setting it to 1 when running the example pipeline, as it will force the
-algorithm to put the same number of samples on each map district during the
-training cycles. To avoid repetition, the 100% balancing was not included
-in the vignette.
+zero that means no balancing is applied. More information is available in
+a separate section of the vignette.
 
 Please use the tabs at the top to navigate to the next page.
 
@@ -958,7 +956,7 @@ as we did in the previous example:
 
 ``` {r}
 # Calculate map quality measures for sex-adjusted data.
-qc.adj <- numero.quality(model = modl.adj)
+qc.adj <- numero.quality(model = modl.adj, data = trdata.adj)
 ```
 
 ``` {r results="hide", fig.width=7, fig.height=3, fig.align="center", fig.cap="Figure: Distribution of model residuals. The training data were adjusted for age and sex."}
@@ -1179,7 +1177,8 @@ subgrouping, but not substantially:
 
 ``` {r}
 # Compare subgroups.
-report.adj <- numero.summary(results = stats.adj, topology = subgr.adj)
+report.adj <- numero.summary(results = stats.adj, topology = subgr.adj,
+                             data = dataset)
 ```
 
 ``` {r}
@@ -1332,7 +1331,7 @@ but new data are used for the replication cohorts:
 
 ``` {r results="hide"}
 # Calculate map quality measures.
-qc.discov <- numero.quality(model = modl.discov)
+qc.discov <- numero.quality(model = modl.discov, data = trdata.discov)
 qc.replicA <- numero.quality(model = modl.discov, data = trdata.replicA)
 qc.replicB <- numero.quality(model = modl.discov, data = trdata.replicB)
 qc.mets <- numero.quality(model = modl.discov, data = trdata.mets)
@@ -1580,25 +1579,33 @@ subgroups in the discovery and replication sets:
 ``` {r eval=FALSE}
 # Compare subgroups.
 report.discov <- numero.summary(results = stats.discov,
-                                topology = subgr.discov)
+                                topology = subgr.discov,
+				data = dataset)
 report.replicA <- numero.summary(results = stats.replicA,
-                                 topology = subgr.discov)
+                                 topology = subgr.discov,
+				 data = dataset)
 report.replicB <- numero.summary(results = stats.replicB,
-                                 topology = subgr.discov)
+                                 topology = subgr.discov,
+				 data = dataset)
 report.mets <- numero.summary(results = stats.mets,
-                              topology = subgr.discov)
+                              topology = subgr.discov,
+			      data = dataset)
 ```
 
 ``` {r echo=FALSE, results="hide"}
 suppressWarnings({
 report.discov <- numero.summary(results = stats.discov,
-                                topology = subgr.discov)
+                                topology = subgr.discov,
+				data = dataset)
 report.replicA <- numero.summary(results = stats.replicA,
-                                 topology = subgr.discov)
+                                 topology = subgr.discov,
+				 data = dataset,)
 report.replicB <- numero.summary(results = stats.replicB,
-                                 topology = subgr.discov)
+                                 topology = subgr.discov,
+				 data = dataset)
 report.mets <- numero.summary(results = stats.mets,
-                              topology = subgr.discov)})
+                              topology = subgr.discov,
+			      data = dataset)})
 ```
 
 The mortality rates in the discovery set are as expected with the
@@ -1713,7 +1720,8 @@ and calculate subgroup statistics with
 
 ``` {r eval=FALSE}
 # Calculate subgroup statistics.
-report <- numero.summary(results = stats.basic, topology = subgr)
+report <- numero.summary(results = stats.basic, topology = subgr,
+                         data = dataset)
 ```
 
 as before.
@@ -1723,6 +1731,44 @@ try setting the `subsample` parameter to something less than the number of
 rows in the training set. It may also take a long time to evaluate the map
 statistics; to reduce waiting time, you can assign data columns into smaller
 batches and then run each batch on a different processor in parallel.
+
+---
+###########################################################################
+---
+
+# Balancing sample counts
+
+In some situation it is advantageous to have the same number of data points
+in each district (i.e. a flat map histogram). In the basic example, the
+quality analysis revealed that one side of the map had a substantially
+lower density of data points in the top half. As we saw in the subsequent
+example, preprocessing and adjusting the input data can improve the balance
+considerable, however, the specific `balance` parameter adds a penalty to
+the algorithm that forces a flat histogram even if the input data are
+skewed or otherwise challenging.
+
+The balancing penalty can be between zero and one. Here is a copy of the
+basic example that used no balancing:
+
+``` {r results="hide", fig.width=9, fig.height=3, fig.align="center", fig.cap="Figure: Quality measures across map districts, basic example, default balance parameter. "}
+# Map quality measures from the basic example.
+numero.plot(results = qc.basic, subplot = c(1,4))
+```
+
+To change the layout, the map must be re-trained with a different balance
+setting:
+
+``` {r}
+# Train a new self-organizing map.
+modl <- numero.create(data = trdat.basic, balance = 1.0)
+qc <- numero.quality(model = modl, data = trdat.basic)
+```
+
+``` {r results="hide", fig.width=9, fig.height=3, fig.align="center", fig.cap="Figure: Quality measures across map districts, basic example, balance = 1. "}
+# Map quality measures.
+numero.plot(results = qc, subplot = c(1,4))
+```
+Notice how the data point histogram is now balanced within rounding error.
 
 ---
 ###########################################################################

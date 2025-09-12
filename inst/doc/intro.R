@@ -56,7 +56,7 @@ summary(modl.basic)
 
 ## -----------------------------------------------------------------------------
 # Calculate map quality measures for the training data.
-qc.basic <- numero.quality(model = modl.basic)
+qc.basic <- numero.quality(model = modl.basic, data = trdat.basic)
 
 ## ----results="hide", fig.width=7, fig.height=3, fig.align="center", fig.cap="Figure: Distribution of model residuals."----
 # Plot frequencies of data points at different quality levels.
@@ -124,7 +124,8 @@ numero.plot(results = stats.basic,
 
 ## -----------------------------------------------------------------------------
 # Compare subgroups.
-report.basic <- numero.summary(results = stats.basic, topology = subgr.basic)
+report.basic <- numero.summary(results = stats.basic, topology = subgr.basic,
+                               data = dataset)
 colnames(report.basic)
 
 ## -----------------------------------------------------------------------------
@@ -151,7 +152,7 @@ summary(modl.adj)
 
 ## -----------------------------------------------------------------------------
 # Calculate map quality measures for sex-adjusted data.
-qc.adj <- numero.quality(model = modl.adj)
+qc.adj <- numero.quality(model = modl.adj, data = trdata.adj)
 
 ## ----results="hide", fig.width=7, fig.height=3, fig.align="center", fig.cap="Figure: Distribution of model residuals. The training data were adjusted for age and sex."----
 # Plot frequencies of data points at different quality levels.
@@ -241,7 +242,8 @@ summary(stats.adj$planes[,"MALE"])
 
 ## -----------------------------------------------------------------------------
 # Compare subgroups.
-report.adj <- numero.summary(results = stats.adj, topology = subgr.adj)
+report.adj <- numero.summary(results = stats.adj, topology = subgr.adj,
+                             data = dataset)
 
 ## -----------------------------------------------------------------------------
 # Show results for mortality rate.
@@ -296,7 +298,7 @@ summary(modl.discov)
 
 ## ----results="hide"-----------------------------------------------------------
 # Calculate map quality measures.
-qc.discov <- numero.quality(model = modl.discov)
+qc.discov <- numero.quality(model = modl.discov, data = trdata.discov)
 qc.replicA <- numero.quality(model = modl.discov, data = trdata.replicA)
 qc.replicB <- numero.quality(model = modl.discov, data = trdata.replicB)
 qc.mets <- numero.quality(model = modl.discov, data = trdata.mets)
@@ -384,24 +386,32 @@ numero.plot(results = stats.discov, variables = clinvars,
 ## ----eval=FALSE---------------------------------------------------------------
 #  # Compare subgroups.
 #  report.discov <- numero.summary(results = stats.discov,
-#                                  topology = subgr.discov)
+#                                  topology = subgr.discov,
+#  				data = dataset)
 #  report.replicA <- numero.summary(results = stats.replicA,
-#                                   topology = subgr.discov)
+#                                   topology = subgr.discov,
+#  				 data = dataset)
 #  report.replicB <- numero.summary(results = stats.replicB,
-#                                   topology = subgr.discov)
+#                                   topology = subgr.discov,
+#  				 data = dataset)
 #  report.mets <- numero.summary(results = stats.mets,
-#                                topology = subgr.discov)
+#                                topology = subgr.discov,
+#  			      data = dataset)
 
 ## ----echo=FALSE, results="hide"-----------------------------------------------
 suppressWarnings({
 report.discov <- numero.summary(results = stats.discov,
-                                topology = subgr.discov)
+                                topology = subgr.discov,
+				data = dataset)
 report.replicA <- numero.summary(results = stats.replicA,
-                                 topology = subgr.discov)
+                                 topology = subgr.discov,
+				 data = dataset,)
 report.replicB <- numero.summary(results = stats.replicB,
-                                 topology = subgr.discov)
+                                 topology = subgr.discov,
+				 data = dataset)
 report.mets <- numero.summary(results = stats.mets,
-                              topology = subgr.discov)})
+                              topology = subgr.discov,
+			      data = dataset)})
 
 ## -----------------------------------------------------------------------------
 # Show results for mortality rate in the discovery set.
@@ -453,7 +463,21 @@ cat(s)
 
 ## ----eval=FALSE---------------------------------------------------------------
 #  # Calculate subgroup statistics.
-#  report <- numero.summary(results = stats.basic, topology = subgr)
+#  report <- numero.summary(results = stats.basic, topology = subgr,
+#                           data = dataset)
+
+## ----results="hide", fig.width=9, fig.height=3, fig.align="center", fig.cap="Figure: Quality measures across map districts, basic example, default balance parameter. "----
+# Map quality measures from the basic example.
+numero.plot(results = qc.basic, subplot = c(1,4))
+
+## -----------------------------------------------------------------------------
+# Train a new self-organizing map.
+modl <- numero.create(data = trdat.basic, balance = 1.0)
+qc <- numero.quality(model = modl, data = trdat.basic)
+
+## ----results="hide", fig.width=9, fig.height=3, fig.align="center", fig.cap="Figure: Quality measures across map districts, basic example, balance = 1. "----
+# Map quality measures.
+numero.plot(results = qc, subplot = c(1,4))
 
 ## ----echo=FALSE---------------------------------------------------------------
 sessionInfo()

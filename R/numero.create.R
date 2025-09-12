@@ -104,7 +104,6 @@ numero.create <- function(
     output$kmeans <- km
     output$map <- sm
     output$layout <- layout
-    output$data <- data
     output$zbase <- attr(stats, "zbase")
     return(output)
 }

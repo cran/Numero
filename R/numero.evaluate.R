@@ -78,7 +78,6 @@ numero.evaluate <- function(
     output$ranges <- attr(colrs, "ranges")
     output$palette <- "rhodo"
     output$statistics <- stats
-    output$data <- data
     return(output)
 }
 

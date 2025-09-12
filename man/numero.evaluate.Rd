@@ -60,7 +60,7 @@ trdata <- numero.prepare(data = dataset, variables = trvars)
 
 # Create a self-organizing map.
 sm <- numero.create(data = trdata)
-qc <- numero.quality(model = sm)
+qc <- numero.quality(model = sm, data = trdata)
 
 # Evaluate map statistics.
 results <- numero.evaluate(model = qc, data = dataset)
